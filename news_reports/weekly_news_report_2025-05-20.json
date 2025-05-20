@@ -1,47 +1,36 @@
 [
     {
         "news_id": 1,
-        "original_title": "N/A (fetch later)",
+        "original_title": "NYU withholds diploma of Gallatin graduate who condemned ‘genocide currently occurring’ in Gaza",
+        "source_url": "https://nyunews.com/news/2025/05/16/gallatin-student-speaker-diploma-withheld/",
+        "reported_publication_date": "2025-05-16",
+        "verification_details": {
+            "url": "https://nyunews.com/news/2025/05/16/gallatin-student-speaker-diploma-withheld/",
+            "publication_date_str": "2025-05-16",
+            "is_relevant": "Relevant",
+            "article_type_assessment": "News article",
+            "is_recent": "Recent"
+        },
+        "english_summary": "NYU is withholding the diploma of a Gallatin graduate, Logan Rozos, after his graduation speech on Wednesday at the Beacon Theatre criticized Israel's actions in Gaza. The university cited Rozos' deviation from his approved speech and the expression of \"one-sided political views\" as reasons for the decision. The incident sparked controversy, with groups like NYU Alumni for Justice in Palestine and Faculty & Staff for Justice in Palestine demanding the diploma's release and accusing NYU of violating academic freedom. Some organizations, like the Anti-Defamation League, applauded NYU's disciplinary action. This event follows previous incidents, including restrictions on a Global Liberal Studies valedictorian's speech last year criticizing NYU's ties to Israel. As NYU students, particularly those international students who value the freedom of speech, should be aware of this kind of incident and its possible consequence. The debate highlights ongoing tensions regarding free speech, political expression, and university policies surrounding sensitive topics, especially concerning Israel and Palestine.",
+        "chinese_title": "纽约大学因毕业演讲争议扣留学生毕业证书",
+        "chinese_news_report": "纽约大学（NYU）于周三在信标剧院举行毕业典礼后，扣留了加勒廷学院毕业生洛根·罗佐斯 (Logan Rozos) 的毕业证书，原因是他在毕业演讲中批评了以色列在加沙的行动。校方表示，罗佐斯 (Logan Rozos) 偏离了事先批准的演讲稿，并表达了“片面的政治观点”，因此做出了这一决定。\n\n这一事件引发了争议，“纽约大学巴勒斯坦正义校友会”(NYU Alumni for Justice in Palestine) 和“教职员工巴勒斯坦正义会”(Faculty & Staff for Justice in Palestine) 等团体要求校方发放毕业证书，并指责纽约大学侵犯了学术自由。而像“反诽谤联盟”(Anti-Defamation League) 等一些组织则对纽约大学的纪律处分表示赞赏。\n\n据悉，去年全球自由研究项目 (Global Liberal Studies) 毕业生代表的演讲也受到了限制，原因是她批评了纽约大学与以色列的关系。据WSN报道，该事件突显了在言论自由、政治表达以及大学关于敏感话题（特别是关于以色列和巴勒斯坦）的政策方面持续存在的紧张关系。 纽约大学学生，特别是那些重视言论自由的国际学生，应当关注此类事件及其可能造成的后果。此事再次引发了关于大学校园内言论自由边界的讨论。",
+        "processing_timestamp": "2025-05-20T18:08:33.291179"
+    },
+    {
+        "news_id": 2,
+        "original_title": "Mills booed again as graduates walk out at 2025 commencement",
         "source_url": "https://nyunews.com/news/2025/05/15/nyu-walkout-commencement/",
         "reported_publication_date": "2025-05-15",
         "verification_details": {
             "url": "https://nyunews.com/news/2025/05/15/nyu-walkout-commencement/",
             "publication_date_str": "2025-05-15",
             "is_relevant": "Relevant",
-            "appears_factual": "Appears factual",
+            "article_type_assessment": "News article",
             "is_recent": "Recent"
         },
-        "summary": "During NYU's commencement ceremony at Yankee Stadium on Thursday, some graduates protested President Linda Mills' speech regarding NYU's handling of pro-Palestinian speech. Mills did not directly address recent actions by the Trump administration against U.S. colleges, including threats to student visas. NYU is currently under scrutiny by the Trump administration for its response to alleged antisemitic harassment and diversity-related programming. Recently, some NYU international students experienced changes to their immigration status due to federal actions, but their statuses were reactivated three weeks ago.",
-        "processing_timestamp": "2025-05-20T01:14:31.354933"
-    },
-    {
-        "news_id": 2,
-        "original_title": "N/A (fetch later)",
-        "source_url": "https://nyunews.com/news/2025/05/14/nyu-grossman-rescinds-program-acceptances/",
-        "reported_publication_date": "2025-05-14",
-        "verification_details": {
-            "url": "https://nyunews.com/news/2025/05/14/nyu-grossman-rescinds-program-acceptances/",
-            "publication_date_str": "2025-05-14",
-            "is_relevant": "Relevant",
-            "appears_factual": "Appears factual",
-            "is_recent": "Recent"
-        },
-        "summary": "NYU Grossman School of Medicine has rescinded acceptance offers to nine prospective students admitted to a joint MD-Ph.D. program. The decision, made earlier this year, has led to a temporary pause in admissions for the program. Current NYU students considering or already pursuing this joint degree should be aware of potential changes or restructuring within the program. Further inquiries regarding the program's future should be directed to the NYU Grossman School of Medicine.",
-        "processing_timestamp": "2025-05-20T01:14:34.058457"
-    },
-    {
-        "news_id": 3,
-        "original_title": "N/A (fetch later)",
-        "source_url": "https://nyunews.com/culture/2025/05/14/whats-the-move-class-of-2025/",
-        "reported_publication_date": "2025-05-14",
-        "verification_details": {
-            "url": "https://nyunews.com/culture/2025/05/14/whats-the-move-class-of-2025/",
-            "publication_date_str": "2025-05-14",
-            "is_relevant": "Relevant",
-            "appears_factual": "Appears factual",
-            "is_recent": "Recent"
-        },
-        "summary": "As NYU's Class of 2025 approaches graduation, students are sharing their future plans and anxieties. Silver student Kayla Major is heading to graduate school for social work, while Tisch student Sara Smith is contemplating job options in NYC or Colorado. Tandon senior Ryan Menier acknowledges the uncertainty in the tech job market due to AI advancements. GLS senior Sophia Jafferally plans to attend graduate school and eventually law school in London, acknowledging the unique challenges and new beginnings the graduating class faces entering the workforce.",
-        "processing_timestamp": "2025-05-20T01:14:36.683967"
+        "english_summary": "During NYU's 2025 commencement at Yankee Stadium on Thursday, some graduates protested President Linda Mills' address, continuing last year's demonstration against NYU's handling of pro-Palestinian speech. Mills' speech, centered on happiness and relationships, avoided direct mention of President Trump's recent actions impacting higher education. However, NYU is facing federal scrutiny regarding its response to antisemitism complaints and diversity programs. More significantly for international students, the Trump administration's recent crackdown on noncitizens at universities led to immigration status changes for an undisclosed number of NYU international students in recent weeks. Though all affected students' legal statuses were reportedly restored three weeks ago, President Mills has not publicly addressed these specific changes to NYU policies following the executive orders. NYU encourages graduates to maintain strong relationships beyond their time at the university.",
+        "chinese_title": "纽约大学毕业典礼再现抗议，特朗普政策波及国际生",
+        "chinese_news_report": "在纽约大学2025年于洋基体育场举行的毕业典礼上，部分毕业生对校长琳达·G·米尔斯 (Linda G. Mills) 的讲话表示抗议，延续了去年针对纽约大学处理亲巴勒斯坦言论方式的示威活动。米尔斯校长的讲话以幸福和人际关系为中心，避免直接提及特朗普总统近期对高等教育产生影响的行动。据WSN于2025年5月15日报道，纽约大学正面临联邦政府对其处理反犹太主义投诉和多元化项目方式的审查。更重要的是，对于国际学生而言，特朗普政府近期对大学非公民的打压导致近期一批未公开数量的纽约大学国际学生的移民身份发生变化。据报道，虽然所有受影响学生的法律身份已在三周前恢复，但米尔斯校长尚未公开回应特朗普行政命令后纽约大学政策的这些具体变化。纽约大学鼓励毕业生在离开学校后继续维持牢固的人际关系。",
+        "processing_timestamp": "2025-05-20T18:08:37.999817"
     }
 ]
