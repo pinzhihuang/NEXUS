@@ -1,0 +1,47 @@
+[
+    {
+        "news_id": 1,
+        "original_title": "N/A (fetch later)",
+        "source_url": "https://nyunews.com/news/2025/05/15/nyu-walkout-commencement/",
+        "reported_publication_date": "2025-05-15",
+        "verification_details": {
+            "url": "https://nyunews.com/news/2025/05/15/nyu-walkout-commencement/",
+            "publication_date_str": "2025-05-15",
+            "is_relevant": "Relevant",
+            "appears_factual": "Appears factual",
+            "is_recent": "Recent"
+        },
+        "summary": "During NYU's commencement ceremony at Yankee Stadium on Thursday, some graduates protested President Linda Mills' speech regarding NYU's handling of pro-Palestinian speech. Mills did not directly address recent actions by the Trump administration against U.S. colleges, including threats to student visas. NYU is currently under scrutiny by the Trump administration for its response to alleged antisemitic harassment and diversity-related programming. Recently, some NYU international students experienced changes to their immigration status due to federal actions, but their statuses were reactivated three weeks ago.",
+        "processing_timestamp": "2025-05-20T01:14:31.354933"
+    },
+    {
+        "news_id": 2,
+        "original_title": "N/A (fetch later)",
+        "source_url": "https://nyunews.com/news/2025/05/14/nyu-grossman-rescinds-program-acceptances/",
+        "reported_publication_date": "2025-05-14",
+        "verification_details": {
+            "url": "https://nyunews.com/news/2025/05/14/nyu-grossman-rescinds-program-acceptances/",
+            "publication_date_str": "2025-05-14",
+            "is_relevant": "Relevant",
+            "appears_factual": "Appears factual",
+            "is_recent": "Recent"
+        },
+        "summary": "NYU Grossman School of Medicine has rescinded acceptance offers to nine prospective students admitted to a joint MD-Ph.D. program. The decision, made earlier this year, has led to a temporary pause in admissions for the program. Current NYU students considering or already pursuing this joint degree should be aware of potential changes or restructuring within the program. Further inquiries regarding the program's future should be directed to the NYU Grossman School of Medicine.",
+        "processing_timestamp": "2025-05-20T01:14:34.058457"
+    },
+    {
+        "news_id": 3,
+        "original_title": "N/A (fetch later)",
+        "source_url": "https://nyunews.com/culture/2025/05/14/whats-the-move-class-of-2025/",
+        "reported_publication_date": "2025-05-14",
+        "verification_details": {
+            "url": "https://nyunews.com/culture/2025/05/14/whats-the-move-class-of-2025/",
+            "publication_date_str": "2025-05-14",
+            "is_relevant": "Relevant",
+            "appears_factual": "Appears factual",
+            "is_recent": "Recent"
+        },
+        "summary": "As NYU's Class of 2025 approaches graduation, students are sharing their future plans and anxieties. Silver student Kayla Major is heading to graduate school for social work, while Tisch student Sara Smith is contemplating job options in NYC or Colorado. Tandon senior Ryan Menier acknowledges the uncertainty in the tech job market due to AI advancements. GLS senior Sophia Jafferally plans to attend graduate school and eventually law school in London, acknowledging the unique challenges and new beginnings the graduating class faces entering the workforce.",
+        "processing_timestamp": "2025-05-20T01:14:36.683967"
+    }
+]
