@@ -3,20 +3,15 @@
 import requests
 from bs4 import BeautifulSoup
 import google.generativeai as genai
-from datetime import datetime, date
+from datetime import datetime, date, timedelta
 import json
+import re # For URL date parsing
 
-from ..core import config # For API keys, model names, timeouts, etc.
+from ..core import config
 
 def fetch_and_extract_text(url: str) -> str | None:
     """
-    Fetches content from a URL and extracts clean textual content using BeautifulSoup.
-
-    Args:
-        url: The URL of the article to fetch.
-
-    Returns:
-        The extracted text content as a string, or None if fetching/parsing fails.
+    Fetches content from a URL and extracts clean textual content.
     """
     print(f"Fetching and extracting text from: {url}")
     try:
@@ -25,97 +20,144 @@ def fetch_and_extract_text(url: str) -> str | None:
         }
         response = requests.get(url, headers=headers, timeout=config.URL_FETCH_TIMEOUT)
         response.raise_for_status()
-        
         soup = BeautifulSoup(response.content, 'html.parser')
         
-        # Try to find common main content containers
-        main_content_tags = ['article', 'main', '.post-content', '.entry-content', '.td-post-content'] # Common class names
+        main_content_tags = ['article', 'main', '.post-content', '.entry-content', '.td-post-content']
         article_body = None
         for tag_or_class in main_content_tags:
-            if tag_or_class.startswith('.'): # It's a class
-                article_body = soup.find(class_=tag_or_class[1:]) # Remove leading dot
-            else: # It's a tag
+            if tag_or_class.startswith('.'):
+                article_body = soup.find(class_=tag_or_class[1:])
+            else:
                 article_body = soup.find(tag_or_class)
             if article_body:
-                break # Found a container
+                break
         
         if not article_body:
-            # Fallback to body if no specific main content tag is found
             article_body = soup.body
 
         text_content = ""
         if article_body:
-            # Remove common non-content elements like scripts, styles, nav, footers, ads, popups, sidebars
-            for unwanted_tag in article_body(['script', 'style', 'nav', 'footer', 'aside', 'header', 'form']): # Added 'header' and 'form'
+            for unwanted_tag in article_body(['script', 'style', 'nav', 'footer', 'aside', 'header', 'form', 'button', 'input', 'textarea', 'select', 'option']):
                 unwanted_tag.decompose()
             
-            # Selectors for common ad/popup/overlay classes/ids (can be expanded)
             common_annoyances_selectors = [
                 '[class*="ad"], [id*="ad"]' ,
                 '[class*="popup"], [id*="popup"]' ,
                 '[class*="overlay"], [id*="overlay"]' ,
                 '[class*="banner"], [id*="banner"]' ,
-                '[class*="cookie"], [id*="cookie"]' # Cookie consent bars
+                '[class*="cookie"], [id*="cookie"]',
+                '[class*="share"], [id*="share"]' # Share buttons/widgets
             ]
             for selector in common_annoyances_selectors:
                 for unwanted_element in article_body.select(selector):
                     unwanted_element.decompose()
 
-            # Get text from paragraphs first, then broader text if needed
             paragraphs = article_body.find_all('p')
             if paragraphs:
                 text_content = "\n".join([p.get_text(strip=True) for p in paragraphs if p.get_text(strip=True)])
             
-            # If paragraph extraction yields little, try a more general text extraction from the container
-            if not text_content or len(text_content.split()) < 50: # Arbitrary threshold for too little content
+            if not text_content or len(text_content.split()) < 30: # Slightly lower threshold
                 alternative_text = article_body.get_text(separator='\n', strip=True)
                 if len(alternative_text.split()) > len(text_content.split()):
                     text_content = alternative_text
         
-        if not text_content.strip(): # If still nothing, try from the whole soup as last resort
-             print(f"Warning: No significant text content extracted from primary containers of {url}. Trying full soup.")
-             for unwanted_tag in soup(['script', 'style', 'nav', 'footer', 'aside', 'header', 'form']):
+        if not text_content.strip():
+             print(f"Info: No significant text content from primary containers of {url}. Trying full soup minus known non-content tags.")
+             for unwanted_tag in soup(['script', 'style', 'nav', 'footer', 'aside', 'header', 'form', 'button', 'input', 'textarea', 'select', 'option']):
                 unwanted_tag.decompose()
              text_content = soup.get_text(separator='\n', strip=True)
 
         if not text_content.strip():
-            print(f"Warning: Still no significant text content extracted from {url} after all attempts.")
-            return None # Return None if truly empty
+            print(f"Warning: Still no significant text content extracted from {url}.")
+            return None
 
-        print(f"Successfully extracted text from {url} (approx. {len(text_content.split())} words).")
-        return "\n".join([line for line in text_content.splitlines() if line.strip()]) # Clean up empty lines
+        cleaned_text = "\n".join([line for line in text_content.splitlines() if line.strip()])
+        print(f"Successfully extracted text from {url} (approx. {len(cleaned_text.split())} words).")
+        return cleaned_text
 
     except requests.exceptions.Timeout:
         print(f"Error: Timeout while fetching URL {url}")
     except requests.exceptions.HTTPError as e:
         print(f"Error: HTTP error {e.response.status_code} while fetching URL {url}")
     except requests.exceptions.RequestException as e:
-        print(f"Error: Could not fetch URL {url}. {str(e)}")
+        print(f"Error: Could not fetch URL {url}. Details: {str(e)}")
     except Exception as e:
-        print(f"Error: An unexpected error occurred while processing URL {url}: {str(e)}")
-        # import traceback
-        # traceback.print_exc()
+        print(f"Error: An unexpected error occurred while fetching/processing URL {url}: {str(e)}")
+    return None
+
+def _extract_date_from_url(url_string: str) -> str | None:
+    """
+    Attempts to extract a date (YYYY-MM-DD) from a URL string.
+    Looks for patterns like /YYYY/MM/DD/ or /YYYY/MM/.
+    """
+    # Pattern for YYYY/MM/DD
+    match_ymd = re.search(r'/(\d{4})/(\d{1,2})/(\d{1,2})/', url_string)
+    if match_ymd:
+        year, month, day = match_ymd.groups()
+        try:
+            # Validate if it forms a real date
+            dt = datetime(int(year), int(month), int(day))
+            return dt.strftime("%Y-%m-%d")
+        except ValueError:
+            pass # Invalid date components
+
+    # Pattern for YYYY/MM (default to 01 for day)
+    match_ym = re.search(r'/(\d{4})/(\d{1,2})/', url_string)
+    if match_ym:
+        year, month = match_ym.groups()
+        try:
+            dt = datetime(int(year), int(month), 1)
+            return dt.strftime("%Y-%m-%d")
+        except ValueError:
+            pass
+    
+    # Pattern for YYYY-MM-DD directly in a segment
+    match_ymd_direct = re.search(r'(\d{4}-\d{1,2}-\d{1,2})', url_string)
+    if match_ymd_direct:
+        try:
+            dt = datetime.strptime(match_ymd_direct.group(1), "%Y-%m-%d")
+            return dt.strftime("%Y-%m-%d")
+        except ValueError:
+            pass
+            
     return None
 
 def verify_article_with_gemini(article_text: str, article_url: str) -> dict | None:
     """
     Verifies an article using Gemini for date, recency, relevance, and article type.
-    Returns a dictionary with keys: url, publication_date_str, is_recent, is_relevant, article_type_assessment.
+    Supplements Gemini date extraction with URL parsing if Gemini fails.
     """
     if not config.GEMINI_API_KEY:
         print("Error: GEMINI_API_KEY not configured for verification.")
         return None
     if not article_text or not article_text.strip():
-        print(f"Skipping Gemini verification for {article_url} due to empty article text.")
+        print(f"Info: Skipping Gemini verification for {article_url} due to empty article text.")
+        publication_date_from_url = _extract_date_from_url(article_url)
+        final_date_str = publication_date_from_url if publication_date_from_url else "Date not found"
+        is_recent_status = "Date unclear (no text/URL date)"
+        if publication_date_from_url:
+            try:
+                pub_dt = datetime.strptime(publication_date_from_url, "%Y-%m-%d").date()
+                today_for_check = date.today()
+                oldest_acceptable_date = today_for_check - timedelta(days=config.RECENCY_THRESHOLD_DAYS - 1)
+                if pub_dt >= oldest_acceptable_date and pub_dt <= today_for_check:
+                    is_recent_status = "Recent (from URL)"
+                elif pub_dt > today_for_check:
+                    is_recent_status = "Date in future (from URL)"
+                else:
+                    is_recent_status = "Not recent (from URL)"
+            except ValueError:
+                is_recent_status = "Date unparsable (from URL)"
+        
         return {
             "url": article_url,
-            "publication_date_str": "Date not found",
-            "is_recent": "Date unclear",
+            "publication_date_str": final_date_str,
+            "is_recent": is_recent_status,
             "is_relevant": "Relevance unclear (no text)",
-            "article_type_assessment": "Type unclear (no text)" # Changed from appears_factual
+            "article_type_assessment": "Type unclear (no text)"
         }
 
-    print(f"Verifying article with Gemini: {article_url}")
+    print(f"Verifying article with Gemini: {article_url[:100]}...")
     try:
         genai.configure(api_key=config.GEMINI_API_KEY)
         model = genai.GenerativeModel(config.GEMINI_FLASH_MODEL)
@@ -123,125 +165,154 @@ def verify_article_with_gemini(article_text: str, article_url: str) -> dict | No
         print(f"Error initializing Gemini model for verification: {str(e)}")
         return None
 
-    today = date.today()
-    relevance_query = f"Is this article relevant to Chinese international students at NYU (studies, work, daily life, immigration, campus events, US-China relations affecting students)? URL: {article_url}"
+    today_for_check = date.today()
+    relevance_query = f"Is this article generally relevant to students at New York University (NYU), covering campus news, academic updates, student life, or significant events affecting the NYU community?"
     
     prompt = f"""Analyze the article text. Provide your analysis in EXACTLY four lines, each starting with the specified prefix:
 
-1. Publication Date: [Extract the most prominent date, ideally publication date. Format YYYY-MM-DD or 'Date not found'. No other explanation.]
+1. Publication Date: [Review the article text AND the Article URL ({article_url}). Extract the most prominent date, ideally the publication date. Format YYYY-MM-DD or 'Date not found'. No other explanation.]
 2. Relevance: [Based on the text and this query: '{relevance_query}', answer ONLY 'Relevant', 'Not relevant', or 'Relevance unclear'. No other explanation.]
 3. Article Type: [Is this primarily a news article reporting on events/facts, or an opinion/blog/event listing/announcement? Answer ONLY 'News article', 'Opinion/Blog', 'Event/Announcement', or 'Type unclear'. No other explanation.]
 4. Analysis Notes: [Brief internal notes if needed, or 'N/A'. This line is for your process.]
 
---- Article Text (first 100,000 characters) ---
-{article_text[:100000]}
+--- Article Text (first {config.GEMINI_FLASH_MODEL_CONTEXT_LIMIT_CHARS // 2 if hasattr(config, 'GEMINI_FLASH_MODEL_CONTEXT_LIMIT_CHARS') else 50000} characters) ---
+{article_text[:config.GEMINI_FLASH_MODEL_CONTEXT_LIMIT_CHARS // 2 if hasattr(config, 'GEMINI_FLASH_MODEL_CONTEXT_LIMIT_CHARS') else 50000]}
 --- End of Article Text ---
 
 Your response (exactly 4 lines as specified above):
-"""
+""" 
 
-    # print(f"Gemini Verification Prompt (first 500 chars):\n{prompt[:500]}...") # For debugging
-
+    gemini_publication_date_str = "Date not found" # Default from Gemini
     try:
         print(f"Sending verification request to Gemini API ({config.GEMINI_FLASH_MODEL})...")
         response = model.generate_content(prompt)
-        
-        raw_response_text = ""
-        if hasattr(response, 'text'):
-            raw_response_text = response.text.strip()
-        elif hasattr(response, 'parts') and response.parts:
+        raw_response_text = getattr(response, 'text', '').strip()
+        if not raw_response_text and hasattr(response, 'parts') and response.parts:
             for part in response.parts:
-                if hasattr(part, 'text'):
-                    raw_response_text += part.text.strip()
+                raw_response_text += getattr(part, 'text', '').strip()
             raw_response_text = raw_response_text.strip()
-        else:
-            print(f"Error: Gemini verification response for {article_url} in unexpected format.")
-            return None
 
         if not raw_response_text:
             print(f"Error: Empty response from Gemini verification for {article_url}.")
-            return None
-            
-        print(f"Gemini Verification Raw Response for {article_url}:\n---\n{raw_response_text}\n---")
-
-        lines = raw_response_text.split('\n')
-        results = {
-            "url": article_url,
-            "publication_date_str": "Date extraction error",
-            "is_relevant": "Relevance unclear (parsing error)",
-            "article_type_assessment": "Type unclear (parsing error)", # Changed key
-            "is_recent": "Date unclear (parsing error)" 
-        }
-
-        parsed_items_count = 0
-        for line in lines:
-            line_strip = line.strip()
-            if "Publication Date:" in line_strip:
-                results["publication_date_str"] = line_strip.split("Publication Date:", 1)[-1].strip()
-                parsed_items_count += 1
-            elif "Relevance:" in line_strip:
-                results["is_relevant"] = line_strip.split("Relevance:", 1)[-1].strip()
-                parsed_items_count += 1
-            elif "Article Type:" in line_strip: # Changed keyword to match prompt
-                results["article_type_assessment"] = line_strip.split("Article Type:", 1)[-1].strip()
-                parsed_items_count += 1
-
-        if parsed_items_count < 3:
-            print(f"Warning: Gemini verification response for {article_url} did not parse all expected fields (date, relevance, type). Parsed: {parsed_items_count}/3.")
-
-        date_str = results["publication_date_str"]
-        if date_str.lower() == "date not found" or "error" in date_str.lower():
-            results["is_recent"] = "Date unclear"
+            # Proceed with URL date parsing as fallback
         else:
-            try:
-                publication_date_dt = datetime.strptime(date_str, "%Y-%m-%d").date()
-                if (today - publication_date_dt) <= config.RECENCY_TIMEDELTA and publication_date_dt <= today:
-                    results["is_recent"] = "Recent"
-                elif publication_date_dt > today:
-                    results["is_recent"] = "Date in future"
-                else:
-                    results["is_recent"] = "Not recent"
-            except ValueError:
-                results["is_recent"] = "Date unparsable"
-                print(f"Warning: Could not parse date '{date_str}' from Gemini for {article_url}.")
-        
-        print(f"Verification results for {article_url}: {results}")
-        return results
+            print(f"Gemini Verification Raw Response for {article_url[:100]}...:\n---\n{raw_response_text}\n---")
+            lines = raw_response_text.split('\n')
+            # Initialize with defaults that indicate Gemini didn't provide this specific field
+            results_from_gemini = {
+                "publication_date_str": "Date not found by Gemini",
+                "is_relevant": "Relevance unclear (Gemini parsing error)",
+                "article_type_assessment": "Type unclear (Gemini parsing error)"
+            }
+            parsed_items_count = 0
+            for line_idx, line in enumerate(lines[:3]): # Only process up to the first 3 expected lines for main data
+                line_strip = line.strip()
+                if (line_idx == 0 and "Publication Date:" in line_strip) or (not results_from_gemini["publication_date_str"] == "Date not found by Gemini" and "Publication Date:" in line_strip):
+                    results_from_gemini["publication_date_str"] = line_strip.split("Publication Date:", 1)[-1].strip()
+                    parsed_items_count += 1
+                elif (line_idx == 1 and "Relevance:" in line_strip) or (results_from_gemini["is_relevant"] == "Relevance unclear (Gemini parsing error)" and "Relevance:" in line_strip):
+                    results_from_gemini["is_relevant"] = line_strip.split("Relevance:", 1)[-1].strip()
+                    parsed_items_count += 1
+                elif (line_idx == 2 and "Article Type:" in line_strip) or (results_from_gemini["article_type_assessment"] == "Type unclear (Gemini parsing error)" and "Article Type:" in line_strip):
+                    results_from_gemini["article_type_assessment"] = line_strip.split("Article Type:", 1)[-1].strip()
+                    parsed_items_count += 1
+            
+            gemini_publication_date_str = results_from_gemini["publication_date_str"]
+            final_relevance = results_from_gemini["is_relevant"]
+            final_article_type = results_from_gemini["article_type_assessment"]
 
-    except Exception as e:
-        print(f"Error during Gemini API call for verification of {article_url}: {e}")
-        # import traceback
-        # traceback.print_exc()
-        return None
+            if parsed_items_count < 3:
+                print(f"Warning: Gemini verification response for {article_url} did not parse all expected fields. Parsed: {parsed_items_count}/3.")
+
+    except Exception as e_gemini:
+        print(f"Error during Gemini API call or parsing for verification of {article_url}: {e_gemini}")
+        # Defaults will be used, attempt URL date parsing
+        final_relevance = "Relevance unclear (Gemini API error)"
+        final_article_type = "Type unclear (Gemini API error)"
+
+    # Determine final date string (Gemini > URL > Not found)
+    final_date_str = gemini_publication_date_str
+    date_source_log = "(from Gemini)"
+    if final_date_str.lower() == "date not found" or "error" in final_date_str.lower() or not final_date_str.strip():
+        print(f"Info: Gemini did not find date for {article_url}. Attempting URL parse.")
+        url_extracted_date = _extract_date_from_url(article_url)
+        if url_extracted_date:
+            final_date_str = url_extracted_date
+            date_source_log = "(from URL)"
+            print(f"Info: Extracted date {final_date_str} from URL for {article_url}.")
+        else:
+            final_date_str = "Date not found"
+            date_source_log = "(no date found)"
+
+    # Determine recency based on the final_date_str
+    is_recent_status = "Date unclear"
+    if final_date_str.lower() == "date not found" or "error" in final_date_str.lower():
+        is_recent_status = f"Date unclear {date_source_log}"
+    else:
+        try:
+            publication_date_dt = datetime.strptime(final_date_str, "%Y-%m-%d").date()
+            oldest_acceptable_date = today_for_check - timedelta(days=config.RECENCY_THRESHOLD_DAYS - 1)
+            if publication_date_dt >= oldest_acceptable_date and publication_date_dt <= today_for_check:
+                is_recent_status = f"Recent {date_source_log}"
+            elif publication_date_dt > today_for_check:
+                is_recent_status = f"Date in future {date_source_log}"
+            else:
+                is_recent_status = f"Not recent {date_source_log}"
+        except ValueError:
+            is_recent_status = f"Date unparsable {date_source_log}"
+            print(f"Warning: Could not parse final date '{final_date_str}' for {article_url}.")
+        
+    final_results = {
+        "url": article_url,
+        "publication_date_str": final_date_str,
+        "is_recent": is_recent_status,
+        "is_relevant": final_relevance if 'final_relevance' in locals() else "Relevance unclear (init error)",
+        "article_type_assessment": final_article_type if 'final_article_type' in locals() else "Type unclear (init error)"
+    }
+    print(f"Verification results for {article_url[:100]}...: {final_results}")
+    return final_results
 
 if __name__ == '__main__':
-    # This is for testing the module directly
     print("Testing Article Handler...")
-    # Ensure your .env file is in the project root for this to work when run directly
-    # (Path adjustments similar to search_client.py might be needed if run standalone)
     import sys
     import os
-    if '..'.join(os.path.abspath(__file__).split(os.sep)[:-2]) not in sys.path:
-         sys.path.insert(0, '..'.join(os.path.abspath(__file__).split(os.sep)[:-2]))
+    PROJECT_ROOT_FOR_TEST = os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
+    if PROJECT_ROOT_FOR_TEST not in sys.path:
+         sys.path.insert(0, PROJECT_ROOT_FOR_TEST)
     
-    from news_bot.core import config # Re-import
-    config.validate_config() # Check API keys
+    from news_bot.core import config
+    config.validate_config()
+    # Add a placeholder for GEMINI_FLASH_MODEL_CONTEXT_LIMIT_CHARS if not in config for testing
+    if not hasattr(config, 'GEMINI_FLASH_MODEL_CONTEXT_LIMIT_CHARS'):
+        print("Warning: GEMINI_FLASH_MODEL_CONTEXT_LIMIT_CHARS not in config, defaulting to 100000 for test.")
+        config.GEMINI_FLASH_MODEL_CONTEXT_LIMIT_CHARS = 100000 
 
-    test_url_valid = "https://www.nyu.edu/about/news-publications/news/2024/march/nyu-appoints-deans-for-arts-and-science-and-global-public-heal.html" # A real NYU news page
-    test_url_general_news = "https://www.nytimes.com/2024/05/20/us/politics/biden-commencement-speech-morehouse.html" # A real NYT article
-    test_url_wsn = "https://nyunews.com/news/2024/05/16/gallatin-student-speaker-diploma-withheld/" # WSN article
+    # Test URL with date in it
+    test_url_wsn_with_date = "https://nyunews.com/news/2024/05/16/gallatin-student-speaker-diploma-withheld/"
+    # Test URL likely without clear date in URL, relying on Gemini or byline (if fetched)
+    test_url_nyu_no_clear_url_date = "https://www.nyu.edu/about/news-publications/news/2024/march/nyu-appoints-deans-for-arts-and-science-and-global-public-heal.html"
+    # Test with a non-article page that might have a date-like structure in URL
+    test_url_category_like = "https://nyunews.com/category/news/2023/"
 
-    urls_to_test = [test_url_valid, test_url_general_news, test_url_wsn]
+    urls_to_test = [test_url_wsn_with_date, test_url_nyu_no_clear_url_date, test_url_category_like]
 
     for i, test_url in enumerate(urls_to_test):
         print(f"\n--- Test {i+1}: Processing URL: {test_url} ---")
+        
+        # Test URL date extraction directly
+        extracted_date = _extract_date_from_url(test_url)
+        print(f"  Direct URL date extraction attempt: {extracted_date}")
+
         article_text = fetch_and_extract_text(test_url)
+        if not article_text and "category" in test_url: # For category pages, text extraction might be minimal
+            print("  Minimal or no text expected from category page, using placeholder for verification test.")
+            article_text = "This is a category page listing many articles about NYU events." 
+        
         if article_text:
-            print(f"Extracted text (first 300 chars):\n{article_text[:300]}...")
             verification_results = verify_article_with_gemini(article_text, test_url)
             if verification_results:
                 print(f"Verification Results for {test_url}:\n{json.dumps(verification_results, indent=2)}")
             else:
                 print(f"Failed to get verification results for {test_url}.")
         else:
-            print(f"Failed to fetch or extract text from {test_url}.") 
+            print(f"Failed to fetch or extract text from {test_url} (and not a category page for test text). Skipping verification.") 
