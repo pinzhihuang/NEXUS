@@ -13,15 +13,13 @@ import re # For regular expressions
 def scan_category_pages_for_links() -> list[dict[str, str]]:
     """
     Scans configured category pages for direct links to articles.
-
-    Returns:
-        A list of dictionaries, where each dictionary contains 'title' and 'url' of an article.
+    Returns a list of dictionaries, each containing 'title', 'url', and 'snippet' (title used as snippet).
     """
-    found_articles_from_scan = []
+    found_articles = []
     processed_urls = set()
 
     if not config.CATEGORY_PAGES_TO_SCAN:
-        print("No category pages configured to scan.")
+        print("Info: No category pages configured to scan.")
         return []
 
     print("\n--- Scanning Category Pages for Article Links ---")
@@ -35,85 +33,61 @@ def scan_category_pages_for_links() -> list[dict[str, str]]:
             response.raise_for_status()
             soup = BeautifulSoup(response.content, 'html.parser')
 
-            # Attempt to find article links. This will likely need site-specific selectors.
-            # For nyunews.com, based on snippet, links seem to be in <h2><a> or similar common article listing patterns.
-            # Common patterns for article links within listings:
-            # - Links within <h1>, <h2>, <h3> tags that are direct children of main content areas
-            # - Links with class names like "entry-title", "post-title", "article-link"
-            
-            # Let's try a few common selectors for WSN structure based on observed patterns:
-            # This selector looks for <a> tags inside <h2> that have a class containing 'title'
-            # or <a> tags that are children of elements with class 'article-content' or similar.
-            # More generally, links within common article listing elements.
-            
-            # Example from WSN HTML: <h2><a href="...">Title</a></h2>
-            # Also, entries under a div with class like "td-module-thumb" or similar can have titles in <h3> or <h4>
-            
-            # Broad search for links within heading tags often found in listings:
             candidate_links = []
-            for heading_tag in ['h1', 'h2', 'h3', 'h4']:
-                for heading in soup.find_all(heading_tag):
-                    link_tag = heading.find('a', href=True)
+            # General approach: find links within heading tags, common in article listings.
+            for heading_tag_name in ['h1', 'h2', 'h3', 'h4']:
+                for heading_element in soup.find_all(heading_tag_name):
+                    link_tag = heading_element.find('a', href=True)
                     if link_tag:
                         candidate_links.append(link_tag)
             
-            # Look for common WP theme patterns or specific WSN structures if identifiable
-            # For instance, articles might be within <article> tags or divs with class "post", "entry", "td-module-meta-info"
-            # This is a generic attempt; more specific selectors might be needed after inspecting the page more thoroughly.
-            # If the above is too broad, we can try more specific selectors like:
-            # potential_article_elements = soup.select('.td_module_wrap .entry-title a, .td-animation-stack .td-post-vid-sm a') # Example specific classes
-            # for link_tag in potential_article_elements:
-            #    candidate_links.append(link_tag)
-
             if not candidate_links:
-                 print(f"  No candidate links found with general heading search on {page_url}.")
+                 print(f"  Info: No candidate article links found via heading search on {page_url}.")
 
             for link_tag in candidate_links:
                 raw_url = link_tag['href']
                 title = link_tag.get_text(strip=True)
-                
-                # Resolve relative URLs to absolute URLs
                 absolute_url = urljoin(page_url, raw_url)
 
                 if absolute_url in processed_urls:
                     continue
 
-                # Basic validation: must be http/https and within a target domain (primarily the domain of the category page itself)
-                if absolute_url.startswith("http") and any(domain in absolute_url for domain in config.TARGET_NEWS_SOURCES_DOMAINS):
-                    # Further check: avoid linking back to a category page or a non-article page like /author/ /tag/
-                    if "/category/" in absolute_url or "/tag/" in absolute_url or "/author/" in absolute_url:
-                        print(f"  Skipping likely non-article link from category scan: {absolute_url}")
-                        continue
-                    
-                    # Corrected regex: removed the erroneous |''
-                    if re.search(r'/\d{4}/\d{2}/\d{2}/', absolute_url) or len(absolute_url.split('/')) > 5:
-                        print(f"  Found potential article via category scan: '{title}' -> {absolute_url}")
-                        found_articles_from_scan.append({"title": title, "url": absolute_url, "snippet": title}) # Use title as snippet
-                        processed_urls.add(absolute_url)
-                        if len(found_articles_from_scan) >= config.MAX_SEARCH_RESULTS_TO_PROCESS * 2:
-                            break # Break from inner loop (candidate_links)
-                    else:
-                        print(f"  Skipping link from category scan (heuristic filter): {absolute_url}")
+                # Validate URL structure and domain
+                if not absolute_url.startswith("http") or not any(domain in absolute_url for domain in config.TARGET_NEWS_SOURCES_DOMAINS):
+                    continue
+
+                # Filter out common non-article paths
+                if any(skip_path in absolute_url for skip_path in ["/category/", "/tag/", "/author/"]):
+                    print(f"  Skipping likely non-article link: {absolute_url}")
+                    continue
+                
+                # Heuristic: check for date in URL or sufficient path depth for articles
+                if re.search(r'/\d{4}/\d{2}/\d{2}/', absolute_url) or len(absolute_url.split('/')) > 5:
+                    print(f"  Found potential article via category scan: '{title}' -> {absolute_url}")
+                    found_articles.append({"title": title, "url": absolute_url, "snippet": title})
+                    processed_urls.add(absolute_url)
+                    if len(found_articles) >= config.MAX_SEARCH_RESULTS_TO_PROCESS * 2: # Limit to avoid over-scanning
+                        break 
                 # else:
-                #     print(f"  Skipping link (not http or not in target domains): {absolute_url}")
-            if len(found_articles_from_scan) >= config.MAX_SEARCH_RESULTS_TO_PROCESS * 2:
-                break # Break from outer loop (CATEGORY_PAGES_TO_SCAN) if limit reached across pages
+                    # print(f"  Skipping link (heuristic filter): {absolute_url}") # Potentially too verbose
+            
+            if len(found_articles) >= config.MAX_SEARCH_RESULTS_TO_PROCESS * 2:
+                break 
 
         except requests.exceptions.RequestException as e_req:
             print(f"Error fetching category page {page_url}: {e_req}")
         except Exception as e_general:
             print(f"Error processing category page {page_url}: {e_general}")
     
-    print(f"Found {len(found_articles_from_scan)} unique potential articles from category page scans.")
-    return found_articles_from_scan
+    print(f"Found {len(found_articles)} unique potential articles from category page scans.")
+    return found_articles
 
 def find_articles_with_google_pse() -> list[dict[str, str]]:
     """
     Queries the Google Programmable Search Engine (PSE) to find news articles.
-    (This is the original function, renamed)
     """
     if not config.GOOGLE_API_KEY or not config.CUSTOM_SEARCH_ENGINE_ID:
-        print("Error: GOOGLE_API_KEY or CUSTOM_SEARCH_ENGINE_ID not configured for PSE.")
+        print("Info: Google PSE not configured (API Key or CX ID missing). Skipping PSE search.")
         return []
 
     query = " OR ".join([f'"{keyword.strip()}"' for keyword in config.RELEVANCE_KEYWORDS if keyword.strip()])
@@ -141,14 +115,17 @@ def find_articles_with_google_pse() -> list[dict[str, str]]:
                 title = item.get('title', 'N/A')
                 url = item.get('link')
                 snippet = item.get('snippet', '')
-                if not url:
+                if not url or not url.startswith("http"):
+                    print(f"Skipping PSE item with invalid/missing URL: {title if title != 'N/A' else snippet[:50]}")
                     continue
+                # Domain check (PSE should already be restricted, but good for sanity)
                 if not any(domain in url for domain in config.TARGET_NEWS_SOURCES_DOMAINS):
+                    print(f"Skipping PSE item from non-target domain: {url}")
                     continue
                 found_articles_from_pse.append({"title": title, "url": url, "snippet": snippet})
             print(f"Retrieved {len(found_articles_from_pse)} articles from Google PSE.")
         else:
-            print("No items found in Google PSE response.")
+            print("No items found in Google PSE response for this query.")
     except Exception as e:
         print(f"An error occurred while querying Google PSE: {e}")
     return found_articles_from_pse
@@ -160,36 +137,30 @@ def find_relevant_articles() -> list[dict[str, str]]:
     all_discovered_articles = []
     processed_urls = set()
 
-    # 1. Scan category pages
     articles_from_categories = scan_category_pages_for_links()
     for article in articles_from_categories:
         if article["url"] not in processed_urls:
+            article["source_method"] = "category_scan"
             all_discovered_articles.append(article)
             processed_urls.add(article["url"])
     
-    # 2. Use Google PSE for broader search (if configured and needed)
-    if config.GOOGLE_API_KEY and config.CUSTOM_SEARCH_ENGINE_ID: # Check if PSE is configured
-        articles_from_pse = find_articles_with_google_pse()
-        for article in articles_from_pse:
-            if article["url"] not in processed_urls:
-                # We can add a basic keyword check for title/snippet from PSE results here if needed
-                # to ensure they are somewhat relevant before adding, as PSE results can be broad.
-                # For now, we rely on later Gemini check for relevance.
-                all_discovered_articles.append(article)
-                processed_urls.add(article["url"])
-    else:
-        print("Google PSE not configured, skipping PSE search.")
+    articles_from_pse = find_articles_with_google_pse()
+    for article in articles_from_pse:
+        if article["url"] not in processed_urls:
+            article["source_method"] = "google_pse"
+            all_discovered_articles.append(article)
+            processed_urls.add(article["url"])
 
     print(f"Total unique articles discovered from all sources: {len(all_discovered_articles)}")
-    # Optionally, sort all_discovered_articles by some criteria (e.g., if date was part of discovery)
-    # or limit to MAX_SEARCH_RESULTS_TO_PROCESS overall.
-    return all_discovered_articles[:config.MAX_SEARCH_RESULTS_TO_PROCESS] # Limit total results
+    return all_discovered_articles[:config.MAX_SEARCH_RESULTS_TO_PROCESS]
 
 if __name__ == '__main__':
     print("Testing Discovery Module (Category Scan + Google PSE)...")
     import sys
-    if '..'.join(os.path.abspath(__file__).split(os.sep)[:-2]) not in sys.path:
-         sys.path.insert(0, '..'.join(os.path.abspath(__file__).split(os.sep)[:-2]))
+    # Ensure the project root is in sys.path for relative imports when run directly
+    PROJECT_ROOT_FOR_TEST = os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
+    if PROJECT_ROOT_FOR_TEST not in sys.path:
+         sys.path.insert(0, PROJECT_ROOT_FOR_TEST)
     
     from news_bot.core import config 
     config.validate_config() 
@@ -198,8 +169,8 @@ if __name__ == '__main__':
     if articles:
         print("\nCombined Discovered Articles:")
         for i, article in enumerate(articles):
-            print(f"{i+1}. Title: {article.get('title', 'N/A')} ({article.get('source', 'Unknown Source')})\n   URL: {article['url']}")
-            if 'snippet' in article:
+            print(f"{i+1}. Title: {article.get('title', 'N/A')} (From: {article.get('source_method', 'Unknown')})\n   URL: {article['url']}")
+            if 'snippet' in article and article['snippet'] != article.get('title'): # Avoid printing title as snippet if they are same
                  print(f"   Snippet: {article['snippet'][:100]}...")
     else:
         print("No articles found from any source or an error occurred.") 
