@@ -1,130 +1,205 @@
 # news_bot/discovery/search_client.py
 
-import requests
-import json
-import re
 import os
+import json # For potential direct JSON parsing if needed, though client library handles most
 from datetime import date, timedelta
+from googleapiclient.discovery import build # For Google Custom Search API
 from ..core import config
+import requests # For fetching category pages
+from bs4 import BeautifulSoup # For parsing category pages
+from urllib.parse import urljoin # For resolving relative URLs
+import re # For regular expressions
+
+def scan_category_pages_for_links() -> list[dict[str, str]]:
+    """
+    Scans configured category pages for direct links to articles.
+
+    Returns:
+        A list of dictionaries, where each dictionary contains 'title' and 'url' of an article.
+    """
+    found_articles_from_scan = []
+    processed_urls = set()
+
+    if not config.CATEGORY_PAGES_TO_SCAN:
+        print("No category pages configured to scan.")
+        return []
+
+    print("\n--- Scanning Category Pages for Article Links ---")
+    for page_url in config.CATEGORY_PAGES_TO_SCAN:
+        print(f"Scanning category page: {page_url}")
+        try:
+            headers = {
+                'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/91.0.4472.124 Safari/537.36'
+            }
+            response = requests.get(page_url, headers=headers, timeout=config.URL_FETCH_TIMEOUT)
+            response.raise_for_status()
+            soup = BeautifulSoup(response.content, 'html.parser')
+
+            # Attempt to find article links. This will likely need site-specific selectors.
+            # For nyunews.com, based on snippet, links seem to be in <h2><a> or similar common article listing patterns.
+            # Common patterns for article links within listings:
+            # - Links within <h1>, <h2>, <h3> tags that are direct children of main content areas
+            # - Links with class names like "entry-title", "post-title", "article-link"
+            
+            # Let's try a few common selectors for WSN structure based on observed patterns:
+            # This selector looks for <a> tags inside <h2> that have a class containing 'title'
+            # or <a> tags that are children of elements with class 'article-content' or similar.
+            # More generally, links within common article listing elements.
+            
+            # Example from WSN HTML: <h2><a href="...">Title</a></h2>
+            # Also, entries under a div with class like "td-module-thumb" or similar can have titles in <h3> or <h4>
+            
+            # Broad search for links within heading tags often found in listings:
+            candidate_links = []
+            for heading_tag in ['h1', 'h2', 'h3', 'h4']:
+                for heading in soup.find_all(heading_tag):
+                    link_tag = heading.find('a', href=True)
+                    if link_tag:
+                        candidate_links.append(link_tag)
+            
+            # Look for common WP theme patterns or specific WSN structures if identifiable
+            # For instance, articles might be within <article> tags or divs with class "post", "entry", "td-module-meta-info"
+            # This is a generic attempt; more specific selectors might be needed after inspecting the page more thoroughly.
+            # If the above is too broad, we can try more specific selectors like:
+            # potential_article_elements = soup.select('.td_module_wrap .entry-title a, .td-animation-stack .td-post-vid-sm a') # Example specific classes
+            # for link_tag in potential_article_elements:
+            #    candidate_links.append(link_tag)
+
+            if not candidate_links:
+                 print(f"  No candidate links found with general heading search on {page_url}.")
+
+            for link_tag in candidate_links:
+                raw_url = link_tag['href']
+                title = link_tag.get_text(strip=True)
+                
+                # Resolve relative URLs to absolute URLs
+                absolute_url = urljoin(page_url, raw_url)
+
+                if absolute_url in processed_urls:
+                    continue
+
+                # Basic validation: must be http/https and within a target domain (primarily the domain of the category page itself)
+                if absolute_url.startswith("http") and any(domain in absolute_url for domain in config.TARGET_NEWS_SOURCES_DOMAINS):
+                    # Further check: avoid linking back to a category page or a non-article page like /author/ /tag/
+                    if "/category/" in absolute_url or "/tag/" in absolute_url or "/author/" in absolute_url:
+                        print(f"  Skipping likely non-article link from category scan: {absolute_url}")
+                        continue
+                    
+                    # Corrected regex: removed the erroneous |''
+                    if re.search(r'/\d{4}/\d{2}/\d{2}/', absolute_url) or len(absolute_url.split('/')) > 5:
+                        print(f"  Found potential article via category scan: '{title}' -> {absolute_url}")
+                        found_articles_from_scan.append({"title": title, "url": absolute_url, "snippet": title}) # Use title as snippet
+                        processed_urls.add(absolute_url)
+                        if len(found_articles_from_scan) >= config.MAX_SEARCH_RESULTS_TO_PROCESS * 2:
+                            break # Break from inner loop (candidate_links)
+                    else:
+                        print(f"  Skipping link from category scan (heuristic filter): {absolute_url}")
+                # else:
+                #     print(f"  Skipping link (not http or not in target domains): {absolute_url}")
+            if len(found_articles_from_scan) >= config.MAX_SEARCH_RESULTS_TO_PROCESS * 2:
+                break # Break from outer loop (CATEGORY_PAGES_TO_SCAN) if limit reached across pages
+
+        except requests.exceptions.RequestException as e_req:
+            print(f"Error fetching category page {page_url}: {e_req}")
+        except Exception as e_general:
+            print(f"Error processing category page {page_url}: {e_general}")
+    
+    print(f"Found {len(found_articles_from_scan)} unique potential articles from category page scans.")
+    return found_articles_from_scan
+
+def find_articles_with_google_pse() -> list[dict[str, str]]:
+    """
+    Queries the Google Programmable Search Engine (PSE) to find news articles.
+    (This is the original function, renamed)
+    """
+    if not config.GOOGLE_API_KEY or not config.CUSTOM_SEARCH_ENGINE_ID:
+        print("Error: GOOGLE_API_KEY or CUSTOM_SEARCH_ENGINE_ID not configured for PSE.")
+        return []
+
+    query = " OR ".join([f'"{keyword.strip()}"' for keyword in config.RELEVANCE_KEYWORDS if keyword.strip()])
+    found_articles_from_pse = []
+    try:
+        service = build("customsearch", "v1", developerKey=config.GOOGLE_API_KEY)
+        print(f"\n--- Querying Google PSE (Engine ID: {config.CUSTOM_SEARCH_ENGINE_ID}) ---")
+        print(f"PSE Query: {query}")
+        today_dt = date.today()
+        start_date_dt = today_dt - timedelta(days=config.RECENCY_THRESHOLD_DAYS -1)
+        start_date_str = start_date_dt.strftime("%Y%m%d")
+        end_date_str = today_dt.strftime("%Y%m%d")
+        sort_by_date_range = f"date:r:{start_date_str}:{end_date_str}"
+        print(f"PSE Sorting by date range: {sort_by_date_range}")
+
+        res = service.cse().list(
+            q=query,
+            cx=config.CUSTOM_SEARCH_ENGINE_ID,
+            num=config.MAX_SEARCH_RESULTS_TO_PROCESS,
+            sort=sort_by_date_range 
+        ).execute()
+
+        if 'items' in res:
+            for item in res['items']:
+                title = item.get('title', 'N/A')
+                url = item.get('link')
+                snippet = item.get('snippet', '')
+                if not url:
+                    continue
+                if not any(domain in url for domain in config.TARGET_NEWS_SOURCES_DOMAINS):
+                    continue
+                found_articles_from_pse.append({"title": title, "url": url, "snippet": snippet})
+            print(f"Retrieved {len(found_articles_from_pse)} articles from Google PSE.")
+        else:
+            print("No items found in Google PSE response.")
+    except Exception as e:
+        print(f"An error occurred while querying Google PSE: {e}")
+    return found_articles_from_pse
 
 def find_relevant_articles() -> list[dict[str, str]]:
     """
-    Queries the Perplexity API (using sonar-pro or sonar) to find news articles.
-    Returns a list of dictionaries, where each dictionary contains 'url' and 'title' (title might be N/A).
+    Main discovery function. Combines results from category scans and Google PSE.
     """
-    if not config.PERPLEXITY_API_KEY:
-        print("Error: PERPLEXITY_API_KEY not configured.")
-        return []
+    all_discovered_articles = []
+    processed_urls = set()
 
-    today = date.today()
-    search_since_date = (today - config.RECENCY_TIMEDELTA).strftime('%Y-%m-%d')
+    # 1. Scan category pages
+    articles_from_categories = scan_category_pages_for_links()
+    for article in articles_from_categories:
+        if article["url"] not in processed_urls:
+            all_discovered_articles.append(article)
+            processed_urls.add(article["url"])
     
-    # === TEMPORARY TEST: Simplify keywords and domains ===
-    # Original keywords logic:
-    # keywords_for_query = " OR ".join([f'"{k.strip()}"' for k in config.RELEVANCE_KEYWORDS if k.strip()])
-    # Original domains logic:
-    # domains_list = config.TARGET_NEWS_SOURCES_DOMAINS
-    # domains_str = ", ".join(domains_list)
+    # 2. Use Google PSE for broader search (if configured and needed)
+    if config.GOOGLE_API_KEY and config.CUSTOM_SEARCH_ENGINE_ID: # Check if PSE is configured
+        articles_from_pse = find_articles_with_google_pse()
+        for article in articles_from_pse:
+            if article["url"] not in processed_urls:
+                # We can add a basic keyword check for title/snippet from PSE results here if needed
+                # to ensure they are somewhat relevant before adding, as PSE results can be broad.
+                # For now, we rely on later Gemini check for relevance.
+                all_discovered_articles.append(article)
+                processed_urls.add(article["url"])
+    else:
+        print("Google PSE not configured, skipping PSE search.")
 
-    # TEST VALUES:
-    test_domain = "nyunews.com" # Test with one specific domain
-    test_keywords = "NYU student life" # Test with a very broad keyword
-    print(f"*** RUNNING WITH TEMPORARY TEST DOMAIN: {test_domain} AND KEYWORDS: {test_keywords} ***")
-    domains_list = [test_domain] # For URL validation later
-    # === END TEMPORARY TEST ===
-
-    system_prompt = (
-        "You are an AI assistant. Your task is to find and list URLs of recent news articles from a specific website based on the user's query. "
-        "Provide ONLY the information requested, in the exact format specified. Do not add any other text."
-    )
-    
-    # User prompt: Extremely simplified for testing sonar-pro's basic site search capability
-    user_prompt = f"""List direct URLs for any news articles published on or after {search_since_date} from the website {test_domain} that are about '{test_keywords}'.
-
-If you find relevant articles, list ONLY their direct URLs, one URL per line.
-Example of expected output if articles are found:
-https://www.example.com/article1
-https://www.example.com/another-article
-
-If NO relevant articles are found, your entire response must be ONLY the phrase: 'No relevant articles found.'
-"""
-
-    headers = {
-        "Authorization": f"Bearer {config.PERPLEXITY_API_KEY}",
-        "Content-Type": "application/json",
-        "Accept": "application/json"
-    }
-    
-    perplexity_model_to_use = config.PERPLEXITY_SEARCH_MODEL 
-
-    payload = {
-        "model": perplexity_model_to_use, 
-        "messages": [
-            {"role": "system", "content": system_prompt},
-            {"role": "user", "content": user_prompt}
-        ],
-        "max_tokens": 1500, 
-        "temperature": 0.0 
-    }
-
-    print(f"Sending search request to Perplexity API (Model: {perplexity_model_to_use})...")
-    print(f"TESTING with Domain: {test_domain}, Keywords: '{test_keywords}', Since: {search_since_date}")
-    # print(f"Full User Prompt for Perplexity:\n{user_prompt}") # For debugging full prompt
-
-    found_articles = []
-    try:
-        response = requests.post(config.PERPLEXITY_API_URL, headers=headers, json=payload, timeout=90)
-        response.raise_for_status()
-        result = response.json()
-
-        if not result.get("choices") or not result["choices"][0].get("message"):            
-            print("Error: Perplexity API response is not in the expected format or is empty.")
-            print(f"Raw response: {result}")
-            return []
-            
-        content = result["choices"][0]["message"]["content"].strip()
-        print(f"Perplexity API Content Received:\n---\n{content}\n---")
-
-        if content == "No relevant articles found." or not content.strip():
-            print("Perplexity API reported no relevant articles found or returned empty content.")
-            return []
-
-        urls = content.splitlines()
-        for raw_url in urls:
-            url = raw_url.strip()
-            # Basic URL validation and domain check (using the test_domain for this specific test)
-            if url.startswith("http") and (test_domain in url): # Ensure it's from the test domain
-                found_articles.append({"title": "N/A (fetch later)", "url": url})
-                if len(found_articles) >= config.MAX_SEARCH_RESULTS_TO_PROCESS:
-                    break
-            elif url: 
-                print(f"Skipping line from Perplexity (not a valid/matching URL or empty): '{url}'")
-        
-        if not found_articles and content:
-             print("Warning: Content received from Perplexity, but no valid URLs could be parsed or matched domain/format criteria FOR THE TEST.")
-
-        print(f"Successfully parsed {len(found_articles)} URLs from Perplexity API (TEST RUN).")
-
-    except requests.exceptions.RequestException as e:
-        print(f"Error querying Perplexity API: {e}")
-    except json.JSONDecodeError:
-        print("Error: Could not decode JSON response from Perplexity API.")
-    except Exception as e:
-        print(f"An unexpected error occurred in find_relevant_articles: {e}")
-
-    return found_articles
+    print(f"Total unique articles discovered from all sources: {len(all_discovered_articles)}")
+    # Optionally, sort all_discovered_articles by some criteria (e.g., if date was part of discovery)
+    # or limit to MAX_SEARCH_RESULTS_TO_PROCESS overall.
+    return all_discovered_articles[:config.MAX_SEARCH_RESULTS_TO_PROCESS] # Limit total results
 
 if __name__ == '__main__':
-    print("Testing Perplexity search client (EXTREMELY simplified TEMPORARY prompt for sonar-pro)...")
+    print("Testing Discovery Module (Category Scan + Google PSE)...")
     import sys
     if '..'.join(os.path.abspath(__file__).split(os.sep)[:-2]) not in sys.path:
          sys.path.insert(0, '..'.join(os.path.abspath(__file__).split(os.sep)[:-2]))
+    
     from news_bot.core import config 
-    config.validate_config()
+    config.validate_config() 
+
     articles = find_relevant_articles()
     if articles:
-        print("\nFound article URLs (TEST RUN):")
+        print("\nCombined Discovered Articles:")
         for i, article in enumerate(articles):
-            print(f"{i+1}. URL: {article['url']}")
+            print(f"{i+1}. Title: {article.get('title', 'N/A')} ({article.get('source', 'Unknown Source')})\n   URL: {article['url']}")
+            if 'snippet' in article:
+                 print(f"   Snippet: {article['snippet'][:100]}...")
     else:
-        print("No article URLs found or an error occurred (TEST RUN).") 
+        print("No articles found from any source or an error occurred.") 

@@ -7,6 +7,7 @@ from .discovery import search_client
 from .processing import article_handler
 from .generation import summarizer
 from .utils import file_manager
+from .localization import translator
 
 def run_news_bot():
     """
@@ -15,8 +16,9 @@ def run_news_bot():
     2. For each article:
         a. Fetch and extract text.
         b. Verify for recency, relevance, and if it IS a news article.
-        c. If verified, generate a summary.
-    3. Save the compiled news reports.
+        c. If verified, generate a detailed English summary.
+        d. Translate and restyle to Chinese, including a Chinese title.
+    3. Save the compiled news reports (English and Chinese versions, Chinese title).
     """
     print("===========================================")
     print("=== LIVE Weekly News Bot - Starting Run ===")
@@ -51,8 +53,8 @@ def run_news_bot():
     final_news_reports = []
     processed_urls = set() # To avoid processing the same URL multiple times if Perplexity returns duplicates
 
-    # Step 2 & 3: Process and Summarize each article
-    print("\n--- Step 2 & 3: Processing and Summarizing Articles ---")
+    # Step 2, 3 & Translation: Process, Summarize, and Translate each article
+    print("\n--- Step 2, 3 & Translation: Processing, Summarizing, and Translating Articles ---")
     for i, article_info in enumerate(discovered_articles):
         original_title = article_info.get("title", "N/A")
         article_url = article_info.get("url")
@@ -80,7 +82,7 @@ def run_news_bot():
             print(f"Failed to get verification results for {article_url}. Skipping.")
             continue
         
-        print(f"  Verification for {article_url}: Date='{verification_results.get('publication_date_str')}', Recent='{verification_results.get('is_recent')}', Relevant='{verification_results.get('is_relevant')}', Type='{verification_results.get('article_type_assessment')}'")
+        print(f"  Verification: Date='{verification_results.get('publication_date_str')}', Recent='{verification_results.get('is_recent')}', Relevant='{verification_results.get('is_relevant')}', Type='{verification_results.get('article_type_assessment')}'")
 
         # Check verification status before summarization
         is_suitable_for_summary = (
@@ -90,18 +92,40 @@ def run_news_bot():
         )
 
         if not is_suitable_for_summary:
-            print(f"Article {article_url} not suitable for summary based on verification (Recent: {verification_results.get('is_recent')}, Relevant: {verification_results.get('is_relevant')}, Type: {verification_results.get('article_type_assessment')}). Skipping summarization.")
+            print(f"Article not suitable for summary based on verification. Skipping.")
             continue
         
-        print(f"Article {article_url} verified as suitable. Proceeding to summarization.")
+        print(f"Article verified. Proceeding to English summarization.")
 
-        # 3. Generate summary
-        news_summary = summarizer.generate_summary_with_gemini(article_text, article_url, original_title)
-        if not news_summary or "failed" in news_summary.lower() or "skipped" in news_summary.lower():
-            print(f"Failed to generate summary for {article_url} or summary was invalid. Skipping.")
+        # 3. Generate English summary
+        english_summary = summarizer.generate_summary_with_gemini(article_text, article_url, original_title)
+        if not english_summary or "failed" in english_summary.lower() or "skipped" in english_summary.lower():
+            print(f"Failed to generate English summary. Skipping.")
             continue
             
-        print(f"  Successfully generated summary for {article_url}.")
+        print(f"  Successfully generated English summary.")
+
+        # --- New Step: Translate and Restyle to Chinese ---
+        english_report_data_for_translation = {
+            "summary": english_summary,
+            "source_url": article_url,
+            "reported_publication_date": verification_results.get("publication_date_str", "N/A"),
+            "original_title": original_title
+        }
+        translation_output = translator.translate_and_restyle_to_chinese(english_report_data_for_translation)
+        
+        chinese_title = "中文标题生成失败 (Chinese title generation failed)"
+        chinese_news_report = "中文报道翻译失败或跳过 (Chinese report translation failed or skipped)"
+
+        if translation_output:
+            chinese_title = translation_output.get("chinese_title", chinese_title)
+            chinese_news_report = translation_output.get("chinese_news_report", chinese_news_report)
+            if "失败" not in chinese_title and "failed" not in chinese_title.lower(): # Basic check if title was successful
+                 print(f"  Successfully generated Chinese title and report for {article_url}.")
+            else:
+                 print(f"  Generated Chinese report for {article_url}, but title generation might have issues.")
+        else:
+            print(f"  Failed to get any response from Chinese translation module for {article_url}.")
 
         final_news_reports.append({
             "news_id": len(final_news_reports) + 1,
@@ -109,12 +133,14 @@ def run_news_bot():
             "source_url": article_url,
             "reported_publication_date": verification_results.get("publication_date_str", "N/A"),
             "verification_details": verification_results, # Includes relevance, factuality, etc.
-            "summary": news_summary,
+            "english_summary": english_summary, # Added specific key for English summary
+            "chinese_title": chinese_title, # Added Chinese title
+            "chinese_news_report": chinese_news_report, # Added Chinese news report
             "processing_timestamp": datetime.now().isoformat()
         })
         
-        if len(final_news_reports) >= config.MAX_SEARCH_RESULTS_TO_PROCESS: # Should ideally be a different limit for *final reports*
-            print(f"Reached maximum number of desired news reports ({len(final_news_reports)}). Stopping further processing.")
+        if len(final_news_reports) >= config.MAX_FINAL_REPORTS: # Using MAX_FINAL_REPORTS
+            print(f"Reached maximum number of final news reports ({len(final_news_reports)}). Stopping.")
             break
 
     # Step 4: Save the compiled news reports

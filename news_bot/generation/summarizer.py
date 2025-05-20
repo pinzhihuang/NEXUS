@@ -34,26 +34,27 @@ def generate_summary_with_gemini(article_text: str, article_url: str, article_ti
     title_context = f"The original article title is: '{article_title}'. " if article_title else ""
 
     # Prompt designed for creating a professional news summary for a specific audience
-    prompt = f"""You are a professional English-language news writer. Your task is to create a concise and neutral news summary (approximately 3-5 sentences, or 70-120 words) 
+    prompt = f"""You are a professional English-language news writer. Your task is to create a detailed yet concise news summary (approximately 5-7 sentences, or 100-180 words) 
 based on the provided article text. The summary is for Chinese international students at New York University (NYU). 
 Focus on the key information most relevant to their studies, work, daily life, or immigration/visa policies, especially concerning events or policies in New York or the U.S.
 
-Key points to cover in the summary if present in the article:
-- What happened?
-- When and where did it happen?
-- Who was involved?
-- What are the main consequences or implications, particularly for the target audience?
+Key points to cover in the summary if present in the article, ensuring important details are retained:
+- What happened (the core event/announcement)?
+- When and where did it happen (specific dates, locations)?
+- Who was involved (key individuals, groups, or departments)?
+- What are the main consequences, implications, or direct impacts, particularly for the target audience (NYU Chinese international students)?
+- Include any specific numbers, statistics, or significant outcomes mentioned if they are crucial to understanding the news.
 
 Maintain a factual and objective tone. Do not add personal opinions or information not present in the article text. 
 Do not include an introductory phrase like 'This article is about...'. Just provide the summary directly.
 
-{title_context}The article URL is: {article_url} (for your reference, do not necessarily include it in the summary unless it's a critical part of the news itself).
+{title_context}The article URL is: {article_url} (for your reference).
 
 --- Full Article Text (first 100,000 characters) ---
 {article_text[:100000]}
 --- End of Article Text ---
 
-Concise News Summary (3-5 sentences for Chinese international students at NYU):
+Detailed News Summary (5-7 sentences, 100-180 words, for Chinese international students at NYU):
 """ 
 
     # print(f"Gemini Summarization Prompt (first 500 chars):\n{prompt[:500]}...") # For debugging
