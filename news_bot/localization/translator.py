@@ -11,11 +11,10 @@ def _refine_chinese_news_report_with_gemini(chinese_text: str, source_url: str, 
     """
     if not chinese_text.strip() or "失败" in chinese_text or "failed" in chinese_text.lower() or "跳过" in chinese_text:
         print(f"Info: Skipping refinement for placeholder or error text: '{chinese_text[:50]}...'")
-        return chinese_text # Return original if it's an error/placeholder
+        return chinese_text 
 
     print(f"Refining Chinese news report for: {source_url[:100]}...")
     try:
-        # Assuming genai is already configured by the calling function
         model = genai.GenerativeModel(config.GEMINI_FLASH_MODEL) # Or a specific model for refinement
     except Exception as e:
         print(f"Error initializing Gemini model for refinement: {str(e)}")
@@ -26,6 +25,7 @@ def _refine_chinese_news_report_with_gemini(chinese_text: str, source_url: str, 
 2.  Remove any sentences or phrases that do not add factual value to the core news story.
 3.  Aim for conciseness while preserving all critical information relevant to the English title ('{original_title}').
 4.  The output should be ONLY the refined Chinese news report. Do not add any commentary.
+5.  Pay more attention to the last sentence of the report. This sentence is sometimes off-topic.
 
 Original Chinese News Report to Refine:
 '''

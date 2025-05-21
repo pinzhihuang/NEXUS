@@ -3,3 +3,51 @@
 __pycache__/
 *.pyc
 news_reports/
+
+# Local environment variables
+.env
+
+# Google OAuth credentials
+credentials.json
+token.pickle
+token.json # In case other flows generate this
+
+# Python specific
+venv/
+__pycache__/
+*.pyc
+*.pyo
+*.pyd
+*.egg-info/
+dist/
+build/
+*.egg
+instance/
+htmlcov/
+.pytest_cache/
+.Python
+celerybeat-schedule
+celerybeat.pid
+
+# Log files
+*.log
+*.log.*
+logs/
+
+# Operating System Files
+.DS_Store
+Thumbs.db
+ehthumbs.db
+Desktop.ini
+
+# IDE / Editor specific (examples - add your own if needed)
+.vscode/
+.idea/
+*.suo
+*.user
+*.sln.docstates
+
+# Jupyter Notebook checkpoints
+.ipynb_checkpoints
+
+*.json

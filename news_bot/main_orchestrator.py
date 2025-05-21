@@ -1,6 +1,6 @@
 # news_bot/main_orchestrator.py
 
-from datetime import datetime
+from datetime import datetime, date, timedelta
 
 from .core import config
 from .discovery import search_client
@@ -8,6 +8,7 @@ from .processing import article_handler
 from .generation import summarizer
 from .utils import file_manager
 from .localization import translator
+from .reporting import google_docs_exporter
 
 def run_news_bot():
     """
@@ -16,11 +17,11 @@ def run_news_bot():
     2. For each article: fetch, verify.
     3. If verified, generate detailed English summary.
     4. Translate to Chinese (title, report) and then refine Chinese report.
-    5. Save compiled reports.
+    5. Save compiled reports to JSON and attempt to export to Google Doc.
     """
     run_start_time = datetime.now()
     print("===========================================")
-    print("=== LIVE Weekly News Bot - Starting Run ===")
+    print("=== Project NEXUS - Student News Bot - Starting Run ===")
     print(f"=== Run timestamp: {run_start_time.isoformat()} ===")
     print("===========================================")
 
@@ -144,7 +145,7 @@ def run_news_bot():
     # Step 5: Save the compiled news reports
     print("\n--- Step 5: Saving News Reports ---")
     if final_news_reports:
-        output_filename_base = "weekly_news_report"
+        output_filename_base = "weekly_student_news_report"
         saved_filepath = file_manager.save_data_to_json(final_news_reports, output_filename_base)
         if saved_filepath:
             print(f"Successfully saved {len(final_news_reports)} news reports to {saved_filepath}")
@@ -153,9 +154,29 @@ def run_news_bot():
     else:
         print("Info: No news reports were generated to save.")
 
+    # --- New Step 6: Export to Google Doc ---
+    if final_news_reports and saved_filepath:
+        print("\n--- Step 6: Exporting News Reports to Google Doc ---")
+        today = date.today()
+        # Define week as today and 6 days prior, matching RECENCY_THRESHOLD_DAYS logic for a 7-day week
+        week_end_date_for_doc = today 
+        week_start_date_for_doc = today - timedelta(days=config.RECENCY_THRESHOLD_DAYS - 1)
+        
+        gdoc_title = f"Project NEXUS: Weekly Chinese News ({week_start_date_for_doc.strftime('%Y-%m-%d')} to {week_end_date_for_doc.strftime('%Y-%m-%d')})"
+        
+        gdoc_url = google_docs_exporter.update_or_create_news_document(final_news_reports, week_start_date_for_doc, week_end_date_for_doc)
+        if gdoc_url:
+            print(f"Successfully operated on Google Doc: {gdoc_url}")
+        else:
+            print("Error: Failed to operate on Google Doc.")
+            print("Ensure Google Docs API is enabled, OAuth credentials correct, and app authorized.")
+    elif not final_news_reports:
+        print("Info: No reports to export to Google Doc.")
+    # --- End of New Step ---
+
     run_end_time = datetime.now()
     print("=====================================")
-    print(f"=== News Bot - Run Finished at {run_end_time.isoformat()} ===")
+    print(f"=== Project NEXUS - Run Finished at {run_end_time.isoformat()} ===")
     print(f"=== Total Run Duration: {run_end_time - run_start_time} ===")
     print("=====================================")
 
