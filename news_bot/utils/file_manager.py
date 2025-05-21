@@ -21,7 +21,7 @@ def save_data_to_json(data_to_save: list | dict, base_filename: str, timestamp_i
 
         filename = base_filename
         if timestamp_in_filename:
-            timestamp = datetime.now().strftime("%Y-%m-%d_%H%M%S") # Added H M S for uniqueness if run multiple times a day
+            timestamp = datetime.now().strftime("%Y-%m-%d_%H%M%S") 
             filename = f"{base_filename}_{timestamp}.json"
         else:
             filename = f"{base_filename}.json"

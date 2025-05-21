@@ -1,32 +1,32 @@
-# LIVE Weekly News Bot for NYU Chinese International Students
+# Project NEXUS - Student News 
 
-This project automates the process of discovering, verifying, summarizing, and translating news relevant to Chinese international students at New York University.
+Project NEXUS is an automated system for discovering, verifying, summarizing, and translating news relevant to international students at various universities. It aims to provide a centralized and accessible source of important campus and community information.
 
 ## Features
 
--   **Hybrid News Discovery**:
-    -   Scans specific news category pages (e.g., WSN news section) for the latest article links.
-    -   Utilizes Google Programmable Search Engine (PSE) for targeted searches on configured domains (e.g., `www.nyu.edu/news`) using relevant keywords.
+-   **Configurable News Discovery**:
+    -   Scans user-specified news category pages for the latest article links.
+    -   Utilizes Google Programmable Search Engine (PSE) for targeted searches on user-configured university domains using relevant keywords.
 -   **Content Extraction**: Fetches and parses the full text content from discovered article URLs.
--   **AI-Powered Verification (Gemini Flash)**:
-    -   Determines the publication date of articles.
-    -   Verifies if articles are recent (published within the configured threshold, typically the last week).
-    -   Assesses relevance to the target audience (Chinese international students at NYU).
-    -   Identifies the article type (e.g., "News article", "Opinion/Blog") to ensure only news is processed.
--   **AI-Powered English Summarization (Gemini Flash)**:
-    -   Generates detailed yet concise English summaries (approx. 5-7 sentences, 100-180 words) focusing on key information (who, what, when, where, implications, key stats).
--   **AI-Powered Chinese Translation & Restyling (Gemini Flash)**:
+-   **AI-Powered Verification (Gemini API)**:
+    -   Determines the publication date of articles (from text and URL parsing).
+    -   Verifies if articles are recent (based on a configurable threshold).
+    -   Assesses relevance to the general student body of the configured university/community.
+    -   Identifies the article type (e.g., "News article", "Opinion/Blog") to filter for news.
+-   **News Summarization (Gemini API)**:
+    -   Generates detailed yet concise English summaries (configurable length) focusing on key information.
+-   **Restyling (Gemini API)**:
     -   Generates a relevant, catchy, and summary-style Chinese title for the news.
     -   Translates the English summary into Simplified Chinese.
     -   Rewrites the translation in a serious, formal, and objective news reporting style.
-    -   Incorporates publication date and source attribution (e.g., "据WSN报道，YYYY-MM-DD消息：").
-    -   Formats proper English names: "中文译名 (Original English Name)" for less common names, while using direct Chinese translation for highly popular names (e.g., NYU, Trump).
--   **Structured Output**: Saves the final news reports (including English summary, Chinese title, and Chinese report) in a JSON format, timestamped by run date.
+    -   Incorporates publication date and source attribution.
+    -   Formats proper English names appropriately for Chinese readers.
+-   **Structured Output**: Saves the final news reports (including English summary, Chinese title, and Chinese report) in a JSON format.
 
 ## Project Structure
 
 ```
-LIVE_WEEKLY_BOT/
+NEXUS/  (Previously LIVE_WEEKLY_BOT)
 ├── news_bot/                   # Main application package
 │   ├── __init__.py
 │   ├── main_orchestrator.py    # Main script to run the workflow
@@ -55,58 +55,77 @@ LIVE_WEEKLY_BOT/
 │       ├── __init__.py
 │       └── file_manager.py     # Saving outputs
 │
-├── .env                        # Stores API keys
+├── .env.example                # Example environment file structure
 ├── requirements.txt            # Project dependencies
 └── README.md                   # This file
 ```
 
 ## Setup
 
-1.  **Clone the repository (if applicable)**
-2.  **Create a Python virtual environment (recommended)**:
+1.  **Clone the Repository** (if you haven't already):
+    ```bash
+    git clone <repository_url> NEXUS
+    cd NEXUS
+    ```
+2.  **Create a Python Virtual Environment (recommended)**:
     ```bash
     python -m venv venv
     source venv/bin/activate  # On Windows use `venv\Scripts\activate`
     ```
-3.  **Install dependencies**:
+3.  **Install Dependencies**:
     ```bash
     pip install -r requirements.txt
     ```
-4.  **Set up API Keys & Google PSE**:
-    *   Create a `.env` file in the `LIVE_WEEKLY_BOT` root directory:
+4.  **Set up API Keys & Configuration**:
+    *   Create a `.env` file in the `NEXUS` root directory (you can copy `.env.example` if provided and rename it).
+    *   Populate your `.env` file with the necessary API keys:
         ```env
         GEMINI_API_KEY="YOUR_GEMINI_API_KEY"
         GOOGLE_API_KEY="YOUR_GOOGLE_API_KEY"
         CUSTOM_SEARCH_ENGINE_ID="YOUR_GOOGLE_PSE_CX_ID"
-        # PERPLEXITY_API_KEY="YOUR_PERPLEXITY_API_KEY" # If still using Perplexity parts
+        # PERPLEXITY_API_KEY="YOUR_PERPLEXITY_API_KEY" # If using any Perplexity features
+        
+        # Optional: Override default model names or parameters from config.py
+        # GEMINI_FLASH_MODEL='gemini-1.5-flash-latest'
+        # RECENCY_THRESHOLD_DAYS=7 
         ```
-    *   **Google Programmable Search Engine (PSE)**:
+    *   **Google Programmable Search Engine (PSE) Setup**:
         1.  Create/select a project in [Google Cloud Console](https://console.cloud.google.com/).
         2.  Enable the "Custom Search API" in the API Library.
         3.  Create an API Key in "APIs & Services" > "Credentials" and restrict it to the "Custom Search API". This is your `GOOGLE_API_KEY`.
         4.  Go to the [Programmable Search Engine control panel](https://programmablesearchengine.google.com/).
-        5.  Create a new search engine. In its setup, under "Sites to search", add the domains you want Google PSE to cover (e.g., `www.nyu.edu/news/*`). Note its "Search engine ID (CX)" for `CUSTOM_SEARCH_ENGINE_ID`.
+        5.  Create a new search engine. In its setup, under "Sites to search", add the specific university news domains you want to target (e.g., `news.exampleuniversity.edu/*`, `students.exampleuniversity.edu/events/*`). This is crucial for targeting.
+        6.  Note its "Search engine ID (CX)" for your `CUSTOM_SEARCH_ENGINE_ID` in the `.env` file.
+    *   **Configure `news_bot/core/config.py` (or use `.env` overrides)**:
+        *   Review and update `TARGET_NEWS_SOURCES_DOMAINS` to include the primary domains of the universities you are targeting.
+        *   Update `CATEGORY_PAGES_TO_SCAN` with specific news category/archive URLs from your target university sites that you want to scan directly.
+        *   Adjust `RELEVANCE_KEYWORDS` to suit the general student population of the target universities and the type of news you're interested in. The summarization and translation prompts can further tailor content for specific international student groups if needed.
 
 ## Usage
 
-Run the main orchestrator script from the `LIVE_WEEKLY_BOT` root directory:
+Run the main orchestrator script from the `NEXUS` root directory:
 
 ```bash
 python -m news_bot.main_orchestrator
 ```
 
-The script will process the news and save the results to a JSON file (e.g., `news_reports/weekly_news_report_YYYY-MM-DD.json`).
+The script will process news based on your configuration and save the results to a JSON file (e.g., `news_reports/weekly_news_report_YYYY-MM-DD_HHMMSS.json`) in the output directory specified in `config.py` (default is `news_reports`).
 
 ## Modules
 
--   **`config.py`**: Manages configuration: API keys, Gemini model names, target category page URLs, Google PSE domains, relevance keywords, output settings.
--   **`search_client.py`**: Handles news discovery by scanning specified category pages (e.g., WSN) and querying Google Programmable Search Engine for other configured sites.
--   **`article_handler.py`**: Fetches full article text from URLs and uses Gemini for verification (date, recency, relevance, article type).
--   **`summarizer.py`**: Generates detailed English summaries of verified articles using Gemini.
+-   **`config.py`**: Manages configuration: API keys, model names, target university news domains and category pages, relevance keywords, output settings. Many settings can be overridden via `.env`.
+-   **`search_client.py`**: Discovers news by scanning specified category pages and querying Google Programmable Search Engine.
+-   **`article_handler.py`**: Fetches article text and uses Gemini for verification (date, recency, relevance, article type).
+-   **`summarizer.py`**: Generates detailed English summaries using Gemini.
 -   **`translator.py`**: Translates English summaries into formal Chinese news reports, generates Chinese titles, and formats names, using Gemini.
--   **`file_manager.py`**: Saves the final structured data (including English and Chinese content) to JSON files.
--   **`main_orchestrator.py`**: Coordinates the entire workflow, from discovery through processing, generation, translation, and saving.
+-   **`file_manager.py`**: Saves structured data to JSON files.
+-   **`main_orchestrator.py`**: Coordinates the end-to-end workflow.
 
-## License
+## Customization for a New University
 
-MIT License 
+1.  **Google PSE**: Update your Google Programmable Search Engine to include the new university's news domains.
+2.  **`.env` / `config.py`**: 
+    *   Modify `TARGET_NEWS_SOURCES_DOMAINS` in `config.py`.
+    *   Add relevant `CATEGORY_PAGES_TO_SCAN` for the new university in `config.py`.
+    *   Adjust `RELEVANCE_KEYWORDS` if the focus shifts significantly.
+3.  **Prompts (Optional)**: If targeting a vastly different student demographic or news style, you might review and tweak the prompts in `article_handler.py`, `summarizer.py`, and `translator.py`.
