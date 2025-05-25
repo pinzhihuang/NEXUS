@@ -37,11 +37,13 @@ TARGET_GOOGLE_DOC_ID = os.getenv("TARGET_GOOGLE_DOC_ID", None)
 TARGET_NEWS_SOURCES_DOMAINS = [
     "nyunews.com", 
     "www.nyu.edu/news"
+    "https://nypost.com"
 ]
 CATEGORY_PAGES_TO_SCAN = [
-    #"https://nyunews.com/category/news/"
+    "https://nyunews.com/category/news/"
     # nypost 
-    "https://www.nyu.edu/about/news-publications/news.html"
+    "https://www.nyu.edu/about/news-publications/news/search.html"
+    "https://nypost.com/metro/"
 
 ]
 RELEVANCE_KEYWORDS = [
