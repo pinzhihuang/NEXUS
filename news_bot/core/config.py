@@ -41,7 +41,6 @@ TARGET_NEWS_SOURCES_DOMAINS = [
 ]
 CATEGORY_PAGES_TO_SCAN = [
     "https://nyunews.com/category/news/"
-    # nypost 
     "https://www.nyu.edu/about/news-publications/news/search.html"
     "https://nypost.com/metro/"
 
