@@ -39,7 +39,10 @@ TARGET_NEWS_SOURCES_DOMAINS = [
     "www.nyu.edu/news"
 ]
 CATEGORY_PAGES_TO_SCAN = [
-    "https://nyunews.com/category/news/"
+    #"https://nyunews.com/category/news/"
+    # nypost 
+    "https://www.nyu.edu/about/news-publications/news.html"
+
 ]
 RELEVANCE_KEYWORDS = [
     "Chinese international students", "NYU News","New York student life", "NYU campus events"
