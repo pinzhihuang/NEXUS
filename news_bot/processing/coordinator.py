@@ -2,10 +2,11 @@ import json
 import os
 import re
 from typing import List, Dict
-from datetime import datetime
+from datetime import datetime, timedelta, date
 
 import google.generativeai as genai
 from news_bot.core import config
+from news_bot.reporting import google_docs_exporter
 
 # --------------------------
 # Step 1: Gemini relevance打分（1~10分）+ 原因解释
@@ -18,7 +19,7 @@ def llm_score_relevance_10point(chinese_text: str, article_title: str = "") -> t
     try:
         genai.configure(api_key=config.GEMINI_API_KEY)
         model = genai.GenerativeModel(config.GEMINI_FLASH_MODEL)
-    except Exception as e:
+    except Exception:
         return 1, "初始化失败"
 
     prompt = f"""你是一位中文新闻分析师，请判断以下新闻与“纽约大学（NYU）的中国留学生”主题的相关性，并给出 1~10 的整数分数和简要原因。
@@ -35,7 +36,7 @@ def llm_score_relevance_10point(chinese_text: str, article_title: str = "") -> t
 
 新闻标题：{article_title}
 新闻正文：
-{chinese_text[:300]}
+{chinese_text}
 """
 
     try:
@@ -49,42 +50,7 @@ def llm_score_relevance_10point(chinese_text: str, article_title: str = "") -> t
         return 1, "模型异常"
 
 # --------------------------
-# Step 2: Gemini refined中文开头句生成（自然衔接）
-# --------------------------
-
-def generate_dynamic_intro(chinese_text: str, article_title: str = "") -> str:
-    if not chinese_text.strip():
-        return ""
-    try:
-        genai.configure(api_key=config.GEMINI_API_KEY)
-        model = genai.GenerativeModel(config.GEMINI_FLASH_MODEL)
-    except Exception:
-        return ""
-
-    prompt = f"""你是一位专业中文新闻编辑。请为以下 refined 中文新闻正文生成开头第一句话。
-
-要求：
-- 不重复正文已有句子
-- 语言自然、正式、逻辑衔接后文
-- 不要使用模板化表达（如“这是…”、“该校…”）
-- 长度在 25~40 字
-- 保留专有名词（如人名、地名、组织名）后附英文括注，例如 加拉廷学院 (Gallatin School)、洛根·罗佐斯 (Logan Rozos)
-
-新闻标题（参考）：{article_title}
-新闻正文片段：
-{chinese_text[:300]}
-
-请返回该新闻的第一句话：
-"""
-
-    try:
-        response = model.generate_content(prompt)
-        return getattr(response, 'text', '').strip()
-    except Exception:
-        return ""
-
-# --------------------------
-# Step 3: 使用 Gemini 对整篇 refined 中文新闻进行润色
+# Step 2: Gemini润色 refined 中文新闻正文
 # --------------------------
 
 def refine_chinese_news_report(text: str, article_title: str = "") -> str:
@@ -101,11 +67,13 @@ def refine_chinese_news_report(text: str, article_title: str = "") -> str:
 - 不加入开场白或任何提示语
 - 不添加新内容，仅调整语言表达与逻辑
 - 去除冗余或重复表达
+- 需要确保文章的准确性
 - 保留原始新闻结构
+- refined_chinese_news_report的正文长度在 200-350 中文汉字，并且不要加入空洞的词汇，更偏向加入具体、重要的细节
 - 对不常见的人名、地名、组织名，在首次出现时添加英文括注，如 加拉廷学院 (Gallatin School)、洛根·罗佐斯 (Logan Rozos)
 
 标题参考：{article_title}
-原始内容：
+原始内容：  
 {text}
 
 请输出润色后的新闻正文：
@@ -118,7 +86,7 @@ def refine_chinese_news_report(text: str, article_title: str = "") -> str:
         return text
 
 # --------------------------
-# Step 4: 应用润色和开头句
+# Step 3: 润色并提取第一句作为 intro
 # --------------------------
 
 def apply_refinement_and_intro(reports: List[Dict]) -> None:
@@ -129,18 +97,20 @@ def apply_refinement_and_intro(reports: List[Dict]) -> None:
 
         article_title = report.get("original_title", "")
         refined_body = refine_chinese_news_report(original_text, article_title)
-        intro = generate_dynamic_intro(refined_body, article_title)
 
-        if intro:
-            lines = refined_body.strip().split('\n')
-            lines[0] = intro
-            refined_body = '\n'.join(lines)
+        # 提取第一句作为 intro（以句号或换行符切分）
+        first_sentence = ""
+        split_by_punc = re.split(r'(?<=[。！？])\s*', refined_body.strip())
+        for sentence in split_by_punc:
+            if sentence:
+                first_sentence = sentence.strip()
+                break
 
         report["refined_chinese_news_report"] = refined_body
-        report["gemini_generated_intro"] = intro
+        report["gemini_generated_intro"] = first_sentence
 
 # --------------------------
-# Step 5: 主流程
+# Step 4: 主流程
 # --------------------------
 
 def process_news_report(input_path: str, output_path: str):
@@ -167,12 +137,20 @@ def process_news_report(input_path: str, output_path: str):
         json.dump(sorted_reports, f, ensure_ascii=False, indent=2)
 
     print(f"已保存至: {output_path}")
-    print("最相关的前3条新闻:")
-    for r in sorted_reports[:3]:
-        print(f"[{r['relevance_score']}] {r['original_title']} - {r['relevance_reason']}")
+
+    # --- Export sorted to Google Doc ---
+    print("开始导出排序后的结果到 Google Doc...")
+    today = date.today()
+    week_end = today
+    week_start = today - timedelta(days=config.RECENCY_THRESHOLD_DAYS - 1)
+    gdoc_url = google_docs_exporter.update_or_create_news_document(sorted_reports, week_start, week_end)
+    if gdoc_url:
+        print(f"导出成功: {gdoc_url}")
+    else:
+        print("导出失败，请检查 API 设置与授权。")
 
 # --------------------------
-# Step 6: 执行入口
+# Step 5: 执行入口
 # --------------------------
 
 if __name__ == "__main__":
@@ -180,14 +158,14 @@ if __name__ == "__main__":
     input_file = None
     reports_dir = "news_reports"
     pattern = f"weekly_student_news_report_{today}_"
-    
+
     for fname in sorted(os.listdir(reports_dir), reverse=True):
         if fname.startswith(pattern) and fname.endswith(".json"):
             input_file = os.path.join(reports_dir, fname)
             break
 
     if input_file is None:
-        print("未找到今日的新闻摘要文件。请先运行 main.py。")
+        print("未找到今日的新闻摘要文件。请先运行 main_orchestrator.py。")
     else:
         output_file = input_file.replace(".json", "_sorted.json")
         print(f"读取输入文件: {input_file}")
