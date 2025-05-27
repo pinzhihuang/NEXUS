@@ -86,6 +86,8 @@ def fetch_and_extract_text(url: str) -> str | None:
         print(f"Error: An unexpected error occurred while fetching/processing URL {url}: {str(e)}")
     return None
 
+
+
 def _extract_date_from_url(url_string: str) -> str | None:
     """
     Attempts to extract a date (YYYY-MM-DD) from a URL string.
@@ -122,25 +124,39 @@ def _extract_date_from_url(url_string: str) -> str | None:
         except ValueError:
             pass
     
-    # Pattern for Month DD, YYYY (e.g., May 16, 2025)
-    match_month_dd_yyyy = re.search(r'([A-Za-z]+)\s+(\d{1,2}),\s*(\d{4})', url_string)
-    if match_month_dd_yyyy:
-        month_str, day, year = match_month_dd_yyyy.groups()
-        try:
-            # Try full month name first
-            if month_str in calendar.month_name:
-                month_num = list(calendar.month_name).index(month_str)
-            elif month_str in calendar.month_abbr:
-                month_num = list(calendar.month_abbr).index(month_str)
-            else:
-                month_num = 0  # Invalid month
-            if month_num == 0:
-                raise ValueError("Invalid month name in date string")
-            dt = datetime(int(year), int(month_num), int(day))
-            return dt.strftime("%Y-%m-%d")
-        except (ValueError, IndexError):
-            pass
+   
             
+    return None
+
+
+
+def extract_publication_date_from_text(text: str) -> str | None:
+    """
+    Attempts to extract a publication date from visible article text,
+    e.g., 'Published May 16, 2025' or 'Updated on May 16, 2025 at 2:30 pm'.
+    Returns date as YYYY-MM-DD if found, else None.
+    """
+    patterns = [
+        r'Published\s+([A-Za-z]+)\s+(\d{1,2}),\s*(\d{4})',
+        r'Updated on\s+([A-Za-z]+)\s+(\d{1,2}),\s*(\d{4})'
+    ]
+    for pat in patterns:
+        match = re.search(pat, text)
+        if match:
+            month_str, day, year = match.groups()
+            try:
+                if month_str in calendar.month_name:
+                    month_num = list(calendar.month_name).index(month_str)
+                elif month_str in calendar.month_abbr:
+                    month_num = list(calendar.month_abbr).index(month_str)
+                else:
+                    continue
+                if month_num == 0:
+                    continue
+                dt = datetime(int(year), int(month_num), int(day))
+                return dt.strftime("%Y-%m-%d")
+            except Exception:
+                continue
     return None
 
 def verify_article_with_gemini(article_text: str, article_url: str) -> dict | None:
@@ -251,7 +267,7 @@ Your response (exactly 4 lines as specified above):
         final_relevance = "Relevance unclear (Gemini API error)"
         final_article_type = "Type unclear (Gemini API error)"
 
-    # Determine final date string (Gemini > URL > Not found)
+    # Determine final date string (Gemini > URL > Text > Not found)
     final_date_str = gemini_publication_date_str
     date_source_log = "(from Gemini)"
     if final_date_str.lower() == "date not found" or "error" in final_date_str.lower() or not final_date_str.strip():
@@ -262,8 +278,15 @@ Your response (exactly 4 lines as specified above):
             date_source_log = "(from URL)"
             print(f"Info: Extracted date {final_date_str} from URL for {article_url}.")
         else:
-            final_date_str = "Date not found"
-            date_source_log = "(no date found)"
+            # Fallback: Try extracting from article text
+            text_extracted_date = extract_publication_date_from_text(article_text)
+            if text_extracted_date:
+                final_date_str = text_extracted_date
+                date_source_log = "(from text)"
+                print(f"Info: Extracted date {final_date_str} from article text for {article_url}.")
+            else:
+                final_date_str = "Date not found"
+                date_source_log = "(no date found)"
 
     # Determine recency based on the final_date_str
     is_recent_status = "Date unclear"
