@@ -73,19 +73,31 @@ def fetch_and_extract_text(url: str) -> str | None:
             return None
 
         cleaned_text = "\n".join([line for line in text_content.splitlines() if line.strip()])
-        # Try to extract byline or header text that may contain the publication date
+         # --- IMPROVED BYLINE/DATE EXTRACTION ---
         byline_text = ""
-        # Common NBC byline class: 'article-byline' or similar; adjust as needed
-        byline_candidates = soup.find_all(class_=re.compile(r'byline|dateline|author', re.I))
+        # 1. Try common byline/date classes (including 'publish', 'date')
+        byline_candidates = soup.find_all(class_=re.compile(r'byline|dateline|author|publish|date', re.I))
         for byline in byline_candidates:
             byline_text_candidate = byline.get_text(separator=' ', strip=True)
-            if byline_text_candidate and len(byline_text_candidate) < 300:  # avoid huge blocks
+            if byline_text_candidate and len(byline_text_candidate) < 300:
                 byline_text += byline_text_candidate + "\n"
+
+        # 2. Fallback: search for any tag containing "Published" and a date in its text
+        if not byline_text:
+            for tag in soup.find_all(True):
+                tag_text = tag.get_text(separator=' ', strip=True)
+                if (
+                    "Published" in tag_text
+                    and re.search(r'[A-Za-z]+\s+\d{1,2},\s*\d{4}', tag_text)
+                    and len(tag_text) < 300
+                ):
+                    byline_text += tag_text + "\n"
+                    break  # Only need the first match
 
         # Prepend byline to the cleaned article text for downstream date extraction
         if byline_text:
             cleaned_text = byline_text.strip() + "\n" + cleaned_text
-            
+
         print(f"Successfully extracted text from {url} (approx. {len(cleaned_text.split())} words).")
         return cleaned_text
 
