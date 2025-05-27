@@ -302,6 +302,7 @@ Your response (exactly 4 lines as specified above):
             date_source_log = "(from URL)"
             print(f"Info: Extracted date {final_date_str} from URL for {article_url}.")
         else:
+            '''
             # Fallback: Try extracting from article text
             text_extracted_date = extract_publication_date_from_text(article_text)
             if text_extracted_date:
@@ -311,6 +312,27 @@ Your response (exactly 4 lines as specified above):
             else:
                 final_date_str = "Date not found"
                 date_source_log = "(no date found)"
+            '''
+            
+            # After getting gemini_publication_date_str, before determining recency:
+            # Try to extract date from article text (byline) if Gemini's date is not in the text
+            text_extracted_date = extract_publication_date_from_text(article_text)
+            if (
+                text_extracted_date
+                and (
+                    gemini_publication_date_str.lower() == "date not found"
+                    or gemini_publication_date_str not in article_text
+                    or gemini_publication_date_str != text_extracted_date
+                )
+            ):
+                print(f"Info: Overriding Gemini date '{gemini_publication_date_str}' with extracted date '{text_extracted_date}' from article text for {article_url}.")
+                final_date_str = text_extracted_date
+                date_source_log = "(from text, override Gemini)"
+            else:
+                final_date_str = gemini_publication_date_str
+                date_source_log = "(from Gemini)"
+            
+
 
     # Determine recency based on the final_date_str
     is_recent_status = "Date unclear"
