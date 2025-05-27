@@ -96,6 +96,7 @@ def fetch_and_extract_text(url: str) -> str | None:
 
         # Prepend byline to the cleaned article text for downstream date extraction
         if byline_text:
+            print(f"Byline text extracted for date parsing: {byline_text!r}")  # <-- Add this line
             cleaned_text = byline_text.strip() + "\n" + cleaned_text
 
         print(f"Successfully extracted text from {url} (approx. {len(cleaned_text.split())} words).")
