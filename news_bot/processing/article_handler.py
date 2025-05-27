@@ -83,16 +83,22 @@ def fetch_and_extract_text(url: str) -> str | None:
                 byline_text += byline_text_candidate + "\n"
 
         # 2. Fallback: search for any tag containing "Published" and a date in its text
-        if not byline_text:
-            for tag in soup.find_all(True):
-                tag_text = tag.get_text(separator=' ', strip=True)
-                if (
-                    "Published" in tag_text
-                    and re.search(r'[A-Za-z]+\s+\d{1,2},\s*\d{4}', tag_text)
-                    and len(tag_text) < 300
-                ):
-                    byline_text += tag_text + "\n"
-                    break  # Only need the first match
+        found_published = False
+        for tag in soup.find_all(True):
+            tag_text = tag.get_text(separator=' ', strip=True)
+            if (
+                "Published" in tag_text
+                and re.search(r'[A-Za-z]+\s+\d{1,2},\s*\d{4}', tag_text)
+                and len(tag_text) < 300
+            ):
+                byline_text = tag_text + "\n"
+                found_published = True
+                break  # Only need the first match
+
+        # Prepend byline to the cleaned article text for downstream date extraction
+        if byline_text:
+            print(f"Byline text extracted for date parsing: {byline_text!r}")
+            cleaned_text = byline_text.strip() + "\n" + cleaned_text
 
         # Prepend byline to the cleaned article text for downstream date extraction
         if byline_text:
