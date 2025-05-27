@@ -6,6 +6,7 @@ import google.generativeai as genai
 from datetime import datetime, date, timedelta
 import json
 import re # For URL date parsing
+import calendar
 
 from ..core import config
 
@@ -90,7 +91,7 @@ def _extract_date_from_url(url_string: str) -> str | None:
     Attempts to extract a date (YYYY-MM-DD) from a URL string.
     Looks for patterns like /YYYY/MM/DD/ or /YYYY/MM/.
     """
-    import calendar
+    
     # Pattern for YYYY/MM/DD
     match_ymd = re.search(r'/(\d{4})/(\d{1,2})/(\d{1,2})/', url_string)
     if match_ymd:
@@ -121,12 +122,20 @@ def _extract_date_from_url(url_string: str) -> str | None:
         except ValueError:
             pass
     
-     # Pattern for Month DD, YYYY (e.g., May 16, 2025)
+    # Pattern for Month DD, YYYY (e.g., May 16, 2025)
     match_month_dd_yyyy = re.search(r'([A-Za-z]+)\s+(\d{1,2}),\s*(\d{4})', url_string)
     if match_month_dd_yyyy:
         month_str, day, year = match_month_dd_yyyy.groups()
         try:
-            month_num = list(calendar.month_name).index(month_str) if month_str in calendar.month_name else list(calendar.month_abbr).index(month_str)
+            # Try full month name first
+            if month_str in calendar.month_name:
+                month_num = list(calendar.month_name).index(month_str)
+            elif month_str in calendar.month_abbr:
+                month_num = list(calendar.month_abbr).index(month_str)
+            else:
+                month_num = 0  # Invalid month
+            if month_num == 0:
+                raise ValueError("Invalid month name in date string")
             dt = datetime(int(year), int(month_num), int(day))
             return dt.strftime("%Y-%m-%d")
         except (ValueError, IndexError):
