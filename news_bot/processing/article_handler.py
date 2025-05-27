@@ -137,8 +137,7 @@ def extract_publication_date_from_text(text: str) -> str | None:
     Returns date as YYYY-MM-DD if found, else None.
     """
     patterns = [
-        r'Published\s+([A-Za-z]+)\s+(\d{1,2}),\s*(\d{4})',
-        r'Updated on\s+([A-Za-z]+)\s+(\d{1,2}),\s*(\d{4})'
+        r'(?:Published|Updated)(?:\s+on)?(?:\s*•)?\s*([A-Za-z]+)\s+(\d{1,2}),\s*(\d{4})'
     ]
     for pat in patterns:
         match = re.search(pat, text)
