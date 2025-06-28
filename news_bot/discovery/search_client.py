@@ -40,10 +40,17 @@ def scan_category_pages_for_links() -> list[dict[str, str]]:
                     link_tag = heading_element.find('a', href=True)
                     if link_tag:
                         candidate_links.append(link_tag)
-            
+            '''
+            print(f"DEBUG: Found {len(candidate_links)} candidate links in headings on {page_url}")
+
+            for link_tag in candidate_links:
+                print(f"DEBUG: Candidate link: {link_tag.get('href')} | Text: {link_tag.get_text(strip=True)}")
+            '''
             if not candidate_links:
                  print(f"  Info: No candidate article links found via heading search on {page_url}.")
 
+
+            '''original
             for link_tag in candidate_links:
                 raw_url = link_tag['href']
                 title = link_tag.get_text(strip=True)
@@ -70,7 +77,63 @@ def scan_category_pages_for_links() -> list[dict[str, str]]:
                         break 
                 # else:
                     # print(f"  Skipping link (heuristic filter): {absolute_url}") # Potentially too verbose
+            '''
+
+
+            for link_tag in candidate_links:
+                raw_url = link_tag['href']
+                title = link_tag.get_text(strip=True)
+                absolute_url = urljoin(page_url, raw_url)
+
+                # --- NEW: Try to extract preview date from the article card ---
+                preview_date = None
+                card = link_tag.find_parent("article")
+                if card:
+                    date_tag = card.select_one('.f--field.f--eyebrow.date span')
+                    if date_tag:
+                        preview_date = date_tag.get_text(strip=True)
+
+                if absolute_url in processed_urls:
+                    continue
+
+                # Validate URL structure and domain
+                if not absolute_url.startswith("http") or not any(domain in absolute_url for domain in config.TARGET_NEWS_SOURCES_DOMAINS):
+                    continue
+
+                # Filter out common non-article paths
+                if any(skip_path in absolute_url for skip_path in ["/category/", "/tag/", "/author/"]):
+                    print(f"  Skipping likely non-article link: {absolute_url}")
+                    continue
+
+                # Heuristic: check for date in URL or sufficient path depth for articles
+                if re.search(r'/\d{4}/\d{2}/\d{2}/', absolute_url) or len(absolute_url.split('/')) > 5:
+                    print(f"  Found potential article via category scan: '{title}' -> {absolute_url}")
+                    found_articles.append({
+                        "title": title,
+                        "url": absolute_url,
+                        "snippet": title,
+                        "preview_date": preview_date  # <-- Save preview date!
+                    })
+                    processed_urls.add(absolute_url)
+                    if len(found_articles) >= config.MAX_SEARCH_RESULTS_TO_PROCESS * 2:
+                        break
             
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
             if len(found_articles) >= config.MAX_SEARCH_RESULTS_TO_PROCESS * 2:
                 break 
 

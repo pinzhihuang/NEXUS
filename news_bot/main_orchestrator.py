@@ -71,7 +71,10 @@ def run_news_bot():
         processed_urls.add(article_url)
 
         # Step 2a: Fetch and extract text
-        article_text = article_handler.fetch_and_extract_text(article_url)
+        #article_text = article_handler.fetch_and_extract_text(article_url)
+
+        
+        article_text = article_handler.fetch_and_extract_text(article_url, preview_date=article_info.get("preview_date"))
         if not article_text:
             print(f"  Skipping: Failed to fetch or extract text.")
             continue

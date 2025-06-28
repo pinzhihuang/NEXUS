@@ -6,11 +6,10 @@ import google.generativeai as genai
 from datetime import datetime, date, timedelta
 import json
 import re # For URL date parsing
-import calendar
 
 from ..core import config
 
-def fetch_and_extract_text(url: str) -> str | None:
+def fetch_and_extract_text(url: str, preview_date: str = None) -> str | None:
     """
     Fetches content from a URL and extracts clean textual content.
     """
@@ -73,37 +72,66 @@ def fetch_and_extract_text(url: str) -> str | None:
             return None
 
         cleaned_text = "\n".join([line for line in text_content.splitlines() if line.strip()])
-         # --- IMPROVED BYLINE/DATE EXTRACTION ---
+
+                # --- Robust Date Extraction for Today USC and USC Online ---
         byline_text = ""
-        # 1. Try common byline/date classes (including 'publish', 'date')
-        byline_candidates = soup.find_all(class_=re.compile(r'byline|dateline|author|publish|date', re.I))
-        for byline in byline_candidates:
-            byline_text_candidate = byline.get_text(separator=' ', strip=True)
-            if byline_text_candidate and len(byline_text_candidate) < 300:
-                byline_text += byline_text_candidate + "\n"
 
-        # 2. Fallback: search for any tag containing "Published" and a date in its text
-        found_published = False
-        for tag in soup.find_all(True):
-            tag_text = tag.get_text(separator=' ', strip=True)
-            if (
-                "Published" in tag_text
-                and re.search(r'[A-Za-z]+\s+\d{1,2},\s*\d{4}', tag_text)
-                and len(tag_text) < 300
-            ):
-                byline_text = tag_text + "\n"
-                found_published = True
-                break  # Only need the first match
+        # Today USC: <div class="meta"><span class="date">...</span></div>
+        if not byline_text:
+            date_span = soup.select_one('div.meta span.date')
+            if date_span:
+                tag_text = date_span.get_text(strip=True)
+                if tag_text and len(tag_text) < 100:
+                    byline_text = f"Published {tag_text}\n"
+                    print(f"DEBUG: Found date in Today USC .meta .date: {tag_text!r}")
 
-        # Prepend byline to the cleaned article text for downstream date extraction
+        # USC Online: <time class="entry-date published" datetime="...">
+        if not byline_text:
+            time_tag = soup.select_one('div.entry-meta time.entry-date.published')
+            if time_tag:
+                date_val = time_tag.get('datetime')
+                if date_val:
+                    date_val = date_val.split('T')[0]
+                    byline_text = f"Published {date_val}\n"
+                    print(f"DEBUG: Found date in USC Online <time>: {date_val!r}")
+                else:
+                    tag_text = time_tag.get_text(strip=True)
+                    if tag_text and len(tag_text) < 100:
+                        byline_text = f"Published {tag_text}\n"
+                        print(f"DEBUG: Found date in USC Online <time> text: {tag_text!r}")
+
+        # Fallback: search for any tag with "Published" and a date
+        if not byline_text:
+            for tag in soup.find_all(['div', 'span', 'p']):
+                tag_text = tag.get_text(separator=' ', strip=True)
+                if (
+                    ("Published" in tag_text or "Updated" in tag_text)
+                    and re.search(r'[A-Za-z]+\s+\d{1,2},\s*\d{4}', tag_text)
+                    and len(tag_text) < 300
+                ):
+                    byline_text = tag_text + "\n"
+                    print(f"DEBUG: Found date in fallback: {tag_text!r}")
+                    break
+        # Fallback: use preview_date if no byline_text found
+        if not byline_text and preview_date:
+            byline_text = f"Published {preview_date}\n"
+            print(f"DEBUG: Using preview date as fallback: {preview_date!r}")
+
+        # Prepend byline to cleaned_text for downstream date extraction
         if byline_text:
-            print(f"Byline text extracted for date parsing: {byline_text!r}")
+            print(f"Found date information: {byline_text!r}")
             cleaned_text = byline_text.strip() + "\n" + cleaned_text
 
-        # Prepend byline to the cleaned article text for downstream date extraction
-        if byline_text:
-            print(f"Byline text extracted for date parsing: {byline_text!r}")  # <-- Add this line
-            cleaned_text = byline_text.strip() + "\n" + cleaned_text
+
+
+
+
+
+
+
+
+
+
 
         print(f"Successfully extracted text from {url} (approx. {len(cleaned_text.split())} words).")
         return cleaned_text
@@ -119,13 +147,11 @@ def fetch_and_extract_text(url: str) -> str | None:
     return None
 
 
-
 def _extract_date_from_url(url_string: str) -> str | None:
     """
     Attempts to extract a date (YYYY-MM-DD) from a URL string.
     Looks for patterns like /YYYY/MM/DD/ or /YYYY/MM/.
     """
-    
     # Pattern for YYYY/MM/DD
     match_ymd = re.search(r'/(\d{4})/(\d{1,2})/(\d{1,2})/', url_string)
     if match_ymd:
@@ -155,39 +181,7 @@ def _extract_date_from_url(url_string: str) -> str | None:
             return dt.strftime("%Y-%m-%d")
         except ValueError:
             pass
-    
-   
             
-    return None
-
-
-
-def extract_publication_date_from_text(text: str) -> str | None:
-    """
-    Attempts to extract a publication date from visible article text,
-    e.g., 'Published May 16, 2025' or 'Updated on May 16, 2025 at 2:30 pm'.
-    Returns date as YYYY-MM-DD if found, else None.
-    """
-    patterns = [
-        r'(?:Published|Updated)(?:\s+on)?(?:\s*•)?\s*([A-Za-z]+)\s+(\d{1,2}),\s*(\d{4})'
-    ]
-    for pat in patterns:
-        match = re.search(pat, text)
-        if match:
-            month_str, day, year = match.groups()
-            try:
-                if month_str in calendar.month_name:
-                    month_num = list(calendar.month_name).index(month_str)
-                elif month_str in calendar.month_abbr:
-                    month_num = list(calendar.month_abbr).index(month_str)
-                else:
-                    continue
-                if month_num == 0:
-                    continue
-                dt = datetime(int(year), int(month_num), int(day))
-                return dt.strftime("%Y-%m-%d")
-            except Exception:
-                continue
     return None
 
 def verify_article_with_gemini(article_text: str, article_url: str) -> dict | None:
@@ -298,7 +292,7 @@ Your response (exactly 4 lines as specified above):
         final_relevance = "Relevance unclear (Gemini API error)"
         final_article_type = "Type unclear (Gemini API error)"
 
-    # Determine final date string (Gemini > URL > Text > Not found)
+    # Determine final date string (Gemini > URL > Not found)
     final_date_str = gemini_publication_date_str
     date_source_log = "(from Gemini)"
     if final_date_str.lower() == "date not found" or "error" in final_date_str.lower() or not final_date_str.strip():
@@ -309,37 +303,8 @@ Your response (exactly 4 lines as specified above):
             date_source_log = "(from URL)"
             print(f"Info: Extracted date {final_date_str} from URL for {article_url}.")
         else:
-            '''
-            # Fallback: Try extracting from article text
-            text_extracted_date = extract_publication_date_from_text(article_text)
-            if text_extracted_date:
-                final_date_str = text_extracted_date
-                date_source_log = "(from text)"
-                print(f"Info: Extracted date {final_date_str} from article text for {article_url}.")
-            else:
-                final_date_str = "Date not found"
-                date_source_log = "(no date found)"
-            '''
-            
-            # After getting gemini_publication_date_str, before determining recency:
-            # Try to extract date from article text (byline) if Gemini's date is not in the text
-            text_extracted_date = extract_publication_date_from_text(article_text)
-            if (
-                text_extracted_date
-                and (
-                    gemini_publication_date_str.lower() == "date not found"
-                    or gemini_publication_date_str not in article_text
-                    or gemini_publication_date_str != text_extracted_date
-                )
-            ):
-                print(f"Info: Overriding Gemini date '{gemini_publication_date_str}' with extracted date '{text_extracted_date}' from article text for {article_url}.")
-                final_date_str = text_extracted_date
-                date_source_log = "(from text, override Gemini)"
-            else:
-                final_date_str = gemini_publication_date_str
-                date_source_log = "(from Gemini)"
-            
-
+            final_date_str = "Date not found"
+            date_source_log = "(no date found)"
 
     # Determine recency based on the final_date_str
     is_recent_status = "Date unclear"

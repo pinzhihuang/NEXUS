@@ -35,23 +35,29 @@ TARGET_GOOGLE_DOC_ID = os.getenv("TARGET_GOOGLE_DOC_ID", None)
 
 
 TARGET_NEWS_SOURCES_DOMAINS = [
+    "https://today.usc.edu",
+    "https://www.marshall.usc.edu",
+    "https://gould.usc.edu",
+    "https://priceschool.usc.edu"
     #"nyunews.com", 
-    "https://www.nbcnewyork.com",
-    "https://www.nyu.edu/about/news-publications/news.html",
-    "https://nypost.com"
+    #"https://www.nbcnewyork.com",
+    #"https://www.nyu.edu/about/news-publications/news.html",
+    #"https://nypost.com"
     
 
 ]
 CATEGORY_PAGES_TO_SCAN = [
+    "https://today.usc.edu/category/university/",
+    "https://today.usc.edu/news/"
     #"https://nyunews.com/category/news/"
-    "https://www.nbcnewyork.com/?s=NYU",
-    "https://www.nyu.edu/about/news-publications/news/search.html",
-    "https://nypost.com/search/nyu/"
+    #"https://www.nbcnewyork.com/?s=NYU",
+    #"https://www.nyu.edu/about/news-publications/news/search.html",
+    #"https://nypost.com/search/nyu/"
     
 
 ]
 RELEVANCE_KEYWORDS = [
-    "Chinese international students", "NYU News","New York student life", "NYU campus events", "NYU", "New York University"
+    "Chinese international students", "USC News","USC student life", "USC campus events", "USC", "University of Southern California"
 ]
 
 # Article Processing Configuration
