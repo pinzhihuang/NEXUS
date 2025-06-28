@@ -35,13 +35,13 @@ TARGET_GOOGLE_DOC_ID = os.getenv("TARGET_GOOGLE_DOC_ID", None)
 
 
 TARGET_NEWS_SOURCES_DOMAINS = [
-    "https://www.ucdavis.edu/news"
+    "https://news.ubc.ca"
 ]
 CATEGORY_PAGES_TO_SCAN = [
-    "https://www.ucdavis.edu/news/university"
+    "https://news.ubc.ca/category/university-news/"
 ]
 RELEVANCE_KEYWORDS = [
-    "Chinese international students", "UCD News","UCD student life", "UCD campus events", "UC Davis", "student", "students"
+    "Chinese international students", "UBC News","UBC student life", "UBC campus events", "UBC", "student", "students"
 ]
 
 # Article Processing Configuration
