@@ -35,13 +35,14 @@ TARGET_GOOGLE_DOC_ID = os.getenv("TARGET_GOOGLE_DOC_ID", None)
 
 
 TARGET_NEWS_SOURCES_DOMAINS = [
-    "https://news.emory.edu/index.html"
+    "https://news.emory.edu"
 ]
 CATEGORY_PAGES_TO_SCAN = [
-    "https://news.emory.edu/tags/topic/news_releases/index.html“,
+    
     "https://news.emory.edu/tags/topic/students/index.html",
     "https://news.emory.edu/tags/category/events/index.html",
     "https://news.emory.edu/tags/topic/around_campus/index.html"
+
 ]
 RELEVANCE_KEYWORDS = [
     "Chinese international students", "Emory News","Emory student life", "Emory campus events", "Emory", "student", "students"

@@ -10,10 +10,12 @@ from bs4 import BeautifulSoup # For parsing category pages
 from urllib.parse import urljoin # For resolving relative URLs
 import re # For regular expressions
 
+# ...existing code...
+
 def scan_category_pages_for_links() -> list[dict[str, str]]:
     """
     Scans configured category pages for direct links to articles.
-    Returns a list of dictionaries, each containing 'title', 'url', and 'snippet' (title used as snippet).
+    Returns a list of dictionaries, each containing 'title', 'url', 'snippet', and 'preview_date'.
     """
     found_articles = []
     processed_urls = set()
@@ -34,19 +36,26 @@ def scan_category_pages_for_links() -> list[dict[str, str]]:
             soup = BeautifulSoup(response.content, 'html.parser')
 
             candidate_links = []
-            # General approach: find links within heading tags, common in article listings.
-            for heading_tag_name in ['h1', 'h2', 'h3', 'h4']:
-                for heading_element in soup.find_all(heading_tag_name):
-                    link_tag = heading_element.find('a', href=True)
-                    if link_tag:
-                        candidate_links.append(link_tag)
-            
-            if not candidate_links:
-                 print(f"  Info: No candidate article links found via heading search on {page_url}.")
+            # --- Emory News: find all article cards in the list ---
+            for li in soup.select('li.tag-list-item'):
+                link_tag = li.select_one('a[href]')
+                title_tag = li.select_one('.tag-list-item-heading')
+                date_tag = li.select_one('.tag-list-item-meta')
+                if link_tag and title_tag:
+                    candidate_links.append({
+                        "link_tag": link_tag,
+                        "title": title_tag.get_text(strip=True),
+                        "date": date_tag.get_text(strip=True) if date_tag else None
+                    })
 
-            for link_tag in candidate_links:
+            if not candidate_links:
+                print(f"  Info: No candidate article links found via Emory News selector on {page_url}.")
+
+            for item in candidate_links:
+                link_tag = item["link_tag"]
                 raw_url = link_tag['href']
-                title = link_tag.get_text(strip=True)
+                title = item["title"]
+                preview_date = item["date"]
                 absolute_url = urljoin(page_url, raw_url)
 
                 if absolute_url in processed_urls:
@@ -60,27 +69,32 @@ def scan_category_pages_for_links() -> list[dict[str, str]]:
                 if any(skip_path in absolute_url for skip_path in ["/category/", "/tag/", "/author/"]):
                     print(f"  Skipping likely non-article link: {absolute_url}")
                     continue
-                
-                # Heuristic: check for date in URL or sufficient path depth for articles
-                if re.search(r'/\d{4}/\d{2}/\d{2}/', absolute_url) or len(absolute_url.split('/')) > 5:
+
+                # Heuristic: check for sufficient path depth for articles
+                if len(absolute_url.split('/')) > 5:
                     print(f"  Found potential article via category scan: '{title}' -> {absolute_url}")
-                    found_articles.append({"title": title, "url": absolute_url, "snippet": title})
+                    found_articles.append({
+                        "title": title,
+                        "url": absolute_url,
+                        "snippet": title,
+                        "preview_date": preview_date
+                    })
                     processed_urls.add(absolute_url)
-                    if len(found_articles) >= config.MAX_SEARCH_RESULTS_TO_PROCESS * 2: # Limit to avoid over-scanning
-                        break 
-                # else:
-                    # print(f"  Skipping link (heuristic filter): {absolute_url}") # Potentially too verbose
-            
+                    if len(found_articles) >= config.MAX_SEARCH_RESULTS_TO_PROCESS * 2:
+                        break
+
             if len(found_articles) >= config.MAX_SEARCH_RESULTS_TO_PROCESS * 2:
-                break 
+                break
 
         except requests.exceptions.RequestException as e_req:
             print(f"Error fetching category page {page_url}: {e_req}")
         except Exception as e_general:
             print(f"Error processing category page {page_url}: {e_general}")
-    
+
     print(f"Found {len(found_articles)} unique potential articles from category page scans.")
     return found_articles
+
+# ...existing code...
 
 def find_articles_with_google_pse() -> list[dict[str, str]]:
     """
