@@ -46,7 +46,7 @@ RELEVANCE_KEYWORDS = [
 ]
 
 # Article Processing Configuration
-RECENCY_THRESHOLD_DAYS = int(os.getenv("RECENCY_THRESHOLD_DAYS", "7"))
+RECENCY_THRESHOLD_DAYS = int(os.getenv("RECENCY_THRESHOLD_DAYS", "20"))
 RECENCY_TIMEDELTA = timedelta(days=RECENCY_THRESHOLD_DAYS)
 URL_FETCH_TIMEOUT = int(os.getenv("URL_FETCH_TIMEOUT", "20")) # seconds
 
