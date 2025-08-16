@@ -171,6 +171,27 @@ def update_or_create_news_document(reports_data: list, week_start_date: datetime
                 'fields': 'namedStyleType'
             }
         })
+        # Set text color to black for main header
+        requests_body.append({
+            'updateTextStyle': {
+                'range': {
+                    'startIndex': current_offset,
+                    'endIndex': current_offset + len(main_header_text) - 1
+                },
+                'textStyle': {
+                    'foregroundColor': {
+                        'color': {
+                            'rgbColor': {
+                                'red': 0.0,
+                                'green': 0.0,
+                                'blue': 0.0
+                            }
+                        }
+                    }
+                },
+                'fields': 'foregroundColor'
+            }
+        })
         current_offset += len(main_header_text)
 
         # 2. Add Individual News Reports
@@ -180,8 +201,30 @@ def update_or_create_news_document(reports_data: list, week_start_date: datetime
             source_url = report.get('source_url', '#')
 
             if i > 0: # Add separator before second article onwards
-                requests_body.append({'insertText': {'location': {'index': current_offset}, 'text': '\n---\n\n'}})
-                current_offset += 5
+                separator_text = '\n---\n\n'
+                requests_body.append({'insertText': {'location': {'index': current_offset}, 'text': separator_text}})
+                # Set text color to black for separator
+                requests_body.append({
+                    'updateTextStyle': {
+                        'range': {
+                            'startIndex': current_offset,
+                            'endIndex': current_offset + len(separator_text) - 1
+                        },
+                        'textStyle': {
+                            'foregroundColor': {
+                                'color': {
+                                    'rgbColor': {
+                                        'red': 0.0,
+                                        'green': 0.0,
+                                        'blue': 0.0
+                                    }
+                                }
+                            }
+                        },
+                        'fields': 'foregroundColor'
+                    }
+                })
+                current_offset += len(separator_text)
 
             title_text = f"{chinese_title}\n"
             requests_body.append({'insertText': {'location': {'index': current_offset}, 'text': title_text}})
@@ -192,14 +235,77 @@ def update_or_create_news_document(reports_data: list, week_start_date: datetime
                     'fields': 'namedStyleType'
                 }
             })
+            # Set text color to black for article title
+            requests_body.append({
+                'updateTextStyle': {
+                    'range': {
+                        'startIndex': current_offset,
+                        'endIndex': current_offset + len(title_text) - 1
+                    },
+                    'textStyle': {
+                        'foregroundColor': {
+                            'color': {
+                                'rgbColor': {
+                                    'red': 0.0,
+                                    'green': 0.0,
+                                    'blue': 0.0
+                                }
+                            }
+                        }
+                    },
+                    'fields': 'foregroundColor'
+                }
+            })
             current_offset += len(title_text)
 
             report_body_text = f"{refined_report}\n"
             requests_body.append({'insertText': {'location': {'index': current_offset}, 'text': report_body_text}})
+            # Set text color to black for report body
+            requests_body.append({
+                'updateTextStyle': {
+                    'range': {
+                        'startIndex': current_offset,
+                        'endIndex': current_offset + len(report_body_text) - 1
+                    },
+                    'textStyle': {
+                        'foregroundColor': {
+                            'color': {
+                                'rgbColor': {
+                                    'red': 0.0,
+                                    'green': 0.0,
+                                    'blue': 0.0
+                                }
+                            }
+                        }
+                    },
+                    'fields': 'foregroundColor'
+                }
+            })
             current_offset += len(report_body_text)
 
             source_line_text = f"来源 (Source): {source_url}\n\n"
             requests_body.append({'insertText': {'location': {'index': current_offset}, 'text': source_line_text}})
+            # Set text color to black for entire source line first
+            requests_body.append({
+                'updateTextStyle': {
+                    'range': {
+                        'startIndex': current_offset,
+                        'endIndex': current_offset + len(source_line_text) - 1
+                    },
+                    'textStyle': {
+                        'foregroundColor': {
+                            'color': {
+                                'rgbColor': {
+                                    'red': 0.0,
+                                    'green': 0.0,
+                                    'blue': 0.0
+                                }
+                            }
+                        }
+                    },
+                    'fields': 'foregroundColor'
+                }
+            })
             url_start_idx = source_line_text.find(source_url)
             if url_start_idx != -1:
                 requests_body.append({
