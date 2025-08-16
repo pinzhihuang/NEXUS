@@ -88,7 +88,7 @@ NEXUS/
         # TARGET_GOOGLE_DOC_ID="YOUR_GOOGLE_DOCUMENT_ID_HERE"
         
         # Optional: Override default model names or parameters from config.py
-        # GEMINI_FLASH_MODEL='gemini-1.5-flash-latest' 
+        # GEMINI_FLASH_MODEL='gemini-2.5-flash-latest' 
         # RECENCY_THRESHOLD_DAYS=7
         ```
     *   **Google Programmable Search Engine (PSE) Setup**:
