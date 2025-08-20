@@ -2,7 +2,7 @@
 
 import os
 from dotenv import load_dotenv
-from datetime import timedelta
+from datetime import datetime, date, timedelta
 
 
 PROJECT_ROOT = os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
@@ -41,13 +41,70 @@ TARGET_NEWS_SOURCES_DOMAINS = [
 CATEGORY_PAGES_TO_SCAN = [
     "https://nyunews.com/category/news/"
 ]
+# Archive URL patterns for date-specific searches
+# Use {year}, {month}, {day} as placeholders
+# Note: These patterns should be adjusted based on the actual archive structure of the target sites
+ARCHIVE_URL_PATTERNS = [
+    # WSN might use patterns like: /2025/02/ for February 2025 archives
+    "https://nyunews.com/{year}/{month:02d}/",
+    # NYU news might have monthly archive pages
+    "https://www.nyu.edu/about/news-publications/news/{year}/{month:02d}.html",
+    # Alternative patterns to try
+    "https://nyunews.com/news/{year}/{month:02d}/",
+]
 RELEVANCE_KEYWORDS = [
     "Chinese international students", "NYU News","New York student life", "NYU campus events"
 ]
 
-# Article Processing Configuration
-RECENCY_THRESHOLD_DAYS = int(os.getenv("RECENCY_THRESHOLD_DAYS", "100"))
+# =============================================================================
+# DATE RANGE CONFIGURATION FOR NEWS COLLECTION
+# =============================================================================
+# NEWS_START_DATE: Specify the starting date for news collection
+# - Format: "YYYY-MM-DD" (e.g., "2024-07-25")
+# - If not set or None, defaults to (current date - RECENCY_THRESHOLD_DAYS)
+# - The program will collect news from this date + RECENCY_THRESHOLD_DAYS forward
+# 
+# RECENCY_THRESHOLD_DAYS: Number of days to collect news from the start date
+# - Default: 7 (one week)
+# - Example: If NEWS_START_DATE="2024-07-25" and RECENCY_THRESHOLD_DAYS=7,
+#           the program will collect news from July 25-31, 2024
+# =============================================================================
+
+# Parse NEWS_START_DATE from environment or use None for automatic calculation
+NEWS_START_DATE_STR = os.getenv("NEWS_START_DATE", None)
+if NEWS_START_DATE_STR:
+    try:
+        NEWS_START_DATE = datetime.strptime(NEWS_START_DATE_STR, "%Y-%m-%d").date()
+        print(f"Using custom news start date: {NEWS_START_DATE}")
+    except ValueError:
+        print(f"Warning: Invalid NEWS_START_DATE format '{NEWS_START_DATE_STR}'. Expected YYYY-MM-DD. Using default.")
+        NEWS_START_DATE = None
+else:
+    NEWS_START_DATE = None
+
+# Number of days to collect news (from start date forward)
+RECENCY_THRESHOLD_DAYS = int(os.getenv("RECENCY_THRESHOLD_DAYS", "7"))  # Default to 7 days (one week)
 RECENCY_TIMEDELTA = timedelta(days=RECENCY_THRESHOLD_DAYS)
+
+# Calculate effective date range for news collection
+def get_news_date_range():
+    """
+    Returns a tuple of (start_date, end_date) for news collection.
+    If NEWS_START_DATE is set, uses it as the start date.
+    Otherwise, uses (today - RECENCY_THRESHOLD_DAYS + 1) as start date.
+    """
+    if NEWS_START_DATE:
+        # User specified a custom start date
+        start_date = NEWS_START_DATE
+        end_date = start_date + timedelta(days=RECENCY_THRESHOLD_DAYS - 1)
+    else:
+        # Default behavior: collect news from the past RECENCY_THRESHOLD_DAYS
+        end_date = date.today()
+        start_date = end_date - timedelta(days=RECENCY_THRESHOLD_DAYS - 1)
+    
+    return start_date, end_date
+
+# Article Processing Configuration
 URL_FETCH_TIMEOUT = int(os.getenv("URL_FETCH_TIMEOUT", "20")) # seconds
 
 # Output Configuration
@@ -80,6 +137,15 @@ def validate_config():
     print(f"  GEMINI_FLASH_MODEL: {GEMINI_FLASH_MODEL}")
     print(f"  GEMINI_SUMMARY_MODEL: {GEMINI_SUMMARY_MODEL}")
     print(f"  Output directory: {DEFAULT_OUTPUT_DIR}")
+    
+    # Display date range configuration
+    start_date, end_date = get_news_date_range()
+    print(f"  News collection date range: {start_date} to {end_date} ({RECENCY_THRESHOLD_DAYS} days)")
+    if NEWS_START_DATE:
+        print(f"  Using custom start date from configuration")
+    else:
+        print(f"  Using automatic date range (last {RECENCY_THRESHOLD_DAYS} days)")
+    
     if TARGET_GOOGLE_DOC_ID:
         print(f"  Target Google Doc ID for updates: {TARGET_GOOGLE_DOC_ID}")
     else:
@@ -89,4 +155,4 @@ if not all([GEMINI_API_KEY, GOOGLE_API_KEY, CUSTOM_SEARCH_ENGINE_ID]):
     if os.path.exists(DOTENV_PATH):
         print(f"Warning: Attempted to load .env from {DOTENV_PATH}, but one or more API keys (GEMINI, GOOGLE_API_KEY for PSE, CUSTOM_SEARCH_ENGINE_ID) are still missing from the environment.")
     else:
-        print(f"Warning: .env file not found at {DOTENV_PATH}. Critical API keys might be missing.") 
+        print(f"Warning: .env file not found at {DOTENV_PATH}. Critical API keys might be missing.")
