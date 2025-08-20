@@ -2,6 +2,13 @@
 
 Project NEXUS is an automated system for discovering, verifying, summarizing, and translating news relevant to international students at various universities. It aims to provide a centralized and accessible source of important campus and community information.
 
+## Feature Log
+[2025-01-20] Custom Date Range Support: Added ability to specify a custom start date for news collection with 7-day window
+- New config: NEWS_START_DATE - Set any date as the starting point for news collection
+- Default: Current date minus 7 days (captures last week's news)
+- Format: YYYY-MM-DD in .env file or config.py
+- 
+
 ## Features
 
 -   **Configurable News Discovery**:
