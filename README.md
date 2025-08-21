@@ -2,6 +2,16 @@
 
 Project NEXUS is an automated system for discovering, verifying, summarizing, and translating news relevant to international students at various universities. It aims to provide a centralized and accessible source of important campus and community information.
 
+## Feature Log
+[2025-01-20] 
+- Custom Date Range Support: Added ability to specify a custom start date for news collection with 7-day window
+    - New config: NEWS_START_DATE - Set any date as the starting point for news collection
+    - Default: Current date minus 7 days (captures last week's news)
+    - Format: YYYY-MM-DD in .env file or config.py
+- Added specific URL pattern validation for news article and archive page scanning for precise date targeting
+- Improved article discovery with multi-page category scanning
+    - New config: MAX_CATEGORY_PAGES_TO_SCAN - Maximum number of category pages to scan for news sourcing
+
 ## Features
 
 -   **Configurable News Discovery**:
@@ -90,6 +100,8 @@ NEXUS/
         # Optional: Override default model names or parameters from config.py
         # GEMINI_FLASH_MODEL='gemini-2.5-flash-latest' 
         # RECENCY_THRESHOLD_DAYS=7
+        # NEWS_START_DATE="2025-08-01"
+        # MAX_CATEGORY_PAGES_TO_SCAN=20
         ```
     *   **Google Programmable Search Engine (PSE) Setup**:
         1.  Project in [Google Cloud Console](https://console.cloud.google.com/).

@@ -32,6 +32,14 @@ def run_news_bot():
         print("Bot run aborted.")
         return
 
+    # Get and display the configured date range
+    start_date, end_date = config.get_news_date_range()
+    print(f"\n=== Collecting news from: {start_date} to {end_date} ===")
+    if config.NEWS_START_DATE:
+        print(f"=== Using custom start date from configuration ===")
+    else:
+        print(f"=== Using automatic date range (last {config.RECENCY_THRESHOLD_DAYS} days) ===")
+
     print("\n--- Step 1: Discovering Articles ---")
     discovered_articles = search_client.find_relevant_articles()
 
@@ -82,16 +90,22 @@ def run_news_bot():
             print(f"  Skipping: Failed to get verification results.")
             continue
         
-        print(f"  Verification: Date='{verification_results.get('publication_date_str')}', Recent='{verification_results.get('is_recent')}', Rel='{verification_results.get('is_relevant')}', Type='{verification_results.get('article_type_assessment')}'")
+        print(f"  Verification: Date='{verification_results.get('publication_date_str')}', Status='{verification_results.get('is_recent')}', Rel='{verification_results.get('is_relevant')}', Type='{verification_results.get('article_type_assessment')}'")
 
+        # Use the explicit is_within_range flag if available, otherwise check for "Within range" in status
+        is_within_date_range = verification_results.get("is_within_range", False)
+        if not is_within_date_range:
+            # Fallback for compatibility
+            is_within_date_range = "Within range" in verification_results.get("is_recent", "") or "Recent" in verification_results.get("is_recent", "")
+        
         is_suitable_for_summary = (
-            verification_results.get("is_recent", "").startswith("Recent") and
+            is_within_date_range and
             verification_results.get("is_relevant") == "Relevant" and
             verification_results.get("article_type_assessment") == "News article"
         )
 
         if not is_suitable_for_summary:
-            print(f"  Skipping: Article not suitable for summary (Recent: {verification_results.get('is_recent')}, Rel: {verification_results.get('is_relevant')}, Type: {verification_results.get('article_type_assessment')}).")
+            print(f"  Skipping: Article not suitable for summary (Within Range: {is_within_date_range}, Rel: {verification_results.get('is_relevant')}, Type: {verification_results.get('article_type_assessment')}).")
             continue
         
         print(f"  Info: Article verified. Proceeding to English summarization.")
@@ -145,7 +159,8 @@ def run_news_bot():
     # Step 5: Save the compiled news reports
     print("\n--- Step 5: Saving News Reports ---")
     if final_news_reports:
-        output_filename_base = "weekly_student_news_report"
+        # Include date range in filename for clarity
+        output_filename_base = f"weekly_student_news_report_{start_date}_{end_date}"
         saved_filepath = file_manager.save_data_to_json(final_news_reports, output_filename_base)
         if saved_filepath:
             print(f"Successfully saved {len(final_news_reports)} news reports to {saved_filepath}")
@@ -154,17 +169,13 @@ def run_news_bot():
     else:
         print("Info: No news reports were generated to save.")
 
-    # --- New Step 6: Export to Google Doc ---
+    # --- Step 6: Export to Google Doc ---
     if final_news_reports and saved_filepath:
         print("\n--- Step 6: Exporting News Reports to Google Doc ---")
-        today = date.today()
-        # Define week as today and 6 days prior, matching RECENCY_THRESHOLD_DAYS logic for a 7-day week
-        week_end_date_for_doc = today 
-        week_start_date_for_doc = today - timedelta(days=config.RECENCY_THRESHOLD_DAYS - 1)
         
-        gdoc_title = f"Project NEXUS: Weekly Chinese News ({week_start_date_for_doc.strftime('%Y-%m-%d')} to {week_end_date_for_doc.strftime('%Y-%m-%d')})"
+        gdoc_title = f"Project NEXUS: Weekly Chinese News ({start_date.strftime('%Y-%m-%d')} to {end_date.strftime('%Y-%m-%d')})"
         
-        gdoc_url = google_docs_exporter.update_or_create_news_document(final_news_reports, week_start_date_for_doc, week_end_date_for_doc)
+        gdoc_url = google_docs_exporter.update_or_create_news_document(final_news_reports, start_date, end_date)
         if gdoc_url:
             print(f"Successfully operated on Google Doc: {gdoc_url}")
         else:
@@ -172,13 +183,13 @@ def run_news_bot():
             print("Ensure Google Docs API is enabled, OAuth credentials correct, and app authorized.")
     elif not final_news_reports:
         print("Info: No reports to export to Google Doc.")
-    # --- End of New Step ---
 
     run_end_time = datetime.now()
     print("=====================================")
     print(f"=== Project NEXUS - Run Finished at {run_end_time.isoformat()} ===")
     print(f"=== Total Run Duration: {run_end_time - run_start_time} ===")
+    print(f"=== Date Range Processed: {start_date} to {end_date} ===")
     print("=====================================")
 
 if __name__ == '__main__':
-    run_news_bot() 
+    run_news_bot()

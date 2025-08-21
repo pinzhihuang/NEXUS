@@ -22,7 +22,7 @@ def llm_score_relevance_10point(chinese_text: str, article_title: str = "") -> t
     except Exception:
         return 1, "初始化失败"
 
-    prompt = f"""你是一位中文新闻分析师，请判断以下新闻与“纽约大学（NYU）的中国留学生”主题的相关性，并给出 1~10 的整数分数和简要原因。
+    prompt = f"""你是一位中文新闻分析师，请判断以下新闻与"纽约大学（NYU）的中国留学生"主题的相关性，并给出 1~10 的整数分数和简要原因。
 
 评分标准：
 10 = 与中国留学生紧密相关，是主题核心
@@ -140,10 +140,11 @@ def process_news_report(input_path: str, output_path: str):
 
     # --- Export sorted to Google Doc ---
     print("开始导出排序后的结果到 Google Doc...")
-    today = date.today()
-    week_end = today
-    week_start = today - timedelta(days=config.RECENCY_THRESHOLD_DAYS - 1)
-    gdoc_url = google_docs_exporter.update_or_create_news_document(sorted_reports, week_start, week_end)
+    
+    # Get the configured date range
+    start_date, end_date = config.get_news_date_range()
+    
+    gdoc_url = google_docs_exporter.update_or_create_news_document(sorted_reports, start_date, end_date)
     if gdoc_url:
         print(f"导出成功: {gdoc_url}")
     else:
@@ -154,19 +155,49 @@ def process_news_report(input_path: str, output_path: str):
 # --------------------------
 
 if __name__ == "__main__":
-    today = datetime.now().strftime("%Y-%m-%d")
+    # Get configured date range to find the correct file
+    start_date, end_date = config.get_news_date_range()
+    
+    # Look for files with the date range in the filename
     input_file = None
     reports_dir = "news_reports"
-    pattern = f"weekly_student_news_report_{today}_"
-
+    
+    if not os.path.exists(reports_dir):
+        print(f"Reports directory '{reports_dir}' does not exist.")
+        exit(1)
+    
+    # Pattern to match files with date range
+    pattern = f"weekly_student_news_report_{start_date}_{end_date}"
+    
+    # Find the most recent file matching the pattern
     for fname in sorted(os.listdir(reports_dir), reverse=True):
-        if fname.startswith(pattern) and fname.endswith(".json"):
+        if fname.startswith(pattern) and fname.endswith(".json") and "_sorted" not in fname:
             input_file = os.path.join(reports_dir, fname)
             break
-
+    
+    # Fallback to today's date pattern if custom date range file not found
     if input_file is None:
-        print("未找到今日的新闻摘要文件。请先运行 main_orchestrator.py。")
+        today = datetime.now().strftime("%Y-%m-%d")
+        pattern = f"weekly_student_news_report_{today}"
+        
+        for fname in sorted(os.listdir(reports_dir), reverse=True):
+            if fname.startswith(pattern) and fname.endswith(".json") and "_sorted" not in fname:
+                input_file = os.path.join(reports_dir, fname)
+                break
+    
+    # Final fallback to any recent file
+    if input_file is None:
+        for fname in sorted(os.listdir(reports_dir), reverse=True):
+            if fname.startswith("weekly_student_news_report_") and fname.endswith(".json") and "_sorted" not in fname:
+                input_file = os.path.join(reports_dir, fname)
+                print(f"Warning: Using fallback file (may not match configured date range): {fname}")
+                break
+    
+    if input_file is None:
+        print(f"未找到日期范围 {start_date} 到 {end_date} 的新闻摘要文件。")
+        print("请先运行 main_orchestrator.py。")
     else:
         output_file = input_file.replace(".json", "_sorted.json")
         print(f"读取输入文件: {input_file}")
+        print(f"处理日期范围: {start_date} 到 {end_date}")
         process_news_report(input_file, output_file)

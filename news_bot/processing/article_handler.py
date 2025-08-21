@@ -125,27 +125,33 @@ def _extract_date_from_url(url_string: str) -> str | None:
 def verify_article_with_gemini(article_text: str, article_url: str) -> dict | None:
     """
     Verifies an article using Gemini for date, recency, relevance, and article type.
+    Uses the configured date range from config.get_news_date_range().
     Supplements Gemini date extraction with URL parsing if Gemini fails.
     """
     if not config.GEMINI_API_KEY:
         print("Error: GEMINI_API_KEY not configured for verification.")
         return None
+    
+    # Get the configured date range
+    start_date, end_date = config.get_news_date_range()
+    
     if not article_text or not article_text.strip():
         print(f"Info: Skipping Gemini verification for {article_url} due to empty article text.")
         publication_date_from_url = _extract_date_from_url(article_url)
         final_date_str = publication_date_from_url if publication_date_from_url else "Date not found"
         is_recent_status = "Date unclear (no text/URL date)"
+        is_within_range = False
+        
         if publication_date_from_url:
             try:
                 pub_dt = datetime.strptime(publication_date_from_url, "%Y-%m-%d").date()
-                today_for_check = date.today()
-                oldest_acceptable_date = today_for_check - timedelta(days=config.RECENCY_THRESHOLD_DAYS - 1)
-                if pub_dt >= oldest_acceptable_date and pub_dt <= today_for_check:
-                    is_recent_status = "Recent (from URL)"
-                elif pub_dt > today_for_check:
-                    is_recent_status = "Date in future (from URL)"
+                if pub_dt >= start_date and pub_dt <= end_date:
+                    is_recent_status = f"Within range (from URL, {start_date} to {end_date})"
+                    is_within_range = True
+                elif pub_dt > end_date:
+                    is_recent_status = f"After range (from URL, after {end_date})"
                 else:
-                    is_recent_status = "Not recent (from URL)"
+                    is_recent_status = f"Before range (from URL, before {start_date})"
             except ValueError:
                 is_recent_status = "Date unparsable (from URL)"
         
@@ -153,11 +159,14 @@ def verify_article_with_gemini(article_text: str, article_url: str) -> dict | No
             "url": article_url,
             "publication_date_str": final_date_str,
             "is_recent": is_recent_status,
+            "is_within_range": is_within_range,
             "is_relevant": "Relevance unclear (no text)",
             "article_type_assessment": "Type unclear (no text)"
         }
 
     print(f"Verifying article with Gemini: {article_url[:100]}...")
+    print(f"Using date range: {start_date} to {end_date}")
+    
     try:
         genai.configure(api_key=config.GEMINI_API_KEY)
         model = genai.GenerativeModel(config.GEMINI_FLASH_MODEL)
@@ -165,7 +174,6 @@ def verify_article_with_gemini(article_text: str, article_url: str) -> dict | No
         print(f"Error initializing Gemini model for verification: {str(e)}")
         return None
 
-    today_for_check = date.today()
     relevance_query = f"Is this article generally relevant to students at New York University (NYU), covering campus news, academic updates, student life, or significant events affecting the NYU community?"
     
     prompt = f"""Analyze the article text. Provide your analysis in EXACTLY four lines, each starting with the specified prefix:
@@ -244,20 +252,22 @@ Your response (exactly 4 lines as specified above):
             final_date_str = "Date not found"
             date_source_log = "(no date found)"
 
-    # Determine recency based on the final_date_str
+    # Determine recency based on the final_date_str and configured date range
     is_recent_status = "Date unclear"
+    is_within_range = False  # Track if date is actually within range
+    
     if final_date_str.lower() == "date not found" or "error" in final_date_str.lower():
         is_recent_status = f"Date unclear {date_source_log}"
     else:
         try:
             publication_date_dt = datetime.strptime(final_date_str, "%Y-%m-%d").date()
-            oldest_acceptable_date = today_for_check - timedelta(days=config.RECENCY_THRESHOLD_DAYS - 1)
-            if publication_date_dt >= oldest_acceptable_date and publication_date_dt <= today_for_check:
-                is_recent_status = f"Recent {date_source_log}"
-            elif publication_date_dt > today_for_check:
-                is_recent_status = f"Date in future {date_source_log}"
+            if publication_date_dt >= start_date and publication_date_dt <= end_date:
+                is_recent_status = f"Within range {date_source_log} ({start_date} to {end_date})"
+                is_within_range = True
+            elif publication_date_dt > end_date:
+                is_recent_status = f"After range {date_source_log} (after {end_date})"
             else:
-                is_recent_status = f"Not recent {date_source_log}"
+                is_recent_status = f"Before range {date_source_log} (before {start_date})"
         except ValueError:
             is_recent_status = f"Date unparsable {date_source_log}"
             print(f"Warning: Could not parse final date '{final_date_str}' for {article_url}.")
@@ -266,6 +276,7 @@ Your response (exactly 4 lines as specified above):
         "url": article_url,
         "publication_date_str": final_date_str,
         "is_recent": is_recent_status,
+        "is_within_range": is_within_range,  # Add explicit flag
         "is_relevant": final_relevance if 'final_relevance' in locals() else "Relevance unclear (init error)",
         "article_type_assessment": final_article_type if 'final_article_type' in locals() else "Type unclear (init error)"
     }
@@ -315,4 +326,4 @@ if __name__ == '__main__':
             else:
                 print(f"Failed to get verification results for {test_url}.")
         else:
-            print(f"Failed to fetch or extract text from {test_url} (and not a category page for test text). Skipping verification.") 
+            print(f"Failed to fetch or extract text from {test_url} (and not a category page for test text). Skipping verification.")
