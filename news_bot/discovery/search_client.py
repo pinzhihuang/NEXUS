@@ -15,6 +15,16 @@ def _extract_date_from_url(url_string: str) -> str | None:
     Attempts to extract a date (YYYY-MM-DD) from a URL string.
     Looks for various date patterns commonly used in news URLs.
     """
+    # Pattern for /news/YYYY/MM/DD/ (most common for NYU news)
+    match_news_ymd = re.search(r'/news/(\d{4})/(\d{1,2})/(\d{1,2})/', url_string)
+    if match_news_ymd:
+        year, month, day = match_news_ymd.groups()
+        try:
+            dt = datetime(int(year), int(month), int(day))
+            return dt.strftime("%Y-%m-%d")
+        except ValueError:
+            pass
+    
     # Pattern for YYYY/MM/DD
     match_ymd = re.search(r'/(\d{4})/(\d{1,2})/(\d{1,2})/', url_string)
     if match_ymd:
@@ -24,7 +34,47 @@ def _extract_date_from_url(url_string: str) -> str | None:
             dt = datetime(int(year), int(month), int(day))
             return dt.strftime("%Y-%m-%d")
         except ValueError:
-            pass # Invalid date components            
+            pass # Invalid date components
+    
+    # Pattern for YYYY-MM-DD in URL
+    match_ymd_dash = re.search(r'/(\d{4})-(\d{1,2})-(\d{1,2})/', url_string)
+    if match_ymd_dash:
+        year, month, day = match_ymd_dash.groups()
+        try:
+            dt = datetime(int(year), int(month), int(day))
+            return dt.strftime("%Y-%m-%d")
+        except ValueError:
+            pass
+
+    # Pattern for YYYY/MM (default to 01 for day)
+    match_ym = re.search(r'/(\d{4})/(\d{1,2})/', url_string)
+    if match_ym:
+        year, month = match_ym.groups()
+        try:
+            dt = datetime(int(year), int(month), 1)
+            return dt.strftime("%Y-%m-%d")
+        except ValueError:
+            pass
+    
+    # Pattern for YYYY-MM-DD directly in a segment
+    match_ymd_direct = re.search(r'(\d{4}-\d{1,2}-\d{1,2})', url_string)
+    if match_ymd_direct:
+        try:
+            dt = datetime.strptime(match_ymd_direct.group(1), "%Y-%m-%d")
+            return dt.strftime("%Y-%m-%d")
+        except ValueError:
+            pass
+    
+    # Pattern for date in filename like article-2025-02-01.html
+    match_filename = re.search(r'[-_](\d{4})[-_](\d{1,2})[-_](\d{1,2})', url_string)
+    if match_filename:
+        year, month, day = match_filename.groups()
+        try:
+            dt = datetime(int(year), int(month), int(day))
+            return dt.strftime("%Y-%m-%d")
+        except ValueError:
+            pass
+            
     return None
 
 def scan_archive_pages_for_date_range() -> list[dict[str, str]]:
@@ -88,10 +138,27 @@ def scan_archive_pages_for_date_range() -> list[dict[str, str]]:
                     href = link['href']
                     absolute_url = urljoin(archive_url, href)
                     
-                    # Check if it's an article URL
-                    if any(domain in absolute_url for domain in config.TARGET_NEWS_SOURCES_DOMAINS):
-                        if re.search(r'/\d{4}/\d{2}/\d{2}/', absolute_url) or re.search(r'news/\d{4}/\d{2}/', absolute_url):
+                    # Check if it's an article URL with proper domain
+                    if not any(domain in absolute_url for domain in config.TARGET_NEWS_SOURCES_DOMAINS):
+                        continue
+                    
+                    # Filter out non-article URLs
+                    skip_patterns = [
+                        "/staff_name/", "/staff/", "/writer/", "/contributor/",
+                        "/category/", "/tag/", "/author/", "/page/",
+                        "/about/", "/contact/", "/privacy/", "/terms/",
+                        "#", "javascript:", "mailto:"
+                    ]
+                    if any(skip_path in absolute_url.lower() for skip_path in skip_patterns):
+                        continue
+                    
+                    # Check for news article patterns
+                    if "nyunews.com" in absolute_url:
+                        if re.search(r'/news/\d{4}/\d{2}/\d{2}/', absolute_url) or \
+                           re.search(r'/\d{4}/\d{2}/\d{2}/\w+/', absolute_url):
                             article_links.append((link, absolute_url))
+                    elif re.search(r'/\d{4}/\d{2}/\d{2}/', absolute_url) or re.search(r'news/\d{4}/\d{2}/', absolute_url):
+                        article_links.append((link, absolute_url))
                 
                 # Process found links
                 articles_found_in_archive = 0
@@ -151,7 +218,7 @@ def scan_category_pages_for_links() -> list[dict[str, str]]:
     
     for page_url in config.CATEGORY_PAGES_TO_SCAN:
         # Try to scan multiple pages if the site supports pagination
-        max_pages = 20  # Scan up to 20 pages to find older articles
+        max_pages = config.MAX_CATEGORY_PAGES_TO_SCAN  # Use config value
         for page_num in range(1, max_pages + 1):
             # Construct paginated URL (common patterns)
             if page_num == 1:
@@ -179,68 +246,151 @@ def scan_category_pages_for_links() -> list[dict[str, str]]:
                 soup = BeautifulSoup(response.content, 'html.parser')
 
                 candidate_links = []
-                # General approach: find links within heading tags, common in article listings.
-                for heading_tag_name in ['h1', 'h2', 'h3', 'h4']:
+                
+                # Method 1: Find links within heading tags (common in article listings)
+                for heading_tag_name in ['h1', 'h2', 'h3', 'h4', 'h5']:
                     for heading_element in soup.find_all(heading_tag_name):
                         link_tag = heading_element.find('a', href=True)
-                        if link_tag:
-                            candidate_links.append(link_tag)
+                        if link_tag and link_tag not in candidate_links:
+                            # Quick pre-filter for news URLs
+                            href = link_tag.get('href', '')
+                            if '/news/' in href or re.search(r'/\d{4}/\d{2}/', href):
+                                candidate_links.append(link_tag)
                 
-                # Also look for article links in common article containers
-                for article_container in soup.find_all(['article', 'div'], class_=re.compile(r'(post|article|entry|news-item)', re.I)):
-                    for link in article_container.find_all('a', href=True):
-                        if link not in candidate_links:
+                # Method 2: Look for article links in common article containers
+                article_selectors = [
+                    'article', 
+                    'div.post', 'div.article', 'div.entry', 'div.news-item',
+                    'div.story', 'div.content-item', 'div.list-item',
+                    'li.post', 'li.article', 'li.news-item'
+                ]
+                
+                for selector in article_selectors:
+                    if '.' in selector:
+                        tag_name, class_name = selector.split('.', 1)
+                        elements = soup.find_all(tag_name, class_=re.compile(class_name, re.I))
+                    else:
+                        elements = soup.find_all(selector)
+                    
+                    for container in elements:
+                        # Find the main link in the container (usually the title link)
+                        title_link = container.find('a', href=True)
+                        if title_link and title_link not in candidate_links:
+                            href = title_link.get('href', '')
+                            if '/news/' in href or re.search(r'/\d{4}/\d{2}/', href):
+                                candidate_links.append(title_link)
+                
+                # Method 3: Find links with date patterns in URL
+                for link in soup.find_all('a', href=True):
+                    href = link.get('href', '')
+                    if link not in candidate_links:
+                        # Check if URL has date pattern
+                        if re.search(r'/news/\d{4}/\d{2}/\d{2}/', href) or \
+                           re.search(r'/\d{4}/\d{2}/\d{2}/', href):
                             candidate_links.append(link)
                 
                 if not candidate_links:
                     print(f"  Info: No candidate article links found on page {page_num}.")
                     continue
 
+                print(f"  Found {len(candidate_links)} candidate links on page {page_num}")
+
                 articles_found_on_page = 0
+                filtered_count = {"no_title": 0, "duplicate": 0, "wrong_domain": 0, "bad_pattern": 0, "out_of_range": 0}
+                
                 for link_tag in candidate_links:
                     raw_url = link_tag['href']
                     title = link_tag.get_text(strip=True)
                     absolute_url = urljoin(current_page_url, raw_url)
 
-                    if absolute_url in processed_urls or not title:
+                    if not title:
+                        filtered_count["no_title"] += 1
+                        continue
+                        
+                    if absolute_url in processed_urls:
+                        filtered_count["duplicate"] += 1
                         continue
 
                     # Validate URL structure and domain
                     if not absolute_url.startswith("http") or not any(domain in absolute_url for domain in config.TARGET_NEWS_SOURCES_DOMAINS):
+                        filtered_count["wrong_domain"] += 1
                         continue
 
-                    # Filter out common non-article paths
-                    if any(skip_path in absolute_url for skip_path in ["/category/", "/tag/", "/author/", "/page/"]):
+                    # Filter out common non-article paths (expanded list)
+                    skip_patterns = [
+                        "/category/", "/tag/", "/author/", "/page/",
+                        "/staff_name/", "/staff/", "/writer/", "/contributor/",
+                        "/about/", "/contact/", "/privacy/", "/terms/",
+                        "/subscribe/", "/newsletter/", "/membership/",
+                        "/search/", "/archive/", "/topic/",
+                        "#", "javascript:", "mailto:"
+                    ]
+                    if any(skip_path in absolute_url.lower() for skip_path in skip_patterns):
+                        filtered_count["bad_pattern"] += 1
+                        continue
+                    
+                    # For NYU news sites, we expect specific URL patterns for articles
+                    is_valid_article = False
+                    
+                    # Check for NYU news patterns
+                    if "nyunews.com" in absolute_url:
+                        # Valid patterns: /news/YYYY/MM/DD/title or /YYYY/MM/DD/section/title
+                        if re.search(r'/news/\d{4}/\d{2}/\d{2}/', absolute_url) or \
+                           re.search(r'/\d{4}/\d{2}/\d{2}/\w+/', absolute_url):
+                            is_valid_article = True
+                    elif "nyu.edu" in absolute_url:
+                        # NYU.edu news patterns
+                        if "/news/" in absolute_url or "/news-publications/" in absolute_url:
+                            is_valid_article = True
+                    else:
+                        # For other domains, check for date patterns
+                        if re.search(r'/\d{4}/\d{2}/\d{2}/', absolute_url) or \
+                           re.search(r'/\d{4}/\d{2}/', absolute_url):
+                            is_valid_article = True
+                    
+                    if not is_valid_article:
+                        filtered_count["bad_pattern"] += 1
                         continue
                     
                     # Extract date from URL if possible
                     url_date = _extract_date_from_url(absolute_url)
                     
-                    # Check if URL contains a date pattern or has sufficient depth
-                    if re.search(r'/\d{4}/\d{2}/\d{2}/', absolute_url) or re.search(r'/\d{4}/\d{2}/', absolute_url) or len(absolute_url.split('/')) > 5:
-                        # If we can extract a date, check if it's in our range
-                        if url_date:
-                            try:
-                                article_date = datetime.strptime(url_date, "%Y-%m-%d").date()
-                                if article_date < start_date:
-                                    print(f"  Article date {url_date} is before target range, continuing to scan...")
-                                    # Continue scanning but don't break - older articles might be mixed
-                                elif article_date > end_date:
-                                    print(f"  Article date {url_date} is after target range, skipping...")
-                                    continue
-                                else:
-                                    print(f"  Found article in target range: '{title[:50]}...' ({url_date})")
-                            except ValueError:
-                                pass  # If date parsing fails, include the article anyway
-                        
-                        found_articles.append({"title": title, "url": absolute_url, "snippet": title, "url_date": url_date})
-                        processed_urls.add(absolute_url)
-                        articles_found_on_page += 1
-                        
-                        if len(found_articles) >= config.MAX_SEARCH_RESULTS_TO_PROCESS * 3:  # Allow more articles for date filtering
-                            break
+                    # For valid articles, check if they're in our date range
+                    if url_date:
+                        try:
+                            article_date = datetime.strptime(url_date, "%Y-%m-%d").date()
+                            if article_date < start_date:
+                                # Continue scanning but don't break - older articles might be mixed
+                                pass
+                            elif article_date > end_date:
+                                filtered_count["out_of_range"] += 1
+                                continue
+                            else:
+                                print(f"    ✓ Found article in target range: '{title[:50]}...' ({url_date})")
+                                found_articles.append({"title": title, "url": absolute_url, "snippet": title, "url_date": url_date})
+                                processed_urls.add(absolute_url)
+                                articles_found_on_page += 1
+                        except ValueError:
+                            pass  # If date parsing fails, include the article anyway
+                    else:
+                        # No date in URL - skip for historical searches unless it's a special case
+                        if config.NEWS_START_DATE:  # If we're doing a historical search
+                            filtered_count["bad_pattern"] += 1
+                            continue
+                        else:
+                            # For current news, include articles without dates for verification
+                            found_articles.append({"title": title, "url": absolute_url, "snippet": title, "url_date": url_date})
+                            processed_urls.add(absolute_url)
+                            articles_found_on_page += 1
+                    
+                    if len(found_articles) >= config.MAX_SEARCH_RESULTS_TO_PROCESS * 3:  # Allow more articles for date filtering
+                        break
                 
-                print(f"  Found {articles_found_on_page} potential articles on page {page_num}")
+                print(f"  Page {page_num} results: {articles_found_on_page} kept, filtered: {sum(filtered_count.values())} total")
+                if sum(filtered_count.values()) > 0:
+                    print(f"    Filtered: no_title={filtered_count['no_title']}, duplicate={filtered_count['duplicate']}, " +
+                          f"wrong_domain={filtered_count['wrong_domain']}, bad_pattern={filtered_count['bad_pattern']}, " +
+                          f"out_of_range={filtered_count['out_of_range']}")
                 
                 # If we've found enough articles or no articles on this page, stop pagination
                 if len(found_articles) >= config.MAX_SEARCH_RESULTS_TO_PROCESS * 3 or articles_found_on_page == 0:
@@ -256,7 +406,7 @@ def scan_category_pages_for_links() -> list[dict[str, str]]:
     print(f"Found {len(found_articles)} unique potential articles from category page scans.")
     
     # Sort articles by date if available (newest first for consistency)
-    found_articles.sort(key=lambda x: x.get('url_date') or '9999-99-99', reverse=True)
+    found_articles.sort(key=lambda x: x.get('url_date', '9999-99-99'), reverse=True)
     
     return found_articles
 
@@ -392,6 +542,7 @@ def find_relevant_articles() -> list[dict[str, str]]:
     
     # Then scan category pages if we need more articles
     if len(all_discovered_articles) < config.MAX_SEARCH_RESULTS_TO_PROCESS:
+        print(f"Found {len(all_discovered_articles)} articles from archives, scanning category pages for more...")
         articles_from_categories = scan_category_pages_for_links()
         for article in articles_from_categories:
             if article["url"] not in processed_urls:
@@ -405,18 +556,21 @@ def find_relevant_articles() -> list[dict[str, str]]:
                             all_discovered_articles.append(article)
                             processed_urls.add(article["url"])
                         else:
-                            print(f"  Filtering out article from {article['url_date']}: {article['title'][:50]}...")
+                            # Don't print for every article, just count
+                            pass
                     except ValueError:
                         # If date parsing fails, include the article for further verification
                         all_discovered_articles.append(article)
                         processed_urls.add(article["url"])
                 else:
-                    # No date in URL, include for further verification
-                    all_discovered_articles.append(article)
-                    processed_urls.add(article["url"])
+                    # No date in URL, include for further verification if not doing historical search
+                    if not config.NEWS_START_DATE:
+                        all_discovered_articles.append(article)
+                        processed_urls.add(article["url"])
     
     # Finally, try Google PSE if we still need more articles
     if len(all_discovered_articles) < config.MAX_SEARCH_RESULTS_TO_PROCESS:
+        print(f"Found {len(all_discovered_articles)} articles so far, trying Google PSE for more...")
         articles_from_pse = find_articles_with_google_pse()
         for article in articles_from_pse:
             if article["url"] not in processed_urls:
@@ -424,7 +578,7 @@ def find_relevant_articles() -> list[dict[str, str]]:
                 all_discovered_articles.append(article)
                 processed_urls.add(article["url"])
 
-    print(f"Total unique articles discovered from all sources: {len(all_discovered_articles)}")
+    print(f"\nTotal unique articles discovered from all sources: {len(all_discovered_articles)}")
     print(f"  - From archives: {len([a for a in all_discovered_articles if a.get('source_method') == 'archive_scan'])}")
     print(f"  - From categories: {len([a for a in all_discovered_articles if a.get('source_method') == 'category_scan'])}")
     print(f"  - From Google PSE: {len([a for a in all_discovered_articles if a.get('source_method') == 'google_pse'])}")
@@ -437,14 +591,23 @@ def find_relevant_articles() -> list[dict[str, str]]:
                 if start_date <= article_date <= end_date:
                     return (0, article_date)  # Priority 0 for in-range dates
                 else:
-                    return (2, article_date)  # Priority 2 for out-of-range dates
+                    return (2, abs((article_date - start_date).days))  # Priority 2, sorted by distance from range
             except ValueError:
                 pass
-        return (1, date.today())  # Priority 1 for no date
+        return (1, 999)  # Priority 1 for no date
     
     all_discovered_articles.sort(key=sort_key)
     
-    return all_discovered_articles[:config.MAX_SEARCH_RESULTS_TO_PROCESS]
+    # Show what we're returning
+    limited_articles = all_discovered_articles[:config.MAX_SEARCH_RESULTS_TO_PROCESS]
+    print(f"\nReturning top {len(limited_articles)} articles for processing:")
+    for i, article in enumerate(limited_articles[:5]):  # Show first 5
+        date_str = article.get('url_date', 'no date')
+        print(f"  {i+1}. [{date_str}] {article['title'][:50]}...")
+    if len(limited_articles) > 5:
+        print(f"  ... and {len(limited_articles) - 5} more")
+    
+    return limited_articles
 
 if __name__ == '__main__':
     print("Testing Discovery Module (Category Scan + Google PSE)...")
