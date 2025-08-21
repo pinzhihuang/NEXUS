@@ -111,7 +111,7 @@ URL_FETCH_TIMEOUT = int(os.getenv("URL_FETCH_TIMEOUT", "20")) # seconds
 DEFAULT_OUTPUT_DIR = os.getenv("DEFAULT_OUTPUT_DIR", "news_reports")
 MAX_FINAL_REPORTS = int(os.getenv("MAX_FINAL_REPORTS", "5"))
 MAX_SEARCH_RESULTS_TO_PROCESS = int(os.getenv("MAX_SEARCH_RESULTS_TO_PROCESS", "10"))
-MAX_CATEGORY_PAGES_TO_SCAN = 20
+MAX_CATEGORY_PAGES_TO_SCAN = int(os.getenv("MAX_CATEGORY_PAGES_TO_SCAN", "20"))
 
 def validate_config():
     """Validates that essential configurations are set."""
