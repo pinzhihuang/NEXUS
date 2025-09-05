@@ -122,7 +122,7 @@ def _extract_date_from_url(url_string: str) -> str | None:
             
     return None
 
-def verify_article_with_gemini(article_text: str, article_url: str) -> dict | None:
+def verify_article_with_gemini(school: dict[str, str], article_text: str, article_url: str) -> dict | None:
     """
     Verifies an article using Gemini for date, recency, relevance, and article type.
     Uses the configured date range from config.get_news_date_range().
@@ -174,7 +174,7 @@ def verify_article_with_gemini(article_text: str, article_url: str) -> dict | No
         print(f"Error initializing Gemini model for verification: {str(e)}")
         return None
 
-    relevance_query = f"Is this article generally relevant to students at New York University (NYU), covering campus news, academic updates, student life, or significant events affecting the NYU community?"
+    relevance_query = f"Is this article generally relevant to students at {school['school_name']}, covering campus news, academic updates, student life, or significant events affecting the {school['school_name']} community?"
     
     prompt = f"""Analyze the article text. Provide your analysis in EXACTLY four lines, each starting with the specified prefix:
 

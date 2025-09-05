@@ -1,9 +1,9 @@
 # news_bot/generation/summarizer.py
 
 import google.generativeai as genai
-from ..core import config
+from ..core import config, school_config
 
-def generate_summary_with_gemini(article_text: str, article_url: str, article_title: str = "") -> str | None:
+def generate_summary_with_gemini(school: dict[str, str], article_text: str, article_url: str, article_title: str = "") -> str | None:
     """
     Generates a professional English news summary using the Gemini API.
     """
@@ -31,15 +31,15 @@ def generate_summary_with_gemini(article_text: str, article_url: str, article_ti
 
     prompt = f"""You are a professional English-language news writer. Your task is to create a detailed yet concise news summary 
 (approximately 5-7 sentences, or 100-180 words) based on the provided article text. 
-The summary is for Chinese international students at New York University (NYU). 
+The summary is for {school['prompt_context']['audience_en']}. 
 Focus on the key information most relevant to their studies, work, daily life, or immigration/visa policies, 
-especially concerning events or policies in New York or the U.S.
+especially concerning events or policies in {school['school_location']} or the U.S.
 
 Key points to cover, ensuring important details are retained:
 - What happened (core event/announcement)?
 - When and where did it happen (specific dates, locations)?
 - Who was involved (key individuals, groups, departments)?
-- Main consequences, implications, or direct impacts for NYU Chinese international students.
+- Main consequences, implications, or direct impacts for {school['prompt_context']['audience_en']}.
 - Include crucial numbers, statistics, or significant outcomes.
 
 Maintain a factual and objective tone. Do not add personal opinions or information not in the article text. 
@@ -51,7 +51,7 @@ Provide the summary directly, without introductory phrases like 'This article is
 {article_text[:context_char_limit]}
 --- End of Article Text ---
 
-Detailed News Summary (5-7 sentences, 100-180 words, for Chinese international students at NYU):
+Detailed News Summary (5-7 sentences, 100-180 words, for {school['prompt_context']['audience_en']}):
 """ 
 
     try:
@@ -90,14 +90,17 @@ if __name__ == '__main__':
         config.GEMINI_FLASH_MODEL_CONTEXT_LIMIT_CHARS = 100000 
     if not hasattr(config, 'GEMINI_SUMMARY_MODEL_CONTEXT_LIMIT_CHARS'):
         config.GEMINI_SUMMARY_MODEL_CONTEXT_LIMIT_CHARS = 100000
+        
+    # use nyu as default school
+    school = school_config.SCHOOL_PROFILES['nyu']
 
-    sample_article_text = ("""
-    New York University (NYU) today announced a new initiative to support international students 
+    sample_article_text = (f"""
+    {school['school_name']} today announced a new initiative to support international students 
     facing challenges with the recent changes in U.S. visa application processes. The initiative, 
-    detailed on the NYU Office of Global Services website, includes dedicated workshops, extended 
+    detailed on the {school['school_name']} Office of Global Services website, includes dedicated workshops, extended 
     advising hours, and a new online portal for document submission. This comes after several 
     students, particularly from China, reported increased scrutiny and delays. University President 
-    Linda G. Mills stated, "NYU is committed to its global community, and we will provide all 
+    Linda G. Mills stated, "{school['school_name']} is committed to its global community, and we will provide all 
     necessary resources to help our international students navigate these complexities." The changes 
     are expected to benefit hundreds of students preparing for the upcoming academic year. The announcement 
     was made on May 21, 2024, and details are also available on the main NYU news page.

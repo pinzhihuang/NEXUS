@@ -5,14 +5,14 @@ from typing import List, Dict
 from datetime import datetime, timedelta, date
 
 import google.generativeai as genai
-from news_bot.core import config
+from news_bot.core import config, school_config
 from news_bot.reporting import google_docs_exporter
 
 # --------------------------
 # Step 1: Gemini relevance打分（1~10分）+ 原因解释
 # --------------------------
 
-def llm_score_relevance_10point(chinese_text: str, article_title: str = "") -> tuple[int, str]:
+def llm_score_relevance_10point(school: dict[str, str], chinese_text: str, article_title: str = "") -> tuple[int, str]:
     if not chinese_text.strip():
         return 1, "空内容"
 
@@ -22,13 +22,13 @@ def llm_score_relevance_10point(chinese_text: str, article_title: str = "") -> t
     except Exception:
         return 1, "初始化失败"
 
-    prompt = f"""你是一位中文新闻分析师，请判断以下新闻与"纽约大学（NYU）的中国留学生"主题的相关性，并给出 1~10 的整数分数和简要原因。
+    prompt = f"""你是一位中文新闻分析师，请判断以下新闻与"{school['prompt_context']['audience_zh']}"主题的相关性，并给出 1~10 的整数分数和简要原因。
 
 评分标准：
 10 = 与中国留学生紧密相关，是主题核心
-7-9 = 与中国学生或国际生显著相关，NYU 是事件主要场景
-4-6 = 提及 NYU 或国际学生，但中国学生不是重点
-1-3 = 只轻微提到 NYU 或中国，无具体交集
+7-9 = 与中国学生或国际生显著相关，{school['school_name']} 是事件主要场景
+4-6 = 提及 {school['school_name']} 或国际学生，但中国学生不是重点
+1-3 = 只轻微提到 {school['school_name']} 或中国，无具体交集
 
 请返回以下格式：
 分数：X
@@ -144,7 +144,7 @@ def process_news_report(input_path: str, output_path: str):
     # Get the configured date range
     start_date, end_date = config.get_news_date_range()
     
-    gdoc_url = google_docs_exporter.update_or_create_news_document(sorted_reports, start_date, end_date)
+    gdoc_url = google_docs_exporter.update_or_create_news_document(school, sorted_reports, start_date, end_date)
     if gdoc_url:
         print(f"导出成功: {gdoc_url}")
     else:

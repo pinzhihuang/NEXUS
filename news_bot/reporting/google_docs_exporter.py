@@ -9,7 +9,7 @@ from google_auth_oauthlib.flow import InstalledAppFlow
 from googleapiclient.discovery import build
 from googleapiclient.errors import HttpError
 
-from ..core import config # For credentials paths and scopes
+from ..core import config, school_config # For credentials paths and scopes
 
 def _get_credentials():
     """
@@ -59,7 +59,7 @@ def _get_credentials():
             
     return creds
 
-def update_or_create_news_document(reports_data: list, week_start_date: datetime.date, week_end_date: datetime.date) -> str | None:
+def update_or_create_news_document(school: dict[str, str], reports_data: list, week_start_date: datetime.date, week_end_date: datetime.date) -> str | None:
     """
     Updates a specific Google Doc (if ID is configured) or creates a new one.
     Populates it with the refined Chinese news reports and a main weekly header.
@@ -83,7 +83,7 @@ def update_or_create_news_document(reports_data: list, week_start_date: datetime
 
     try:
         service = build('docs', 'v1', credentials=creds)
-        document_title = f"Project NEXUS: Weekly Chinese News Digest ({week_start_date.strftime('%m/%d')} - {week_end_date.strftime('%m/%d/%Y')})"
+        document_title = f"{school['school_name']}: Project NEXUS: Weekly Chinese News Digest ({week_start_date.strftime('%m/%d')} - {week_end_date.strftime('%m/%d/%Y')})"
 
         if doc_id_to_update:
             print(f"Attempting to update existing Google Doc ID: {doc_id_to_update}")
@@ -356,6 +356,7 @@ if __name__ == '__main__':
         else:
             print("No Target Google Doc ID set in config, will create a new document.")
         
+        school = school_config.SCHOOL_PROFILES['nyu']  # Use NYU for testing
         # Corrected string literals for sample_reports using triple quotes
         sample_reports = [
             {
@@ -374,7 +375,7 @@ if __name__ == '__main__':
         test_week_end_date = datetime.now().date()
         test_week_start_date = test_week_end_date - timedelta(days=6)
 
-        doc_link = update_or_create_news_document(sample_reports, test_week_start_date, test_week_end_date)
+        doc_link = update_or_create_news_document(school, sample_reports, test_week_start_date, test_week_end_date)
 
         if doc_link:
             print(f"\nSuccessfully operated on Google Doc: {doc_link}")

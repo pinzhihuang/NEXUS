@@ -2,7 +2,7 @@
 
 from datetime import datetime, date, timedelta
 
-from .core import config
+from .core import config, school_config
 from .discovery import search_client
 from .processing import article_handler
 from .generation import summarizer
@@ -31,6 +31,14 @@ def run_news_bot():
         print(f"CRITICAL Configuration Error: {e_config}")
         print("Bot run aborted.")
         return
+    
+    # Pick school to collect news from
+    print(f"=== Please pick a school to collect news from: ===")
+    schools_dict = school_config.SCHOOL_PROFILES
+    for school, info in schools_dict.items():
+        print(f"  {info['id']}: {info['school_name']}")
+    choosen_school_id = int(input("Please enter the ID of the school you want to collect news from: "))
+    choosen_school = list(schools_dict.values())[choosen_school_id - 1]   
 
     # Get and display the configured date range
     start_date, end_date = config.get_news_date_range()
@@ -41,7 +49,7 @@ def run_news_bot():
         print(f"=== Using automatic date range (last {config.RECENCY_THRESHOLD_DAYS} days) ===")
 
     print("\n--- Step 1: Discovering Articles ---")
-    discovered_articles = search_client.find_relevant_articles()
+    discovered_articles = search_client.find_relevant_articles(choosen_school)
 
     if not discovered_articles:
         print("Info: No articles discovered from any source. Exiting.")
@@ -85,7 +93,7 @@ def run_news_bot():
             continue
 
         # Step 2b: Verify article
-        verification_results = article_handler.verify_article_with_gemini(article_text, article_url)
+        verification_results = article_handler.verify_article_with_gemini(choosen_school, article_text, article_url)
         if not verification_results:
             print(f"  Skipping: Failed to get verification results.")
             continue
@@ -111,7 +119,7 @@ def run_news_bot():
         print(f"  Info: Article verified. Proceeding to English summarization.")
 
         # Step 3: Generate English summary
-        english_summary = summarizer.generate_summary_with_gemini(article_text, article_url, original_title)
+        english_summary = summarizer.generate_summary_with_gemini(choosen_school, article_text, article_url, original_title)
         if not english_summary or "failed" in english_summary.lower() or "skipped" in english_summary.lower():
             print(f"  Skipping: Failed to generate English summary or summary invalid.")
             continue
@@ -175,7 +183,7 @@ def run_news_bot():
         
         gdoc_title = f"Project NEXUS: Weekly Chinese News ({start_date.strftime('%Y-%m-%d')} to {end_date.strftime('%Y-%m-%d')})"
         
-        gdoc_url = google_docs_exporter.update_or_create_news_document(final_news_reports, start_date, end_date)
+        gdoc_url = google_docs_exporter.update_or_create_news_document(choosen_school, final_news_reports, start_date, end_date)
         if gdoc_url:
             print(f"Successfully operated on Google Doc: {gdoc_url}")
         else:
