@@ -3,7 +3,10 @@
 Project NEXUS is an automated system for discovering, verifying, summarizing, and translating news relevant to international students at various universities. It aims to provide a centralized and accessible source of important campus and community information.
 
 ## Feature Log
-[2025-01-20] 
+[2025-09-04]
+- Improved translation prompt, Gemini refinement, and ranking by relevance.
+
+[2025-08-20] 
 - Custom Date Range Support: Added ability to specify a custom start date for news collection with 7-day window
     - New config: NEWS_START_DATE - Set any date as the starting point for news collection
     - Default: Current date minus 7 days (captures last week's news)
@@ -124,6 +127,12 @@ python -m news_bot.main_orchestrator
 -   On the first run involving Google Docs export, a browser window will open for OAuth 2.0 authorization. You'll need to sign in and grant permissions.
 -   Output JSON files will be saved in the directory specified by `DEFAULT_OUTPUT_DIR` in `config.py` (default: `news_reports`).
 -   If Google Docs export is successful, the URL of the created/updated document will be printed in the console.
+
+After running the main script, to rank the news by revelance, run coordinator.py from the `NEXUS` root directory:
+
+```bash
+python -m news_bot.processing.coordinator
+```
 
 ## Modules
 
