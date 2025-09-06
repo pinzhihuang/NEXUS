@@ -26,6 +26,12 @@ def _refine_chinese_news_report_with_gemini(chinese_text: str, source_url: str, 
 3.  Aim for conciseness while preserving all critical information relevant to the English title ('{original_title}').
 4.  The output should be ONLY the refined Chinese news report. Do not add any commentary.
 5.  Pay more attention to the last sentence of the report. This sentence is sometimes off-topic.
+6.  Every key fact point must contain at least 2 sentences: main description sentence + detail explanation sentence.
+7.  The total length of the Chinese news report should be 250-500 Chinese characters.
+8.  Each fact point must be expanded with at least 2 sentences: first sentence describes the core fact, second sentence should either elaborate its context, provide specific details, explanations, impacts, subsequent incidents, interview quotes(if any) or background information, so readers always understand why it matters.
+9.  If two similar facts, or 2 facts are related, delete the backspace between them and merge them into one big paragraph, instead of separate paragraphs.
+10.  Use short sentences and accurate vocabulary, avoid complex long sentences.
+11.  Control each paragraph to 80-250 Chinese characters. Paragraphs exceeding this length must be split, while maintaining logical coherence with clear causal or temporal relationships between paragraphs.
 
 Original Chinese News Report to Refine:
 '''
@@ -98,15 +104,26 @@ def translate_and_restyle_to_chinese(english_summary_data: dict) -> dict | None:
 
     prompt = f"""Please perform the following tasks on the provided English news summary:
 1.  Create a concise, relevant, and catchy news title in Simplified Chinese (简体中文). Place this title on the VERY FIRST line, prefixed with "Chinese Title:".
-2.  On subsequent lines, provide the full news report: Read the English summary and rewrite it into Simplified Chinese news article.
-3.  Rewrite the translation in a serious, formal, and objective news reporting style. 
-4.  Use short sentences and actuate words. Keep the news report coherent, professional, and logical. Do not include any additional commentary or opinion. Do not write any conclusions. If mentioned, you can end the article with the newest updates regarding the topic. For example, "目前，学校对此事件还没有做出回应。"
-5.  [Important] Keep the language natural and professional. Try not to use adjectives.
-5.  [IMPORTANT] Do not include any consequence, implication, or opinions of this news topics. We need only facts. Avoid using words like "可能","引发", etc.
-6.  [IMPORTANT] Keep the logic between sentences coherent and organized. Do not try to include all the information from the original English summary.
-7.  If the english summary contains multiple news topics, select the most important one and focus on it. Keep the article coherent.
-8.  For less common English names of people, organizations, or programs, translate to Chinese and follow with the original English in parentheses: 中文名 (English Name). For very well-known entities like NYU or common English names, direct Chinese translation is fine.
-9.  The final output after "Chinese Title:" should be ONLY the Chinese news report body.
+2.  If single continuous headline longer than 15 Chinese characters, break it into 2 comma-separated segments, each segment ≤ 12 characters, Split at natural semantic breaks.
+3.  [Important] Each segment must form a complete phrase (e.g. subject+predicate or verb+object), and must not be a isolated noun. 
+4.  [Important] For each news item, generate three headline options:
+   a) Weak clickbait (e.g. “返校在即, NYU为何遭联邦盯上?”)  
+   b) Colloquial style  
+   c) Concise & direct  
+   pick the one that is most appropriate for the news topic. 
+5.  Try to avoid using metaphors, idioms, proverbs, puns, homophones, or other rhetorical devices. 
+6.  Avoid overly formal or literary phrasing for titles. Use direct, natural wording instead
+7.  Avoid using one Chinese character abbriviation (e.g. 不要用"美"来代指"全美")
+7.  On subsequent lines, provide the full news report: Read the English summary and rewrite it into Simplified Chinese news article.
+8.  Rewrite the translation in a serious, formal, and objective news reporting style. 
+9.  Use short sentences and actuate words. Keep the news report coherent, professional, and logical. Do not include any additional commentary or opinion. Do not write any conclusions. If mentioned, you can end the article with the newest updates regarding the topic. For example, "目前，学校对此事件还没有做出回应。"
+10.  [Important] Keep the language natural and professional. Try not to use adjectives.
+11.  [IMPORTANT] Do not include any consequence, implication, or opinions of this news topics. We need only facts. Avoid using words like "可能","引发", etc.
+12.  [IMPORTANT] Keep the logic between sentences coherent and organized. Do not try to include all the information from the original English summary.
+13.  If the english summary contains multiple news topics, select the most important one and focus on it. Keep the article coherent.
+14.  For less common English names of people, organizations, or programs, translate to Chinese and follow with the original English in parentheses: 中文名 (English Name). For very well-known entities like NYU or common English names, direct Chinese translation is fine.
+15.  The final output after "Chinese Title:" should be ONLY the Chinese news report body.
+
 
 Original English Summary (for translation):
 '''

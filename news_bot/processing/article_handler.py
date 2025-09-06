@@ -6,6 +6,7 @@ import google.generativeai as genai
 from datetime import datetime, date, timedelta
 import json
 import re # For URL date parsing
+from ..discovery.date_extractor import extract_date_from_url
 
 from ..core import config
 
@@ -85,44 +86,8 @@ def fetch_and_extract_text(url: str) -> str | None:
         print(f"Error: An unexpected error occurred while fetching/processing URL {url}: {str(e)}")
     return None
 
-def _extract_date_from_url(url_string: str) -> str | None:
-    """
-    Attempts to extract a date (YYYY-MM-DD) from a URL string.
-    Looks for patterns like /YYYY/MM/DD/ or /YYYY/MM/.
-    """
-    # Pattern for YYYY/MM/DD
-    match_ymd = re.search(r'/(\d{4})/(\d{1,2})/(\d{1,2})/', url_string)
-    if match_ymd:
-        year, month, day = match_ymd.groups()
-        try:
-            # Validate if it forms a real date
-            dt = datetime(int(year), int(month), int(day))
-            return dt.strftime("%Y-%m-%d")
-        except ValueError:
-            pass # Invalid date components
 
-    # Pattern for YYYY/MM (default to 01 for day)
-    match_ym = re.search(r'/(\d{4})/(\d{1,2})/', url_string)
-    if match_ym:
-        year, month = match_ym.groups()
-        try:
-            dt = datetime(int(year), int(month), 1)
-            return dt.strftime("%Y-%m-%d")
-        except ValueError:
-            pass
-    
-    # Pattern for YYYY-MM-DD directly in a segment
-    match_ymd_direct = re.search(r'(\d{4}-\d{1,2}-\d{1,2})', url_string)
-    if match_ymd_direct:
-        try:
-            dt = datetime.strptime(match_ymd_direct.group(1), "%Y-%m-%d")
-            return dt.strftime("%Y-%m-%d")
-        except ValueError:
-            pass
-            
-    return None
-
-def verify_article_with_gemini(school: dict[str, str], article_text: str, article_url: str) -> dict | None:
+def verify_article_with_gemini(school: dict[str, str], article_text: str, article_url: str, publication_date: str) -> dict | None:
     """
     Verifies an article using Gemini for date, recency, relevance, and article type.
     Uses the configured date range from config.get_news_date_range().
@@ -137,7 +102,7 @@ def verify_article_with_gemini(school: dict[str, str], article_text: str, articl
     
     if not article_text or not article_text.strip():
         print(f"Info: Skipping Gemini verification for {article_url} due to empty article text.")
-        publication_date_from_url = _extract_date_from_url(article_url)
+        publication_date_from_url = publication_date
         final_date_str = publication_date_from_url if publication_date_from_url else "Date not found"
         is_recent_status = "Date unclear (no text/URL date)"
         is_within_range = False
@@ -243,7 +208,7 @@ Your response (exactly 4 lines as specified above):
     date_source_log = "(from Gemini)"
     if final_date_str.lower() == "date not found" or "error" in final_date_str.lower() or not final_date_str.strip():
         print(f"Info: Gemini did not find date for {article_url}. Attempting URL parse.")
-        url_extracted_date = _extract_date_from_url(article_url)
+        url_extracted_date = publication_date
         if url_extracted_date:
             final_date_str = url_extracted_date
             date_source_log = "(from URL)"
@@ -311,7 +276,7 @@ if __name__ == '__main__':
         print(f"\n--- Test {i+1}: Processing URL: {test_url} ---")
         
         # Test URL date extraction directly
-        extracted_date = _extract_date_from_url(test_url)
+        # extracted_date = extract_date_from_url(test_url) # Not used in this test
         print(f"  Direct URL date extraction attempt: {extracted_date}")
 
         article_text = fetch_and_extract_text(test_url)

@@ -74,6 +74,7 @@ def run_news_bot():
         original_title = article_info.get("title", "N/A")
         article_url = article_info.get("url")
         source_method = article_info.get("source_method", "Unknown")
+        article_date = article_info.get("url_date", "N/A")
 
         print(f"\nProcessing article {articles_processed_count}/{len(discovered_articles)} (Source: {source_method}): '{original_title[:70]}...' ({article_url[:100]}...)")
 
@@ -93,7 +94,7 @@ def run_news_bot():
             continue
 
         # Step 2b: Verify article
-        verification_results = article_handler.verify_article_with_gemini(choosen_school, article_text, article_url)
+        verification_results = article_handler.verify_article_with_gemini(choosen_school, article_text, article_url, article_date)
         if not verification_results:
             print(f"  Skipping: Failed to get verification results.")
             continue

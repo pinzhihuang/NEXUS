@@ -288,7 +288,7 @@ def nyu_scan_category_pages_for_links() -> list[dict[str, str]]:
                         continue
                     
                     # Extract date from URL if possible
-                    url_date = _extract_date_from_url(absolute_url)
+                    url_date = extract_date_from_url(absolute_url)
                     
                     # For valid articles, check if they're in our date range
                     if url_date:

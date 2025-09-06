@@ -5,8 +5,10 @@ import json # For potential direct JSON parsing if needed, though client library
 from datetime import date, timedelta, datetime
 from googleapiclient.discovery import build # For Google Custom Search API
 from ..core import config
+from .date_extractor import extract_date_from_url
 from .sources.nyu_scrawler import nyu_scan_archive_pages_for_date_range, nyu_scan_category_pages_for_links
-from .sources.emory_crawler import emory_scan_archive_pages_for_date_range
+from .sources.emory_scrawler import emory_scan_archive_pages_for_date_range
+from .sources.ucd_scrawler import ucd_scan_category_pages_for_links
 import requests # For fetching category pages
 from bs4 import BeautifulSoup # For parsing category pages
 from urllib.parse import urljoin # For resolving relative URLs
@@ -141,6 +143,8 @@ def find_relevant_articles(school: dict[str, str]) -> list[dict[str, str]]:
         articles_from_archives = nyu_scan_archive_pages_for_date_range()
     elif school['id'] == 2:
         articles_from_archives = emory_scan_archive_pages_for_date_range()
+    elif school['id'] == 3:
+        articles_from_archives = ucd_scan_category_pages_for_links()
     else:
         articles_from_archives = []
     for article in articles_from_archives:

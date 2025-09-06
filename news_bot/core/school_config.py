@@ -46,22 +46,22 @@ SCHOOL_PROFILES = {
     },
     "relevance_keywords": ["Emory University","Atlanta campus","students","international students","DEI at Emory"]
   },
-  # "ucd": {
-  #   "id": 3,
-  #   "school_name": "University of California, Davis",
-  #   "school_location": "Davis",
-  #   "domains": ["www.ucdavis.edu", "theaggie.org"],
-  #   "category_pages": ["https://www.ucdavis.edu/news/latest", "https://theaggie.org/category/news/"],
-  #   "archive_patterns": [],
-  #   "validators": [r"/\d{4}/\d{2}/\d{2}/", r"/news/"],
-  #   "selectors": {},
-  #   "pse_sites": ["ucdavis.edu", "theaggie.org"],
-  #   "prompt_context": {
-  #     "audience_en": "Chinese international students at UC Davis",
-  #     "audience_zh": "加州大学戴维斯分校的中国留学生",
-  #   },
-  #   "relevance_keywords": ["UC Davis","Davis campus","students","international students"]
-  # },
+  "ucd": {
+    "id": 3,
+    "school_name": "University of California, Davis",
+    "school_location": "Davis",
+    "domains": ["www.ucdavis.edu", "theaggie.org"],
+    "category_pages": ["https://www.ucdavis.edu/news/latest"],
+    "archive_patterns": [],
+    "validators": [r"/\d{4}/\d{2}/\d{2}/", r"/news/"],
+    "selectors": {},
+    "pse_sites": ["ucdavis.edu", "theaggie.org"],
+    "prompt_context": {
+      "audience_en": "Chinese international students at UC Davis",
+      "audience_zh": "加州大学戴维斯分校的中国留学生",
+    },
+    "relevance_keywords": ["UC Davis","Davis campus","students","international students"]
+  },
   # "ubc": {
   #   "id": 4,
   #   "school_name": "University of British Columbia",
