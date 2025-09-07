@@ -26,4 +26,14 @@ def extract_date_from_url(url_string: str) -> str | None:
             return dt.strftime('%Y-%m-%d')
         except ValueError:
             return None
+        
+    # Pattern for /YYYY/MM/DD/ (generic)
+    match_ymd = re.search(r'/(\d{4})/(\d{1,2})/(\d{1,2})/', url_string)
+    if match_ymd:
+        year, month, day = match_ymd.groups()
+        try:
+            dt = datetime(int(year), int(month), int(day))
+            return dt.strftime("%Y-%m-%d")
+        except ValueError:
+            pass        
     return None

@@ -107,10 +107,18 @@ def run_news_bot():
             # Fallback for compatibility
             is_within_date_range = "Within range" in verification_results.get("is_recent", "") or "Recent" in verification_results.get("is_recent", "")
         
+        # Check if the article is suitable for summary
+        # If the school allows event announcements like in UBC, then the article type can be Event/Announcement
+        # Otherwise, the article type can only be News article
+        allow_events = bool(choosen_school.get("include_event_announcements"))
+        article_type = verification_results.get("article_type_assessment")
         is_suitable_for_summary = (
             is_within_date_range and
             verification_results.get("is_relevant") == "Relevant" and
-            verification_results.get("article_type_assessment") == "News article"
+            (
+                article_type == "News article" or
+                (allow_events and article_type == "Event/Announcement")
+            )
         )
 
         if not is_suitable_for_summary:

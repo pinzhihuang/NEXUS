@@ -22,6 +22,17 @@ def fetch_and_extract_text(url: str) -> str | None:
         response = requests.get(url, headers=headers, timeout=config.URL_FETCH_TIMEOUT)
         response.raise_for_status()
         soup = BeautifulSoup(response.content, 'html.parser')
+        # if read full button found, extract the text from button's url (apply to UBC)
+        try:
+            read_full_button = soup.find('a', text='Read the full message')
+            if read_full_button:
+                url = read_full_button['href']
+                response = requests.get(url, headers=headers, timeout=config.URL_FETCH_TIMEOUT)
+                response.raise_for_status()
+                soup = BeautifulSoup(response.content, 'html.parser')
+        except Exception as e:
+            print(f"not read full button found")
+            pass
         
         main_content_tags = ['article', 'main', '.post-content', '.entry-content', '.td-post-content']
         article_body = None

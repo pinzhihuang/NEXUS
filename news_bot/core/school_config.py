@@ -51,8 +51,11 @@ SCHOOL_PROFILES = {
     "school_name": "University of California, Davis",
     "school_location": "Davis",
     "domains": ["www.ucdavis.edu", "theaggie.org"],
-    "category_pages": ["https://www.ucdavis.edu/news/latest"],
-    "archive_patterns": [],
+    "category_pages": ["https://www.ucdavis.edu/news/university"],
+    "archive_patterns": [
+      # USC monthly index pages
+      "https://news.emory.edu/stories/{year}/{month:02d}/",
+    ],
     "validators": [r"/\d{4}/\d{2}/\d{2}/", r"/news/"],
     "selectors": {},
     "pse_sites": ["ucdavis.edu", "theaggie.org"],
@@ -62,23 +65,25 @@ SCHOOL_PROFILES = {
     },
     "relevance_keywords": ["UC Davis","Davis campus","students","international students"]
   },
-  # "ubc": {
-  #   "id": 4,
-  #   "school_name": "University of British Columbia",
-  #   "domains": ["news.ubc.ca", "ubctoday.ubc.ca", "ubyssey.ca"],
-  #   "category_pages": [
-  #     "https://news.ubc.ca/",
-  #     "https://ubctoday.ubc.ca/updates-news-and-stories",
-  #     "https://ubyssey.ca/news/"
-  #   ],
-  #   "archive_patterns": [],
-  #   "validators": [r"/\d{4}/\d{2}/\d{2}/", r"/news/"],
-  #   "selectors": {},
-  #   "pse_sites": ["news.ubc.ca", "ubctoday.ubc.ca", "ubyssey.ca"],
-  #   "prompt_context": {
-  #     "audience_en": "Chinese international students at UBC",
-  #     "audience_zh": "英属哥伦比亚大学的中国留学生",
-  #   },
-  #   "relevance_keywords": ["UBC","Vancouver campus","students","international students"]
-  # }
+  "ubc": {
+    "id": 4,
+    "school_name": "University of British Columbia",
+    "school_location": "Vancouver",
+    "domains": ["news.ubc.ca", "ubctoday.ubc.ca", "ubyssey.ca"],
+    "category_pages": [
+      "https://news.ok.ubc.ca/all-posts/"
+    ],
+    "archive_patterns": [
+      "https://news.ok.ubc.ca/all-posts/?_month={month:02d}&_year={year}#content"
+      ],
+    "validators": [r"/\d{4}/\d{2}/\d{2}/", r"/news/"],
+    "selectors": {},
+    "pse_sites": ["news.ubc.ca", "ubctoday.ubc.ca", "ubyssey.ca"],
+    "prompt_context": {
+      "audience_en": "Chinese international students at UBC",
+      "audience_zh": "英属哥伦比亚大学的中国留学生",
+    },
+    "relevance_keywords": ["UBC","Vancouver campus","students","international students"],
+    "include_event_announcements": True
+  }
 }

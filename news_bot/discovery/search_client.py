@@ -9,6 +9,7 @@ from .date_extractor import extract_date_from_url
 from .sources.nyu_scrawler import nyu_scan_archive_pages_for_date_range, nyu_scan_category_pages_for_links
 from .sources.emory_scrawler import emory_scan_archive_pages_for_date_range
 from .sources.ucd_scrawler import ucd_scan_category_pages_for_links
+from .sources.ubc_scrawler import ubc_scan_archive_pages_for_date_range
 import requests # For fetching category pages
 from bs4 import BeautifulSoup # For parsing category pages
 from urllib.parse import urljoin # For resolving relative URLs
@@ -145,6 +146,8 @@ def find_relevant_articles(school: dict[str, str]) -> list[dict[str, str]]:
         articles_from_archives = emory_scan_archive_pages_for_date_range()
     elif school['id'] == 3:
         articles_from_archives = ucd_scan_category_pages_for_links()
+    elif school['id'] == 4:
+        articles_from_archives = ubc_scan_archive_pages_for_date_range()
     else:
         articles_from_archives = []
     for article in articles_from_archives:

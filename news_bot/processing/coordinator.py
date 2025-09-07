@@ -122,7 +122,7 @@ def apply_refinement_and_intro(reports: List[Dict]) -> None:
 # Step 4: 主流程
 # --------------------------
 
-def process_news_report(input_path: str, output_path: str):
+def process_news_report(choosen_school: dict[str, str], input_path: str, output_path: str):
     if not os.path.exists(input_path):
         print(f"文件不存在: {input_path}")
         return
@@ -134,7 +134,7 @@ def process_news_report(input_path: str, output_path: str):
     for report in reports:
         refined_text = report.get("refined_chinese_news_report", "")
         title = report.get("original_title", "")
-        score, reason = llm_score_relevance_10point(refined_text, title)
+        score, reason = llm_score_relevance_10point(choosen_school, refined_text, title)
         report["relevance_score"] = score
         report["relevance_reason"] = reason
 
@@ -153,7 +153,7 @@ def process_news_report(input_path: str, output_path: str):
     # Get the configured date range
     start_date, end_date = config.get_news_date_range()
     
-    gdoc_url = google_docs_exporter.update_or_create_news_document(sorted_reports, start_date, end_date)
+    gdoc_url = google_docs_exporter.update_or_create_news_document(choosen_school, sorted_reports, start_date, end_date)
     if gdoc_url:
         print(f"导出成功: {gdoc_url}")
     else:
@@ -171,6 +171,13 @@ if __name__ == "__main__":
     input_file = None
     reports_dir = "news_reports"
     
+    # Pick school to collect news from
+    print(f"=== Please pick a school to collect news from: ===")
+    schools_dict = school_config.SCHOOL_PROFILES
+    for school, info in schools_dict.items():
+        print(f"  {info['id']}: {info['school_name']}")
+    choosen_school_id = int(input("Please enter the ID of the school you want to collect news from: "))
+    choosen_school = list(schools_dict.values())[choosen_school_id - 1]   
     if not os.path.exists(reports_dir):
         print(f"Reports directory '{reports_dir}' does not exist.")
         exit(1)
@@ -209,4 +216,4 @@ if __name__ == "__main__":
         output_file = input_file.replace(".json", "_sorted.json")
         print(f"读取输入文件: {input_file}")
         print(f"处理日期范围: {start_date} 到 {end_date}")
-        process_news_report(input_file, output_file)
+        process_news_report(choosen_school, input_file, output_file)
