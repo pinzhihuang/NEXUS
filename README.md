@@ -4,6 +4,9 @@ Project NEXUS is an automated system for discovering, verifying, summarizing, an
 
 ## Feature Log
 
+[2025-10-12]
+- A bash script added for running extracting news from 6 schools all at once.
+
 [2025-10-03]
 
 - Add University of Edinburgh as a new source.
@@ -163,7 +166,10 @@ python -m news_bot.processing.coordinator
 For extracting news from all six school at once:
 ```bash
 chmod +x /<your_path_to_NEXUS>/run_nexus_automation.sh
+
 <your_path_to_NEXUS>/run_nexus_automation.sh
+# or using the command below in case pc display off
+caffeinate -i <your_path_to_NEXUS>/run_nexus_automation.sh 
 ```
 
 ## Modules
