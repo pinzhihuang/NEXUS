@@ -33,7 +33,12 @@ OAUTH_TOKEN_PICKLE_FILE = os.path.join(PROJECT_ROOT, os.getenv("OAUTH_TOKEN_FILE
 GOOGLE_DOCS_SCOPES = ['https://www.googleapis.com/auth/documents'] # Scope for creating/editing docs
 TARGET_GOOGLE_DOC_ID = os.getenv("TARGET_GOOGLE_DOC_ID", None)
 
+# Gmail API Credentials
+GMAIL_SCOPES = ['https://www.googleapis.com/auth/gmail.readonly']
+OAUTH_TOKEN_PICKLE_FILE_GMAIL = os.path.join(PROJECT_ROOT, os.getenv("OAUTH_TOKEN_FILENAME_GMAIL", "gmail_token.pickle"))
 
+
+# Legacy config
 TARGET_NEWS_SOURCES_DOMAINS = [
     "nyunews.com", 
     "www.nyu.edu/news"
@@ -51,9 +56,6 @@ ARCHIVE_URL_PATTERNS = [
     "https://www.nyu.edu/about/news-publications/news/{year}/{month:02d}.html",
     # Alternative patterns to try
     "https://nyunews.com/news/{year}/{month:02d}/",
-]
-RELEVANCE_KEYWORDS = [
-    "Chinese international students", "NYU News","New York student life", "NYU campus events"
 ]
 
 # =============================================================================
@@ -109,8 +111,8 @@ URL_FETCH_TIMEOUT = int(os.getenv("URL_FETCH_TIMEOUT", "20")) # seconds
 
 # Output Configuration
 DEFAULT_OUTPUT_DIR = os.getenv("DEFAULT_OUTPUT_DIR", "news_reports")
-MAX_FINAL_REPORTS = int(os.getenv("MAX_FINAL_REPORTS", "5"))
-MAX_SEARCH_RESULTS_TO_PROCESS = int(os.getenv("MAX_SEARCH_RESULTS_TO_PROCESS", "10"))
+MAX_FINAL_REPORTS = int(os.getenv("MAX_FINAL_REPORTS", "20"))
+MAX_SEARCH_RESULTS_TO_PROCESS = int(os.getenv("MAX_SEARCH_RESULTS_TO_PROCESS", "120"))
 MAX_CATEGORY_PAGES_TO_SCAN = int(os.getenv("MAX_CATEGORY_PAGES_TO_SCAN", "20"))
 
 def validate_config():

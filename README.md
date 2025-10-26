@@ -3,6 +3,32 @@
 Project NEXUS is an automated system for discovering, verifying, summarizing, and translating news relevant to international students at various universities. It aims to provide a centralized and accessible source of important campus and community information.
 
 ## Feature Log
+
+[2025-10-03]
+
+- Add University of Edinburgh as a new source.
+  - New crawler `news_bot/discovery/sources/edin_scrawler.py` and profile in `news_bot/core/school_config.py`.
+  - Supports Edinburgh official news page with date-range query and student newspaper.
+- Security/housekeeping: stop tracking leaked Gmail OAuth token files and ignore them.
+
+[2025-09-07]
+
+- Enable Event/Announcement summaries for UBC when configured.
+  - Added per-school flag `include_event_announcements` in `news_bot/core/school_config.py` (enabled for UBC).
+  - Updated `news_bot/main_orchestrator.py` suitability logic to accept `Event/Announcement` when the flag is true.
+
+[2025-09-06]
+
+- UC Davis support completed.
+  - Implement `ucd_scan_category_pages_for_links` to crawl latest news and filter by configured date range.
+  - Add UC Davis profile to `news_bot/core/school_config.py`.
+
+[2025-09-05]
+
+- Emory support finished.
+  - Implement combined scanners for Emory official news monthly index and Emory Wheel pages with date filtering.
+  - Add Emory profile to `news_bot/core/school_config.py`.
+
 [2025-09-04]
 - Improved translation prompt, Gemini refinement, and ranking by relevance.
 
@@ -132,6 +158,12 @@ After running the main script, to rank the news by revelance, run coordinator.py
 
 ```bash
 python -m news_bot.processing.coordinator
+```
+
+For extracting news from all six school at once:
+```bash
+chmod +x /<your_path_to_NEXUS>/run_nexus_automation.sh
+<your_path_to_NEXUS>/run_nexus_automation.sh
 ```
 
 ## Modules

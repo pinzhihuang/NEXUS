@@ -5,14 +5,14 @@ from typing import List, Dict
 from datetime import datetime, timedelta, date
 
 import google.generativeai as genai
-from news_bot.core import config
+from news_bot.core import config, school_config
 from news_bot.reporting import google_docs_exporter
 
 # --------------------------
 # Step 1: Gemini relevance打分（1~10分）+ 原因解释
 # --------------------------
 
-def llm_score_relevance_10point(chinese_text: str, article_title: str = "") -> tuple[int, str]:
+def llm_score_relevance_10point(school: dict[str, str], chinese_text: str, article_title: str = "") -> tuple[int, str]:
     if not chinese_text.strip():
         return 1, "空内容"
 
@@ -22,13 +22,13 @@ def llm_score_relevance_10point(chinese_text: str, article_title: str = "") -> t
     except Exception:
         return 1, "初始化失败"
 
-    prompt = f"""你是一位中文新闻分析师，请判断以下新闻与"纽约大学（NYU）的中国留学生"主题的相关性，并给出 1~10 的整数分数和简要原因。
+    prompt = f"""你是一位中文新闻分析师，请判断以下新闻与"{school['prompt_context']['audience_zh']}"主题的相关性，并给出 1~10 的整数分数和简要原因。
 
 评分标准：
 10 = 与中国留学生紧密相关，是主题核心。或是学生关注度高的主题，如学校招生政策变化/学术成果/校园活动/学生生活/就业/签证政策变化/校园安全等，也可以是影响中国留学生日常生活的重大校园变化
-7-9 = 与中国学生或国际生显著相关，NYU 是事件主要场景。如涉及国际学生住房、学费、学术政策等重要议题，或是校园安全、设施变更等影响所有学生的重要事件。
-4-6 = 提及 NYU 或国际学生，但中国学生不是重点，如行政人事变动、建筑设施等对学生影响较小的事件。
-1-3 = 只轻微提到 NYU 或中国，与中国留学生实际需求和关注点无具体交集。或是学生关注度低的主题，如学校的日常科研成果/医疗突破性进展/校友新闻/学校员工等。
+7-9 = 与中国学生或国际生显著相关，{school['school_name']} 是事件主要场景。如涉及国际学生住房、学费、学术政策等重要议题，或是校园安全、设施变更等影响所有学生的重要事件。
+4-6 = 提及 {school['school_name']} 或国际学生，但中国学生不是重点，如行政人事变动、建筑设施等对学生影响较小的事件。
+1-3 = 只轻微提到 {school['school_name']} 或中国，与中国留学生实际需求和关注点无具体交集。或是学生关注度低的主题，如学校的日常科研成果/医疗突破性进展/校友新闻/学校员工等。
 
 请返回以下格式：
 分数：X
@@ -44,7 +44,6 @@ def llm_score_relevance_10point(chinese_text: str, article_title: str = "") -> t
         text = getattr(response, 'text', '').strip()
         match = re.search(r"分数[:：]?\s*(\d+)", text)
         score = int(match.group(1)) if match else 1
-        print(f"relevance score: {score}")
         reason = text.split("原因：")[-1].strip() if "原因：" in text else "无解释"
         return max(1, min(score, 10)), reason
     except Exception:
@@ -74,6 +73,8 @@ def refine_chinese_news_report(text: str, article_title: str = "") -> str:
 - 确保每个事实点都有充分展开，每个重要事实必须包含2句话：主要描述句+细节解释句,或后续发展, 或背景信息
 - 如果两个事实点相似，或两个事实点相关，请合并为一个长段落而不是分开写避免过度分段
 - 对不常见的人名、地名、组织名，在首次出现时添加英文括注，如 加拉廷学院 (Gallatin School)、洛根·罗佐斯 (Logan Rozos)
+- 去除大学名字后面的括号及括号内的内容，如 纽约大学 (New York Univerity) 改为 纽约大学
+- 不要添加任何主观评价或个人观点，不要使用这件事体现了（某种影响）这种带有明确观点的总结性句式，只保留客观事实。
 - **段落结构示例：**
 ```
 第一段(60-150字)：主要事件+具体细节
@@ -123,7 +124,7 @@ def apply_refinement_and_intro(reports: List[Dict]) -> None:
 # Step 4: 主流程
 # --------------------------
 
-def process_news_report(input_path: str, output_path: str):
+def process_news_report(choosen_school: dict[str, str], input_path: str, output_path: str):
     if not os.path.exists(input_path):
         print(f"文件不存在: {input_path}")
         return
@@ -135,7 +136,7 @@ def process_news_report(input_path: str, output_path: str):
     for report in reports:
         refined_text = report.get("refined_chinese_news_report", "")
         title = report.get("original_title", "")
-        score, reason = llm_score_relevance_10point(refined_text, title)
+        score, reason = llm_score_relevance_10point(choosen_school, refined_text, title)
         report["relevance_score"] = score
         report["relevance_reason"] = reason
 
@@ -154,7 +155,7 @@ def process_news_report(input_path: str, output_path: str):
     # Get the configured date range
     start_date, end_date = config.get_news_date_range()
     
-    gdoc_url = google_docs_exporter.update_or_create_news_document(sorted_reports, start_date, end_date)
+    gdoc_url = google_docs_exporter.update_or_create_news_document(choosen_school, sorted_reports, start_date, end_date, is_email=False)
     if gdoc_url:
         print(f"导出成功: {gdoc_url}")
     else:
@@ -172,12 +173,20 @@ if __name__ == "__main__":
     input_file = None
     reports_dir = "news_reports"
     
+    # Pick school to collect news from
+    print(f"=== Please pick a school to collect news from: ===")
+    schools_dict = school_config.SCHOOL_PROFILES
+    for school, info in schools_dict.items():
+        print(f"  {info['id']}: {info['school_name']}")
+    choosen_school_id = int(input("Please enter the ID of the school you want to collect news from: "))
+    choosen_school = list(schools_dict.values())[choosen_school_id - 1]   
     if not os.path.exists(reports_dir):
         print(f"Reports directory '{reports_dir}' does not exist.")
         exit(1)
     
     # Pattern to match files with date range
     pattern = f"weekly_student_news_report_{start_date}_{end_date}"
+    pattern_email = f"breaking_news_report_{start_date}"
     
     # Find the most recent file matching the pattern
     for fname in sorted(os.listdir(reports_dir), reverse=True):
@@ -210,4 +219,4 @@ if __name__ == "__main__":
         output_file = input_file.replace(".json", "_sorted.json")
         print(f"读取输入文件: {input_file}")
         print(f"处理日期范围: {start_date} 到 {end_date}")
-        process_news_report(input_file, output_file)
+        process_news_report(choosen_school, input_file, output_file)
