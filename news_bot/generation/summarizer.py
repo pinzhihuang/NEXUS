@@ -3,7 +3,7 @@
 import google.generativeai as genai
 from ..core import config
 
-def generate_summary_with_gemini(article_text: str, article_url: str, article_title: str = "") -> str | None:
+def generate_summary_with_gemini(school: dict[str, str], article_text: str, article_url: str, article_title: str = "") -> str | None:
     """
     Generates a professional English news summary using the Gemini API.
     """

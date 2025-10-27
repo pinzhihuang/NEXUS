@@ -10,6 +10,7 @@ news_reports/
 # Google OAuth credentials
 credentials.json
 token.pickle
+gmail_token.pickle
 token.json # In case other flows generate this
 
 # Python specific

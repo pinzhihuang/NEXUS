@@ -6,6 +6,7 @@ import google.generativeai as genai
 from datetime import datetime, date, timedelta
 import json
 import re # For URL date parsing
+from ..discovery.date_extractor import extract_date_from_url
 
 from ..core import config
 
@@ -21,16 +22,54 @@ def fetch_and_extract_text(url: str) -> str | None:
         response = requests.get(url, headers=headers, timeout=config.URL_FETCH_TIMEOUT)
         response.raise_for_status()
         soup = BeautifulSoup(response.content, 'html.parser')
+        # if read full button found, extract the text from button's url (apply to UBC)
+        try:
+            read_full_button = soup.find('a', text='Read the full message')
+            if read_full_button:
+                url = read_full_button['href']
+                print(f"DEBUG: read full button found, url: {url}\n")
+                response = requests.get(url, headers=headers, timeout=config.URL_FETCH_TIMEOUT)
+                response.raise_for_status()
+                soup = BeautifulSoup(response.content, 'html.parser')
+        except Exception as e:
+            print(f"not read full button found")
+            pass
         
-        main_content_tags = ['article', 'main', '.post-content', '.entry-content', '.td-post-content']
+        # --- Domain-specific extraction: The Student News (avoid hidden trending preview article) ---
         article_body = None
-        for tag_or_class in main_content_tags:
-            if tag_or_class.startswith('.'):
-                article_body = soup.find(class_=tag_or_class[1:])
-            else:
-                article_body = soup.find(tag_or_class)
-            if article_body:
-                break
+        try:
+            from urllib.parse import urlparse
+            domain = urlparse(url).netloc
+        except Exception:
+            domain = ''
+
+        if 'thestudentnews.co.uk' in domain:
+            # Prefer the real article content container inside the primary content area
+            tsn_selectors = [
+                '#content #primary article .entry-content',
+                '#primary .entry-content',
+                'main.site-main article .entry-content',
+                '.single-post .entry-content',
+                '.entry-content'
+            ]
+            for css in tsn_selectors:
+                el = soup.select_one(css)
+                if el:
+                    article_body = el
+                    print(f"DEBUG: thestudentnews extractor using selector: '{css}'")
+                    break
+
+        # --- Generic extraction (ordered: specific containers first, 'article' last) ---
+        if not article_body:
+            main_content_tags = ['.entry-content', '.post-content', '.td-post-content', 'main', 'article']
+            for tag_or_class in main_content_tags:
+                if tag_or_class.startswith('.'):
+                    article_body = soup.find(class_=tag_or_class[1:])
+                else:
+                    article_body = soup.find(tag_or_class)
+                if article_body:
+                    print(f"DEBUG: article_body found via generic selector '{tag_or_class}', url: {url}")
+                    break
         
         if not article_body:
             article_body = soup.body
@@ -41,6 +80,7 @@ def fetch_and_extract_text(url: str) -> str | None:
                 unwanted_tag.decompose()
             
             common_annoyances_selectors = [
+                '[class*="mask"]',
                 '[class*="ad"], [id*="ad"]' ,
                 '[class*="popup"], [id*="popup"]' ,
                 '[class*="overlay"], [id*="overlay"]' ,
@@ -53,6 +93,7 @@ def fetch_and_extract_text(url: str) -> str | None:
                     unwanted_element.decompose()
 
             paragraphs = article_body.find_all('p')
+            # print(f"DEBUG: paragraphs: {paragraphs}\n")
             if paragraphs:
                 text_content = "\n".join([p.get_text(strip=True) for p in paragraphs if p.get_text(strip=True)])
             
@@ -85,44 +126,8 @@ def fetch_and_extract_text(url: str) -> str | None:
         print(f"Error: An unexpected error occurred while fetching/processing URL {url}: {str(e)}")
     return None
 
-def _extract_date_from_url(url_string: str) -> str | None:
-    """
-    Attempts to extract a date (YYYY-MM-DD) from a URL string.
-    Looks for patterns like /YYYY/MM/DD/ or /YYYY/MM/.
-    """
-    # Pattern for YYYY/MM/DD
-    match_ymd = re.search(r'/(\d{4})/(\d{1,2})/(\d{1,2})/', url_string)
-    if match_ymd:
-        year, month, day = match_ymd.groups()
-        try:
-            # Validate if it forms a real date
-            dt = datetime(int(year), int(month), int(day))
-            return dt.strftime("%Y-%m-%d")
-        except ValueError:
-            pass # Invalid date components
 
-    # Pattern for YYYY/MM (default to 01 for day)
-    match_ym = re.search(r'/(\d{4})/(\d{1,2})/', url_string)
-    if match_ym:
-        year, month = match_ym.groups()
-        try:
-            dt = datetime(int(year), int(month), 1)
-            return dt.strftime("%Y-%m-%d")
-        except ValueError:
-            pass
-    
-    # Pattern for YYYY-MM-DD directly in a segment
-    match_ymd_direct = re.search(r'(\d{4}-\d{1,2}-\d{1,2})', url_string)
-    if match_ymd_direct:
-        try:
-            dt = datetime.strptime(match_ymd_direct.group(1), "%Y-%m-%d")
-            return dt.strftime("%Y-%m-%d")
-        except ValueError:
-            pass
-            
-    return None
-
-def verify_article_with_gemini(article_text: str, article_url: str) -> dict | None:
+def verify_article_with_gemini(school: dict[str, str], article_text: str, article_url: str, publication_date: str) -> dict | None:
     """
     Verifies an article using Gemini for date, recency, relevance, and article type.
     Uses the configured date range from config.get_news_date_range().
@@ -137,7 +142,7 @@ def verify_article_with_gemini(article_text: str, article_url: str) -> dict | No
     
     if not article_text or not article_text.strip():
         print(f"Info: Skipping Gemini verification for {article_url} due to empty article text.")
-        publication_date_from_url = _extract_date_from_url(article_url)
+        publication_date_from_url = publication_date
         final_date_str = publication_date_from_url if publication_date_from_url else "Date not found"
         is_recent_status = "Date unclear (no text/URL date)"
         is_within_range = False
@@ -174,7 +179,7 @@ def verify_article_with_gemini(article_text: str, article_url: str) -> dict | No
         print(f"Error initializing Gemini model for verification: {str(e)}")
         return None
 
-    relevance_query = f"Is this article generally relevant to students at New York University (NYU), covering campus news, academic updates, student life, or significant events affecting the NYU community?"
+    relevance_query = f"Is this article generally relevant to students at {school['school_name']}, covering campus news, academic updates, student life, or significant events affecting the {school['school_name']} community?"
     
     prompt = f"""Analyze the article text. Provide your analysis in EXACTLY four lines, each starting with the specified prefix:
 
@@ -243,7 +248,7 @@ Your response (exactly 4 lines as specified above):
     date_source_log = "(from Gemini)"
     if final_date_str.lower() == "date not found" or "error" in final_date_str.lower() or not final_date_str.strip():
         print(f"Info: Gemini did not find date for {article_url}. Attempting URL parse.")
-        url_extracted_date = _extract_date_from_url(article_url)
+        url_extracted_date = publication_date
         if url_extracted_date:
             final_date_str = url_extracted_date
             date_source_log = "(from URL)"
@@ -311,7 +316,7 @@ if __name__ == '__main__':
         print(f"\n--- Test {i+1}: Processing URL: {test_url} ---")
         
         # Test URL date extraction directly
-        extracted_date = _extract_date_from_url(test_url)
+        # extracted_date = extract_date_from_url(test_url) # Not used in this test
         print(f"  Direct URL date extraction attempt: {extracted_date}")
 
         article_text = fetch_and_extract_text(test_url)
