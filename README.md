@@ -4,6 +4,25 @@ Project NEXUS is an automated system for discovering, verifying, summarizing, an
 
 ## Feature Log
 
+[2025-10-29]
+- Google Docs → WeChat renderer landed:
+  - **Batch renderer** `scripts/gdoc_master_latest_to_images.py` (parse master weekly index; batch render per-school docs).
+  - **Single-doc renderer** `scripts/gdoc_to_wechat_images.py` (render one school/week).
+  - **Week selector**: `--week-title "YYYY.MM.DD - MM.DD"`; default picks the latest week.
+  - **Robust link parsing**: supports Smart Chips (richLink), links inside **paragraphs / tables / TOC**, and inlineObject rich links.
+  - **DocId normalization & de-dup** to avoid missing/duplicated schools.
+  - **UCD special styling**: alternating left bar (blue/yellow) by odd/even items.
+- HTML templates & font:
+  - `news_bot/templates/weixin_article_template.html`
+  - `news_bot/templates/weixin_reference_template.html`
+  - `news_bot/assets/fonts/SourceHanSerifSC-VF.otf` (large file; consider Git LFS).
+- One-click shell wrappers:
+  - `scripts/render_latest_week.sh` – render **latest** week for all schools.
+  - `scripts/render_week.sh` – render **latest** or an **exact** week.
+  - `scripts/render_single_doc.sh` – render **one** school doc by URL/ID.
+- Docs:
+  - Added **render_readme.md** (setup, OAuth, CLI examples, troubleshooting).
+
 [2025-10-12]
 - A bash script added for running extracting news from 6 schools all at once.
 
