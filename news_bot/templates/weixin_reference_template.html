@@ -1,0 +1,91 @@
+<!doctype html>
+<meta charset="utf-8" />
+<style>
+  /* —— 思源宋体 SC 变量字体：由 Python 注入 font_src —— */
+  @font-face{
+    font-family:'SourceHanSerifSC';
+    src:url('{{ font_src }}') format('opentype');
+    font-weight:100 900;
+    font-style:normal;
+    font-display:swap;
+  }
+
+  :root{
+    --page-width:  {{ page_width|default(540) }}px;
+    --page-height: {{ min_height|default(2200) }}px;
+    --pad: 30px;                                   /* 页面内边距 */
+    --column-width: calc(var(--page-width) - 2 * var(--pad));
+
+    /* ★ 内容区域适度收窄（保持你的原始数值） */
+    --refbox-narrow: 60px;
+    --refbox-width: calc(var(--column-width) - var(--refbox-narrow));
+
+    /* ★ 品牌色变量，Python 可注入；默认 NYU 紫 */
+    --brand-color: {{ brand_color|default('#57068c') }};
+  }
+
+  html,body{
+    margin:0; background:#fff; color:#222;
+    -webkit-font-smoothing:antialiased;
+    -moz-osx-font-smoothing:grayscale;
+    font-family:'SourceHanSerifSC',serif; /* 全局思源宋体 */
+  }
+
+  #page-root{
+    width: var(--page-width);
+    min-height: var(--page-height);
+    margin: 0 auto;
+    padding: var(--pad);
+    box-sizing: border-box;
+    position: relative;
+  }
+
+  /* 顶部横线使用品牌色 */
+  .refbox{
+    width: var(--refbox-width);
+    margin: 0 auto;
+    border-top: 3.5px solid var(--brand-color);
+    padding-top: 12px; /* 横线与标题间距 */
+  }
+
+  /* 标题：保持你的参数不变 */
+  h1.title{
+    margin:0 0 10px 0;
+    font-family:'SourceHanSerifSC',serif;
+    font-weight:500;
+    font-variation-settings:'wght' 400;
+    font-size:22.093076923px;
+    line-height:1.00;
+    color:#222;
+  }
+
+  /* 列表正文：保持你的参数不变 */
+  ol{
+    width: 100%;
+    margin:0; padding-left:1.2em;
+    font-family:'SourceHanSerifSC',serif;
+    font-weight:400;
+    font-variation-settings:'wght' 400;
+    font-size:16.923076923px;
+    line-height:1.0;
+    color:#888888;
+    overflow-wrap:anywhere;
+    word-break:break-word;
+  }
+  li{ margin-bottom:.5em; }
+</style>
+
+<div id="page-root">
+  <div class="refbox">
+    <h1 class="title">资料来源：</h1>
+    {% if urls and urls|length > 0 %}
+      <ol>
+        {% for u in urls %}
+          <li>{{ u }}</li>
+        {% endfor %}
+      </ol>
+    {% else %}
+      <ol><li>（无可用链接）</li></ol>
+    {% endif %}
+  </div>
+</div>

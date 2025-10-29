@@ -1,54 +1,54 @@
-# .gitignore
-.env
-__pycache__/
-*.pyc
-news_reports/
-
-# Local environment variables
-.env
-
-# Google OAuth credentials
-credentials.json
-token.pickle
-gmail_token.pickle
-token.json # In case other flows generate this
-
-# Python specific
-venv/
+# Python
 __pycache__/
 *.pyc
 *.pyo
 *.pyd
 *.egg-info/
+.venv/
+.env
+.env.*
+# Python
+__pycache__/
+*.py[cod]
+*.pyo
+*.pyd
+*.egg-info/
+.eggs/
 dist/
 build/
-*.egg
-instance/
-htmlcov/
 .pytest_cache/
-.Python
-celerybeat-schedule
-celerybeat.pid
+.ipynb_checkpoints/
 
-# Log files
-*.log
-*.log.*
-logs/
+# Virtual env / env files
+.venv/
+venv/
+.env
+.env.*
+.envrc
 
-# Operating System Files
+# macOS
 .DS_Store
-Thumbs.db
-ehthumbs.db
-Desktop.ini
 
-# IDE / Editor specific (examples - add your own if needed)
+# Node / Puppeteer caches
+node_modules/
+.pnpm-store/
+.npm/
+.cache/
+
+# Output / generated
+wechat_images/
+out/
+tmp/
+*.log
+
+# Secrets (do NOT commit)
+credentials.json
+token.pickle
+
+# IDE / Editors
 .vscode/
 .idea/
-*.suo
-*.user
-*.sln.docstates
+Thumbs.db
 
-# Jupyter Notebook checkpoints
-.ipynb_checkpoints
-
-*.json
+git diff --cached --name-only  
+git status   
