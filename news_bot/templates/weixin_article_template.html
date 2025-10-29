@@ -1,0 +1,135 @@
+<!doctype html>
+<meta charset="utf-8" />
+<style>
+  /* —— 思源宋体 SC 变量字体：由 Python 注入 font_src —— */
+  @font-face{
+    font-family:'SourceHanSerifSC';
+    src:url('{{ font_src }}') format('opentype');
+    font-weight:100 900;
+    font-style:normal;
+    font-display:swap;
+  }
+
+  :root{
+    --page-width:  {{ page_width|default(540) }}px;   /* 画布宽（可被 Python 覆盖） */
+    --page-height: {{ min_height|default(2200) }}px;  /* 最小高，导出后仍按内容裁底 */
+    --pad: 30px;                                      /* 左右/上下固定留白 */
+    --title-size: {{ title_size|default(22.093076923) }}px;     /* 标题字号（可按需覆盖） */
+    --column-width: calc(var(--page-width) - 2 * var(--pad));   /* 列宽 */
+
+    /* 品牌色（由 Python 注入 brand_color；默认 NYU 紫） */
+    --brand-color: {{ brand_color|default('#57068c') }};
+
+    /* 竖条色：优先用 left_bar_color；为空时退回品牌色 */
+    --left-bar-color: {{ left_bar_color or brand_color }};
+  }
+
+  html,body{
+    margin:0; background:#fff; color:#222;
+    -webkit-font-smoothing:antialiased;
+    -moz-osx-font-smoothing:grayscale;
+  }
+
+  /* 彻底屏蔽任何可能的“分隔线/描边”来源 */
+  hr{ display:none !important; height:0 !important; border:0 !important; }
+  #page-root, #page-root *{
+    border:0 !important; box-shadow:none !important; outline:none !important;
+  }
+  #page-root::before, #page-root::after{ content:none !important; display:none !important; }
+
+  /* 画布容器：固定宽 + 四周留白 + 最小高度 */
+  #page-root{
+    width: var(--page-width);
+    min-height: var(--page-height);
+    margin: 0 auto;
+    padding: var(--pad);
+    box-sizing: border-box;
+    position: relative;
+    background:#fff;
+  }
+
+  /* 右上角小字（固定 10px，可为空） */
+  .credits{
+    position:absolute; right:var(--pad); top:var(--pad);
+    font:10px/1.4 'SourceHanSerifSC', serif;
+    color:#7a7a7a;
+  }
+
+  /* 标题行：左侧竖条随标题行高度拉伸 */
+  .title-row{
+    display:flex; align-items:stretch; gap:12px; margin-bottom:18px;
+    width: var(--column-width);
+  }
+  .title-marker{ display:flex; gap:8px; align-items:flex-start; }
+  .title-marker .bar{
+    width: 5.64102564px;
+    background: var(--left-bar-color); /* ← 竖条使用 left-bar-color（可被交替色覆盖） */
+    border-radius:0; align-self:stretch;
+  }
+  .title-marker .label{
+    font:10px/1 'Minion Pro','MinionPro-Regular','Times New Roman',serif;
+    color: var(--brand-color);
+    letter-spacing:.2px;
+  }
+
+  /* 标题 */
+  h1.title{
+    margin:0;
+    font-family:'SourceHanSerifSC', serif;
+    font-weight:500;
+    font-variation-settings:'wght' 500;
+    font-synthesis:none;
+    font-size:var(--title-size);
+    line-height:1.10;
+    text-align:left;
+  }
+
+  /* 首图（可选） */
+  .cover{
+    margin:10px 0 14px 0;
+    width: var(--column-width);
+  }
+  .cover img{ width:100%; height:auto; display:block; border-radius:0; }
+  .cover figcaption{
+    margin-top:6px;
+    font:10px/1.4 'SourceHanSerifSC', serif; color:#666;
+  }
+
+  /* 正文 */
+  .content{ width: var(--column-width); }
+  .content p{
+    margin:0 0 .95em 0;
+    font-family:'SourceHanSerifSC', serif;
+    font-weight:400;
+    font-variation-settings:'wght' 400;
+    font-size:20px;
+    line-height:1.4;
+    text-indent:0;
+    overflow-wrap:anywhere;
+    word-break:break-word;
+  }
+  .content p:last-child{ margin-bottom:0; }
+</style>
+
+<div id="page-root">
+  {% if credits %}<div class="credits">{{ credits }}</div>{% endif %}
+
+  <div class="title-row">
+    <div class="title-marker">
+      <span class="bar"></span>
+      {% if marker_label %}<span class="label">{{ marker_label }}</span>{% endif %}
+    </div>
+    <h1 class="title">{{ title }}</h1>
+  </div>
+
+  {% if cover_image %}
+  <figure class="cover">
+    <img src="{{ cover_image }}" alt="cover" />
+    {% if cover_caption %}<figcaption>{{ cover_caption }}</figcaption>{% endif %}
+  </figure>
+  {% endif %}
+
+  <div class="content">
+    {{ body|safe }}
+  </div>
+</div>
