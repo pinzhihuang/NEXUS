@@ -5,7 +5,7 @@ Project NEXUS is an automated system for discovering, verifying, summarizing, an
 ## Feature Log
 
 [2025-10-29]
-- Google Docs → WeChat renderer landed:
+- Google Docs → WeChat news renderer landed:
   - **Batch renderer** `scripts/gdoc_master_latest_to_images.py` (parse master weekly index; batch render per-school docs).
   - **Single-doc renderer** `scripts/gdoc_to_wechat_images.py` (render one school/week).
   - **Week selector**: `--week-title "YYYY.MM.DD - MM.DD"`; default picks the latest week.
