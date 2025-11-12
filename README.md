@@ -69,14 +69,14 @@ Project NEXUS is an automated system for discovering, verifying, summarizing, an
     -   Scans user-specified news category pages for the latest article links.
     -   Utilizes Google Programmable Search Engine (PSE) for targeted searches on user-configured university domains using relevant keywords.
 -   **Content Extraction**: Fetches and parses the full text content from discovered article URLs.
--   **AI-Powered Verification (Gemini API)**:
+-   **AI-Powered Verification (OpenRouter with Gemini models)**:
     -   Determines publication dates (from text and URL parsing).
     -   Verifies article recency based on a configurable threshold.
     -   Assesses relevance to the general student body of the configured university/community.
     -   Identifies the article type (e.g., "News article", "Opinion/Blog") to filter for news.
--   **News Summarization (Gemini API)**:
+-   **News Summarization (OpenRouter with Gemini models)**:
     -   Generates detailed yet concise English summaries (configurable length) focusing on key information.
--   **Restyling (Gemini API)**:
+-   **Restyling (OpenRouter with Gemini models)**:
     -   Generates a relevant, catchy, and summary-style Chinese title for the news.
     -   Translates the English summary into Simplified Chinese.
     -   Rewrites the translation in a serious, formal, and objective news reporting style.
@@ -138,22 +138,31 @@ NEXUS/
     pip install -r requirements.txt
     ```
 4.  **API Keys & Configuration (`.env` file)**:
-    *   Create a `.env` file in the `NEXUS` root (copy from `.env.example` if provided).
+    *   Create a `.env` file in the `NEXUS` root.
     *   Add your API keys:
         ```env
-        GEMINI_API_KEY="YOUR_GEMINI_API_KEY"
-        GOOGLE_API_KEY="YOUR_GOOGLE_API_KEY_FOR_PSE"
-        CUSTOM_SEARCH_ENGINE_ID="YOUR_GOOGLE_PSE_CX_ID"
+        # Required: OpenRouter API Key (get from https://openrouter.ai/keys)
+        OPENROUTER_API_KEY="sk-or-v1-YOUR_OPENROUTER_API_KEY"
+        
+        # Optional: Google PSE keys (for custom search, currently disabled)
+        # GOOGLE_API_KEY="YOUR_GOOGLE_API_KEY_FOR_PSE"
+        # CUSTOM_SEARCH_ENGINE_ID="YOUR_GOOGLE_PSE_CX_ID"
         
         # Optional: For Google Docs Export - ID of an existing Doc to update
         # TARGET_GOOGLE_DOC_ID="YOUR_GOOGLE_DOCUMENT_ID_HERE"
         
         # Optional: Override default model names or parameters from config.py
-        # GEMINI_FLASH_MODEL='gemini-2.5-flash-latest' 
+        # GEMINI_FLASH_MODEL="google/gemini-2.5-flash"
+        # GEMINI_PRO_MODEL="google/gemini-2.5-pro"
         # RECENCY_THRESHOLD_DAYS=7
         # NEWS_START_DATE="2025-08-01"
         # MAX_CATEGORY_PAGES_TO_SCAN=20
         ```
+    *   **OpenRouter Setup**:
+        1.  Go to https://openrouter.ai/ and create an account
+        2.  Navigate to https://openrouter.ai/keys and create an API key
+        3.  Add credits to your account at https://openrouter.ai/settings/credits (free tier includes some credits)
+        4.  Copy your API key and add it to `.env` as `OPENROUTER_API_KEY`
     *   **Google Programmable Search Engine (PSE) Setup**:
         1.  Project in [Google Cloud Console](https://console.cloud.google.com/).
         2.  Enable "Custom Search API".
@@ -195,9 +204,9 @@ caffeinate -i <your_path_to_NEXUS>/run_nexus_automation.sh
 
 -   **`config.py`**: Manages all configurations (API keys, model names, target URLs, keywords, paths, etc.). Many can be overridden by `.env` variables.
 -   **`search_client.py`**: Discovers news articles by scanning category pages and querying Google PSE.
--   **`article_handler.py`**: Fetches article text from URLs; uses Gemini for verification (date, recency, relevance, article type).
--   **`summarizer.py`**: Generates detailed English summaries of verified articles with Gemini.
--   **`translator.py`**: Translates English summaries to formal Chinese news reports, generates Chinese titles, refines Chinese text, and formats names, using Gemini.
+-   **`article_handler.py`**: Fetches article text from URLs; uses OpenRouter (Gemini models) for verification (date, recency, relevance, article type).
+-   **`summarizer.py`**: Generates detailed English summaries of verified articles using OpenRouter (Gemini models).
+-   **`translator.py`**: Translates English summaries to formal Chinese news reports, generates Chinese titles, refines Chinese text, and formats names, using OpenRouter (Gemini models).
 -   **`reporting/google_docs_exporter.py`**: Handles authentication and export of refined Chinese news reports to a Google Document (updates existing or creates new).
 -   **`utils/file_manager.py`**: Saves structured data to JSON files.
 -   **`main_orchestrator.py`**: Orchestrates the entire workflow.

@@ -1,2 +1,2 @@
 # Utilities module for helper functions
-from . import prompt_logger 
+from . import prompt_logger, openrouter_client 

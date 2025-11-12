@@ -1,18 +1,11 @@
 from .audit_client import GmailApi
-import google.generativeai as genai
-
 from ..core import config
+from ..utils import openrouter_client
 
 def sanitize_email_using_gemini(email_body: str):    
-    print(f"Sanitizing email using Gemini...")
-    if not config.GEMINI_API_KEY:
-        print("Error: GEMINI_API_KEY not configured for verification.")
-        return None
-    try:
-        genai.configure(api_key=config.GEMINI_API_KEY)
-        model = genai.GenerativeModel(config.GEMINI_FLASH_MODEL)
-    except Exception as e:
-        print(f"Error initializing Gemini model for verification: {str(e)}")
+    print(f"Sanitizing email using OpenRouter...")
+    if not config.OPENROUTER_API_KEY:
+        print("Error: OPENROUTER_API_KEY not configured for verification.")
         return None
     
     prompt = f"""Please sanitize the following email body. Your task is to:
@@ -26,10 +19,13 @@ Original Email Body:
 """
 
     try:
-        response = model.generate_content(prompt)
-        sanitized_email_body = getattr(response, 'text', '').strip()
+        sanitized_email_body = openrouter_client.generate_content(
+            prompt=prompt,
+            model=config.GEMINI_FLASH_MODEL,
+            temperature=0.3
+        )
         return sanitized_email_body
     except Exception as e:
-        print(f"Error during Gemini API call for sanitization of email: {e}")
+        print(f"Error during OpenRouter API call for sanitization of email: {e}")
         return None
         

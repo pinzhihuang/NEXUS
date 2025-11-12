@@ -1,28 +1,21 @@
 # news_bot/generation/summarizer.py
 
-import google.generativeai as genai
 from ..core import config
-from ..utils import prompt_logger
+from ..utils import prompt_logger, openrouter_client
 
 def generate_summary_with_gemini(school: dict[str, str], article_text: str, article_url: str, article_title: str = "") -> str | None:
     """
     Generates a professional English news summary using Gemini 2.5 Pro.
     Emphasizes accuracy and factuality - only includes information present in the article.
     """
-    if not config.GEMINI_API_KEY:
-        print("Error: GEMINI_API_KEY not configured for summarization.")
+    if not config.OPENROUTER_API_KEY:
+        print("Error: OPENROUTER_API_KEY not configured for summarization.")
         return None
     if not article_text or not article_text.strip():
         print(f"Info: Skipping summarization for {article_url} due to empty article text.")
         return "Summarization skipped: Article text was empty."
 
-    print(f"Generating English summary with Gemini Pro for: {article_url[:100]}...")
-    try:
-        genai.configure(api_key=config.GEMINI_API_KEY)
-        model = genai.GenerativeModel(config.GEMINI_PRO_MODEL)
-    except Exception as e:
-        print(f"Error initializing Gemini model for summarization: {str(e)}")
-        return None
+    print(f"Generating English summary with OpenRouter ({config.GEMINI_PRO_MODEL}) for: {article_url[:100]}...")
 
     title_context = f"The original article title is: '{article_title}'. " if article_title and article_title != "N/A" else ""
 
@@ -89,7 +82,7 @@ Detailed News Summary (5-7 sentences, 100-180 words, for {audience_en}):
 """ 
 
     try:
-        print(f"Sending summarization request to Gemini API ({config.GEMINI_PRO_MODEL})...")
+        print(f"Sending summarization request to OpenRouter API ({config.GEMINI_PRO_MODEL})...")
         
         # Log the prompt
         prompt_logger.log_prompt(
@@ -103,23 +96,21 @@ Detailed News Summary (5-7 sentences, 100-180 words, for {audience_en}):
             }
         )
         
-        response = model.generate_content(prompt)
-        
-        summary_text = getattr(response, 'text', '').strip()
-        if not summary_text and hasattr(response, 'parts') and response.parts:
-            for part in response.parts:
-                summary_text += getattr(part, 'text', '').strip()
-            summary_text = summary_text.strip()
+        summary_text = openrouter_client.generate_content(
+            prompt=prompt,
+            model=config.GEMINI_PRO_MODEL,
+            temperature=0.7
+        )
 
         if not summary_text:
-            print(f"Warning: Empty summary received from Gemini for {article_url}. Text length: {len(article_text)} chars.")
+            print(f"Warning: Empty summary received from OpenRouter for {article_url}. Text length: {len(article_text)} chars.")
             return "Summarization failed: AI returned empty response."
 
         print(f"Successfully generated English summary for {article_url[:100]}...")
         return summary_text
 
     except Exception as e:
-        print(f"Error during Gemini API call for summarization of {article_url}: {e}")
+        print(f"Error during OpenRouter API call for summarization of {article_url}: {e}")
         return None
 
 if __name__ == '__main__':

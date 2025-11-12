@@ -10,14 +10,21 @@ DOTENV_PATH = os.path.join(PROJECT_ROOT, '.env')
 load_dotenv(DOTENV_PATH)
 
 
+# OpenRouter API Configuration
+# Get your API key from https://openrouter.ai/keys
+OPENROUTER_API_KEY = os.getenv("OPENROUTER_API_KEY")
+OPENROUTER_API_URL = "https://openrouter.ai/api/v1/chat/completions"
+
+# Legacy Gemini API Key (deprecated, kept for backward compatibility)
 GEMINI_API_KEY = os.getenv("GEMINI_API_KEY")
 GOOGLE_API_KEY = os.getenv("GOOGLE_API_KEY") # For PSE and Search
 CUSTOM_SEARCH_ENGINE_ID = os.getenv("CUSTOM_SEARCH_ENGINE_ID")
 PERPLEXITY_API_KEY = os.getenv("PERPLEXITY_API_KEY")
 
-GEMINI_FLASH_MODEL = os.getenv("GEMINI_FLASH_MODEL", 'gemini-2.5-flash-preview-05-20') 
-GEMINI_SUMMARY_MODEL = os.getenv("GEMINI_SUMMARY_MODEL", 'gemini-2.5-flash-preview-05-20')
-GEMINI_PRO_MODEL = os.getenv("GEMINI_PRO_MODEL", 'gemini-2.5-pro')
+# Model names for OpenRouter (using Google Gemini models via OpenRouter)
+GEMINI_FLASH_MODEL = os.getenv("GEMINI_FLASH_MODEL", 'google/gemini-2.5-flash') 
+GEMINI_SUMMARY_MODEL = os.getenv("GEMINI_SUMMARY_MODEL", 'google/gemini-2.5-flash')
+GEMINI_PRO_MODEL = os.getenv("GEMINI_PRO_MODEL", 'google/gemini-2.5-pro')
 GEMINI_FLASH_MODEL_CONTEXT_LIMIT_CHARS = int(os.getenv("GEMINI_FLASH_MODEL_CONTEXT_LIMIT_CHARS", "150000"))
 
 GEMINI_SUMMARY_MODEL_CONTEXT_LIMIT_CHARS = int(os.getenv("GEMINI_SUMMARY_MODEL_CONTEXT_LIMIT_CHARS", "150000"))
@@ -120,8 +127,8 @@ MAX_CATEGORY_PAGES_TO_SCAN = int(os.getenv("MAX_CATEGORY_PAGES_TO_SCAN", "20"))
 def validate_config():
     """Validates that essential configurations are set."""
     errors = []
-    if not GEMINI_API_KEY:
-        errors.append("GEMINI_API_KEY is not set (required for article verification and summarization).")
+    if not OPENROUTER_API_KEY:
+        errors.append("OPENROUTER_API_KEY is not set (required for article verification and summarization).")
     # Google PSE is currently disabled in search_client.py, so these are optional
     if not GOOGLE_API_KEY: # For PSE (optional - currently disabled)
         print("Warning: GOOGLE_API_KEY is not set (for Custom Search). Google PSE search is currently disabled, so this is optional.")
@@ -158,9 +165,9 @@ def validate_config():
     else:
         print("  Target Google Doc ID not set; new doc will be created on each export.")
 
-# Only GEMINI_API_KEY is required; Google PSE keys are optional since PSE is disabled
-if not GEMINI_API_KEY:
+# Only OPENROUTER_API_KEY is required; Google PSE keys are optional since PSE is disabled
+if not OPENROUTER_API_KEY:
     if os.path.exists(DOTENV_PATH):
-        print(f"Warning: Attempted to load .env from {DOTENV_PATH}, but GEMINI_API_KEY is still missing from the environment.")
+        print(f"Warning: Attempted to load .env from {DOTENV_PATH}, but OPENROUTER_API_KEY is still missing from the environment.")
     else:
         print(f"Warning: .env file not found at {DOTENV_PATH}. Critical API keys might be missing.")

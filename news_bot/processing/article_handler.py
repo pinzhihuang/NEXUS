@@ -2,12 +2,11 @@
 
 import requests
 from bs4 import BeautifulSoup
-import google.generativeai as genai
 from datetime import datetime, date, timedelta
 import json
 import re # For URL date parsing
 from ..discovery.date_extractor import extract_date_from_url
-from ..utils import prompt_logger
+from ..utils import prompt_logger, openrouter_client
 
 from ..core import config
 
@@ -136,8 +135,8 @@ def verify_article_with_gemini(school: dict[str, str], article_text: str, articl
     Supplements Gemini date extraction with URL parsing if Gemini fails.
     Uses Gemini 2.5 Pro for better accuracy.
     """
-    if not config.GEMINI_API_KEY:
-        print("Error: GEMINI_API_KEY not configured for verification.")
+    if not config.OPENROUTER_API_KEY:
+        print("Error: OPENROUTER_API_KEY not configured for verification.")
         return None
     
     # Get the configured date range
@@ -172,15 +171,8 @@ def verify_article_with_gemini(school: dict[str, str], article_text: str, articl
             "article_type_assessment": "Type unclear (no text)"
         }
 
-    print(f"Verifying article with Gemini: {article_url[:100]}...")
+    print(f"Verifying article with OpenRouter ({config.GEMINI_PRO_MODEL}): {article_url[:100]}...")
     print(f"Using date range: {start_date} to {end_date}")
-    
-    try:
-        genai.configure(api_key=config.GEMINI_API_KEY)
-        model = genai.GenerativeModel(config.GEMINI_PRO_MODEL)
-    except Exception as e:
-        print(f"Error initializing Gemini model for verification: {str(e)}")
-        return None
 
     context_limit = getattr(config, 'GEMINI_PRO_MODEL_CONTEXT_LIMIT_CHARS', 2000000)
     article_text_limit = min(len(article_text), context_limit // 2)  # Use half for safety
@@ -210,9 +202,9 @@ Analyze the article and provide your analysis in EXACTLY three lines, each start
 Your response (exactly 3 lines as specified above):
 """ 
 
-    gemini_publication_date_str = "Date not found" # Default from Gemini
+    gemini_publication_date_str = "Date not found" # Default from OpenRouter
     try:
-        print(f"Sending verification request to Gemini API ({config.GEMINI_PRO_MODEL})...")
+        print(f"Sending verification request to OpenRouter API ({config.GEMINI_PRO_MODEL})...")
         
         # Log the prompt
         prompt_logger.log_prompt(
@@ -226,32 +218,31 @@ Your response (exactly 3 lines as specified above):
             }
         )
         
-        response = model.generate_content(prompt)
-        raw_response_text = getattr(response, 'text', '').strip()
-        if not raw_response_text and hasattr(response, 'parts') and response.parts:
-            for part in response.parts:
-                raw_response_text += getattr(part, 'text', '').strip()
-            raw_response_text = raw_response_text.strip()
+        raw_response_text = openrouter_client.generate_content(
+            prompt=prompt,
+            model=config.GEMINI_PRO_MODEL,
+            temperature=0.3
+        )
 
         if not raw_response_text:
-            print(f"Error: Empty response from Gemini verification for {article_url}.")
+            print(f"Error: Empty response from OpenRouter verification for {article_url}.")
             # Proceed with URL date parsing as fallback
             final_article_type = "Type unclear (empty response)"
         else:
-            print(f"Gemini Verification Raw Response for {article_url[:100]}...:\n---\n{raw_response_text}\n---")
+            print(f"OpenRouter Verification Raw Response for {article_url[:100]}...:\n---\n{raw_response_text}\n---")
             lines = raw_response_text.split('\n')
-            # Initialize with defaults that indicate Gemini didn't provide this specific field
+            # Initialize with defaults that indicate OpenRouter didn't provide this specific field
             results_from_gemini = {
-                "publication_date_str": "Date not found by Gemini",
-                "article_type_assessment": "Type unclear (Gemini parsing error)"
+                "publication_date_str": "Date not found by OpenRouter",
+                "article_type_assessment": "Type unclear (OpenRouter parsing error)"
             }
             parsed_items_count = 0
             for line_idx, line in enumerate(lines[:3]): # Only process up to the first 3 expected lines
                 line_strip = line.strip()
-                if (line_idx == 0 and "Publication Date:" in line_strip) or (not results_from_gemini["publication_date_str"] == "Date not found by Gemini" and "Publication Date:" in line_strip):
+                if (line_idx == 0 and "Publication Date:" in line_strip) or (not results_from_gemini["publication_date_str"] == "Date not found by OpenRouter" and "Publication Date:" in line_strip):
                     results_from_gemini["publication_date_str"] = line_strip.split("Publication Date:", 1)[-1].strip()
                     parsed_items_count += 1
-                elif (line_idx == 1 and "Article Type:" in line_strip) or (results_from_gemini["article_type_assessment"] == "Type unclear (Gemini parsing error)" and "Article Type:" in line_strip):
+                elif (line_idx == 1 and "Article Type:" in line_strip) or (results_from_gemini["article_type_assessment"] == "Type unclear (OpenRouter parsing error)" and "Article Type:" in line_strip):
                     results_from_gemini["article_type_assessment"] = line_strip.split("Article Type:", 1)[-1].strip()
                     parsed_items_count += 1
             
@@ -259,18 +250,18 @@ Your response (exactly 3 lines as specified above):
             final_article_type = results_from_gemini["article_type_assessment"]
 
             if parsed_items_count < 2:
-                print(f"Warning: Gemini verification response for {article_url} did not parse all expected fields. Parsed: {parsed_items_count}/2.")
+                print(f"Warning: OpenRouter verification response for {article_url} did not parse all expected fields. Parsed: {parsed_items_count}/2.")
 
     except Exception as e_gemini:
-        print(f"Error during Gemini API call or parsing for verification of {article_url}: {e_gemini}")
+        print(f"Error during OpenRouter API call or parsing for verification of {article_url}: {e_gemini}")
         # Defaults will be used, attempt URL date parsing
-        final_article_type = "Type unclear (Gemini API error)"
+        final_article_type = "Type unclear (OpenRouter API error)"
 
-    # Determine final date string (Gemini > URL > Not found)
+    # Determine final date string (OpenRouter > URL > Not found)
     final_date_str = gemini_publication_date_str
-    date_source_log = "(from Gemini)"
+    date_source_log = "(from OpenRouter)"
     if final_date_str.lower() == "date not found" or "error" in final_date_str.lower() or not final_date_str.strip():
-        print(f"Info: Gemini did not find date for {article_url}. Attempting URL parse.")
+        print(f"Info: OpenRouter did not find date for {article_url}. Attempting URL parse.")
         url_extracted_date = publication_date
         if url_extracted_date:
             final_date_str = url_extracted_date

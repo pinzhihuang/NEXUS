@@ -1,8 +1,7 @@
 # news_bot/localization/translator.py
 
-import google.generativeai as genai
 from ..core import config
-from ..utils import prompt_logger
+from ..utils import prompt_logger, openrouter_client
 # import re # Not strictly needed if not doing complex regex here
 
 # Note: Refinement is now combined with translation in translate_and_restyle_to_chinese()
@@ -20,8 +19,8 @@ def translate_and_restyle_to_chinese(english_summary_data: dict) -> dict | None:
     Uses Gemini 2.5 Pro for better quality and accuracy.
     Combines translation + refinement to reduce LLM calls.
     """
-    if not config.GEMINI_API_KEY:
-        print("Error: GEMINI_API_KEY not configured for translation.")
+    if not config.OPENROUTER_API_KEY:
+        print("Error: OPENROUTER_API_KEY not configured for translation.")
         return None
 
     english_summary = english_summary_data.get('summary', '')
@@ -42,12 +41,6 @@ def translate_and_restyle_to_chinese(english_summary_data: dict) -> dict | None:
         }
 
     print(f"Translating, generating title, and refining Chinese news report for: {source_url[:100]}...")
-    try:
-        genai.configure(api_key=config.GEMINI_API_KEY)
-        model = genai.GenerativeModel(config.GEMINI_PRO_MODEL) 
-    except Exception as e:
-        print(f"Error initializing Gemini model for translation: {str(e)}")
-        return default_error_return
 
     prompt = f"""你是一位专业的中文新闻写作者和翻译。你的任务是将英文新闻摘要翻译成一篇准确、精炼的中文新闻，并生成一个吸引人的标题。
 
@@ -128,7 +121,7 @@ def translate_and_restyle_to_chinese(english_summary_data: dict) -> dict | None:
     refined_chinese_report = default_error_return["refined_chinese_news_report"]
 
     try:
-        print(f"Sending translation+refinement request to Gemini API ({config.GEMINI_PRO_MODEL})...")
+        print(f"Sending translation+refinement request to OpenRouter API ({config.GEMINI_PRO_MODEL})...")
         
         # Log the prompt
         prompt_logger.log_prompt(
@@ -142,13 +135,11 @@ def translate_and_restyle_to_chinese(english_summary_data: dict) -> dict | None:
             }
         )
         
-        response = model.generate_content(prompt)
-        
-        full_response_text = getattr(response, 'text', '').strip()
-        if not full_response_text and hasattr(response, 'parts') and response.parts:
-            for part in response.parts:
-                full_response_text += getattr(part, 'text', '').strip()
-            full_response_text = full_response_text.strip()
+        full_response_text = openrouter_client.generate_content(
+            prompt=prompt,
+            model=config.GEMINI_PRO_MODEL,
+            temperature=0.7
+        )
         
         if full_response_text:
             # Parse the response - look for "Chinese Title:" prefix
@@ -174,11 +165,11 @@ def translate_and_restyle_to_chinese(english_summary_data: dict) -> dict | None:
                 if report_lines:
                     refined_chinese_report = '\n'.join(report_lines)
                 else:
-                    print(f"Warning: Gemini response had title but no report body for {source_url}.")
+                    print(f"Warning: OpenRouter response had title but no report body for {source_url}.")
                     refined_chinese_report = default_error_return["refined_chinese_news_report"]
             else:
                 # No title prefix found - try to extract from first line or use entire response
-                print(f"Warning: Gemini response did not start with 'Chinese Title:' for {source_url}. Attempting to parse...")
+                print(f"Warning: OpenRouter response did not start with 'Chinese Title:' for {source_url}. Attempting to parse...")
                 if lines:
                     # Try to use first line as title if it looks like a title
                     first_line = lines[0].strip()
@@ -191,11 +182,11 @@ def translate_and_restyle_to_chinese(english_summary_data: dict) -> dict | None:
                 else:
                     refined_chinese_report = default_error_return["refined_chinese_news_report"]
         else:
-            print(f"Warning: Empty response from Gemini for translation+refinement of {source_url}.")
+            print(f"Warning: Empty response from OpenRouter for translation+refinement of {source_url}.")
             # Errors already set in defaults
 
     except Exception as e:
-        print(f"Error during Gemini API call for translation+refinement of {source_url}: {e}")
+        print(f"Error during OpenRouter API call for translation+refinement of {source_url}: {e}")
         # Errors already set in defaults
 
     # Ensure some content exists, even if it's an error placeholder
