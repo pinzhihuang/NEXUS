@@ -17,9 +17,11 @@ PERPLEXITY_API_KEY = os.getenv("PERPLEXITY_API_KEY")
 
 GEMINI_FLASH_MODEL = os.getenv("GEMINI_FLASH_MODEL", 'gemini-2.5-flash-preview-05-20') 
 GEMINI_SUMMARY_MODEL = os.getenv("GEMINI_SUMMARY_MODEL", 'gemini-2.5-flash-preview-05-20')
+GEMINI_PRO_MODEL = os.getenv("GEMINI_PRO_MODEL", 'gemini-2.5-pro')
 GEMINI_FLASH_MODEL_CONTEXT_LIMIT_CHARS = int(os.getenv("GEMINI_FLASH_MODEL_CONTEXT_LIMIT_CHARS", "150000"))
 
 GEMINI_SUMMARY_MODEL_CONTEXT_LIMIT_CHARS = int(os.getenv("GEMINI_SUMMARY_MODEL_CONTEXT_LIMIT_CHARS", "150000"))
+GEMINI_PRO_MODEL_CONTEXT_LIMIT_CHARS = int(os.getenv("GEMINI_PRO_MODEL_CONTEXT_LIMIT_CHARS", "2000000"))  # Pro model has much larger context
 
 # Perplexity API Configuration (Optional -- This logic has been abandoned. Perplexity is a piece of shit. Google is not going to be replaced by Perplexity.) 
 PERPLEXITY_API_URL = "https://api.perplexity.ai/chat/completions"
@@ -119,11 +121,12 @@ def validate_config():
     """Validates that essential configurations are set."""
     errors = []
     if not GEMINI_API_KEY:
-        errors.append("GEMINI_API_KEY is not set.")
-    if not GOOGLE_API_KEY: # For PSE
-        errors.append("GOOGLE_API_KEY is not set (for Custom Search).")
-    if not CUSTOM_SEARCH_ENGINE_ID:
-        errors.append("CUSTOM_SEARCH_ENGINE_ID (CX ID) is not set (for Custom Search).")
+        errors.append("GEMINI_API_KEY is not set (required for article verification and summarization).")
+    # Google PSE is currently disabled in search_client.py, so these are optional
+    if not GOOGLE_API_KEY: # For PSE (optional - currently disabled)
+        print("Warning: GOOGLE_API_KEY is not set (for Custom Search). Google PSE search is currently disabled, so this is optional.")
+    if not CUSTOM_SEARCH_ENGINE_ID: # For PSE (optional - currently disabled)
+        print("Warning: CUSTOM_SEARCH_ENGINE_ID (CX ID) is not set (for Custom Search). Google PSE search is currently disabled, so this is optional.")
     
     # Check for OAuth credentials file if Docs export is intended
     # This is a soft check here; the exporter module will handle it more gracefully
@@ -139,6 +142,7 @@ def validate_config():
     print(f"Configuration loaded {dotenv_status_message}.")
     print(f"  GEMINI_FLASH_MODEL: {GEMINI_FLASH_MODEL}")
     print(f"  GEMINI_SUMMARY_MODEL: {GEMINI_SUMMARY_MODEL}")
+    print(f"  GEMINI_PRO_MODEL: {GEMINI_PRO_MODEL}")
     print(f"  Output directory: {DEFAULT_OUTPUT_DIR}")
     
     # Display date range configuration
@@ -154,8 +158,9 @@ def validate_config():
     else:
         print("  Target Google Doc ID not set; new doc will be created on each export.")
 
-if not all([GEMINI_API_KEY, GOOGLE_API_KEY, CUSTOM_SEARCH_ENGINE_ID]):
+# Only GEMINI_API_KEY is required; Google PSE keys are optional since PSE is disabled
+if not GEMINI_API_KEY:
     if os.path.exists(DOTENV_PATH):
-        print(f"Warning: Attempted to load .env from {DOTENV_PATH}, but one or more API keys (GEMINI, GOOGLE_API_KEY for PSE, CUSTOM_SEARCH_ENGINE_ID) are still missing from the environment.")
+        print(f"Warning: Attempted to load .env from {DOTENV_PATH}, but GEMINI_API_KEY is still missing from the environment.")
     else:
         print(f"Warning: .env file not found at {DOTENV_PATH}. Critical API keys might be missing.")

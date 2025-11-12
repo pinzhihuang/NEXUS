@@ -7,6 +7,7 @@ from datetime import datetime, date, timedelta
 import json
 import re # For URL date parsing
 from ..discovery.date_extractor import extract_date_from_url
+from ..utils import prompt_logger
 
 from ..core import config
 
@@ -129,9 +130,11 @@ def fetch_and_extract_text(url: str) -> str | None:
 
 def verify_article_with_gemini(school: dict[str, str], article_text: str, article_url: str, publication_date: str) -> dict | None:
     """
-    Verifies an article using Gemini for date, recency, relevance, and article type.
+    Verifies an article using Gemini for date extraction and article type assessment.
+    Relevance is already filtered in Step 1, so this step focuses on date accuracy and article classification.
     Uses the configured date range from config.get_news_date_range().
     Supplements Gemini date extraction with URL parsing if Gemini fails.
+    Uses Gemini 2.5 Pro for better accuracy.
     """
     if not config.GEMINI_API_KEY:
         print("Error: GEMINI_API_KEY not configured for verification.")
@@ -165,7 +168,7 @@ def verify_article_with_gemini(school: dict[str, str], article_text: str, articl
             "publication_date_str": final_date_str,
             "is_recent": is_recent_status,
             "is_within_range": is_within_range,
-            "is_relevant": "Relevance unclear (no text)",
+            "is_relevant": "Relevant",  # Already filtered in Step 1
             "article_type_assessment": "Type unclear (no text)"
         }
 
@@ -174,30 +177,55 @@ def verify_article_with_gemini(school: dict[str, str], article_text: str, articl
     
     try:
         genai.configure(api_key=config.GEMINI_API_KEY)
-        model = genai.GenerativeModel(config.GEMINI_FLASH_MODEL)
+        model = genai.GenerativeModel(config.GEMINI_PRO_MODEL)
     except Exception as e:
         print(f"Error initializing Gemini model for verification: {str(e)}")
         return None
 
-    relevance_query = f"Is this article generally relevant to students at {school['school_name']}, covering campus news, academic updates, student life, or significant events affecting the {school['school_name']} community?"
+    context_limit = getattr(config, 'GEMINI_PRO_MODEL_CONTEXT_LIMIT_CHARS', 2000000)
+    article_text_limit = min(len(article_text), context_limit // 2)  # Use half for safety
     
-    prompt = f"""Analyze the article text. Provide your analysis in EXACTLY four lines, each starting with the specified prefix:
+    prompt = f"""You are a news article analyst. Your task is to extract key metadata from the article text.
+
+## Requirements
+
+### Accuracy & Factuality (Highest Priority)
+- Extract dates ONLY from the article text or URL - do not infer or guess dates
+- Base article type classification strictly on the content structure and purpose
+- Do not add information not present in the article
+
+### Task
+Analyze the article and provide your analysis in EXACTLY three lines, each starting with the specified prefix:
 
 1. Publication Date: [Review the article text AND the Article URL ({article_url}). Extract the most prominent date, ideally the publication date. Format YYYY-MM-DD or 'Date not found'. No other explanation.]
-2. Relevance: [Based on the text and this query: '{relevance_query}', answer ONLY 'Relevant', 'Not relevant', or 'Relevance unclear'. No other explanation.]
-3. Article Type: [Is this primarily a news article reporting on events/facts, or an opinion/blog/event listing/announcement? Answer ONLY 'News article', 'Opinion/Blog', 'Event/Announcement', or 'Type unclear'. No other explanation.]
-4. Analysis Notes: [Brief internal notes if needed, or 'N/A'. This line is for your process.]
+2. Article Type: [Is this primarily a news article reporting on events/facts, or an opinion/blog/event listing/announcement? Answer ONLY 'News article', 'Opinion/Blog', 'Event/Announcement', or 'Type unclear'. No other explanation.]
+3. Analysis Notes: [Brief internal notes if needed, or 'N/A'. This line is for your process.]
 
---- Article Text (first {config.GEMINI_FLASH_MODEL_CONTEXT_LIMIT_CHARS // 2 if hasattr(config, 'GEMINI_FLASH_MODEL_CONTEXT_LIMIT_CHARS') else 50000} characters) ---
-{article_text[:config.GEMINI_FLASH_MODEL_CONTEXT_LIMIT_CHARS // 2 if hasattr(config, 'GEMINI_FLASH_MODEL_CONTEXT_LIMIT_CHARS') else 50000]}
+## Input Data
+
+--- Article Text (first {article_text_limit} characters) ---
+{article_text[:article_text_limit]}
 --- End of Article Text ---
 
-Your response (exactly 4 lines as specified above):
+Your response (exactly 3 lines as specified above):
 """ 
 
     gemini_publication_date_str = "Date not found" # Default from Gemini
     try:
-        print(f"Sending verification request to Gemini API ({config.GEMINI_FLASH_MODEL})...")
+        print(f"Sending verification request to Gemini API ({config.GEMINI_PRO_MODEL})...")
+        
+        # Log the prompt
+        prompt_logger.log_prompt(
+            "verify_article_with_gemini",
+            prompt,
+            context={
+                "article_url": article_url,
+                "publication_date": publication_date,
+                "school": school.get('school_name', 'Unknown'),
+                "article_text_length": len(article_text)
+            }
+        )
+        
         response = model.generate_content(prompt)
         raw_response_text = getattr(response, 'text', '').strip()
         if not raw_response_text and hasattr(response, 'parts') and response.parts:
@@ -208,39 +236,34 @@ Your response (exactly 4 lines as specified above):
         if not raw_response_text:
             print(f"Error: Empty response from Gemini verification for {article_url}.")
             # Proceed with URL date parsing as fallback
+            final_article_type = "Type unclear (empty response)"
         else:
             print(f"Gemini Verification Raw Response for {article_url[:100]}...:\n---\n{raw_response_text}\n---")
             lines = raw_response_text.split('\n')
             # Initialize with defaults that indicate Gemini didn't provide this specific field
             results_from_gemini = {
                 "publication_date_str": "Date not found by Gemini",
-                "is_relevant": "Relevance unclear (Gemini parsing error)",
                 "article_type_assessment": "Type unclear (Gemini parsing error)"
             }
             parsed_items_count = 0
-            for line_idx, line in enumerate(lines[:3]): # Only process up to the first 3 expected lines for main data
+            for line_idx, line in enumerate(lines[:3]): # Only process up to the first 3 expected lines
                 line_strip = line.strip()
                 if (line_idx == 0 and "Publication Date:" in line_strip) or (not results_from_gemini["publication_date_str"] == "Date not found by Gemini" and "Publication Date:" in line_strip):
                     results_from_gemini["publication_date_str"] = line_strip.split("Publication Date:", 1)[-1].strip()
                     parsed_items_count += 1
-                elif (line_idx == 1 and "Relevance:" in line_strip) or (results_from_gemini["is_relevant"] == "Relevance unclear (Gemini parsing error)" and "Relevance:" in line_strip):
-                    results_from_gemini["is_relevant"] = line_strip.split("Relevance:", 1)[-1].strip()
-                    parsed_items_count += 1
-                elif (line_idx == 2 and "Article Type:" in line_strip) or (results_from_gemini["article_type_assessment"] == "Type unclear (Gemini parsing error)" and "Article Type:" in line_strip):
+                elif (line_idx == 1 and "Article Type:" in line_strip) or (results_from_gemini["article_type_assessment"] == "Type unclear (Gemini parsing error)" and "Article Type:" in line_strip):
                     results_from_gemini["article_type_assessment"] = line_strip.split("Article Type:", 1)[-1].strip()
                     parsed_items_count += 1
             
             gemini_publication_date_str = results_from_gemini["publication_date_str"]
-            final_relevance = results_from_gemini["is_relevant"]
             final_article_type = results_from_gemini["article_type_assessment"]
 
-            if parsed_items_count < 3:
-                print(f"Warning: Gemini verification response for {article_url} did not parse all expected fields. Parsed: {parsed_items_count}/3.")
+            if parsed_items_count < 2:
+                print(f"Warning: Gemini verification response for {article_url} did not parse all expected fields. Parsed: {parsed_items_count}/2.")
 
     except Exception as e_gemini:
         print(f"Error during Gemini API call or parsing for verification of {article_url}: {e_gemini}")
         # Defaults will be used, attempt URL date parsing
-        final_relevance = "Relevance unclear (Gemini API error)"
         final_article_type = "Type unclear (Gemini API error)"
 
     # Determine final date string (Gemini > URL > Not found)
@@ -281,8 +304,8 @@ Your response (exactly 4 lines as specified above):
         "url": article_url,
         "publication_date_str": final_date_str,
         "is_recent": is_recent_status,
-        "is_within_range": is_within_range,  # Add explicit flag
-        "is_relevant": final_relevance if 'final_relevance' in locals() else "Relevance unclear (init error)",
+        "is_within_range": is_within_range,
+        "is_relevant": "Relevant",  # Already filtered in Step 1, so assume relevant
         "article_type_assessment": final_article_type if 'final_article_type' in locals() else "Type unclear (init error)"
     }
     print(f"Verification results for {article_url[:100]}...: {final_results}")

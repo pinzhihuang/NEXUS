@@ -2,10 +2,12 @@
 
 import google.generativeai as genai
 from ..core import config
+from ..utils import prompt_logger
 
 def generate_summary_with_gemini(school: dict[str, str], article_text: str, article_url: str, article_title: str = "") -> str | None:
     """
-    Generates a professional English news summary using the Gemini API.
+    Generates a professional English news summary using Gemini 2.5 Pro.
+    Emphasizes accuracy and factuality - only includes information present in the article.
     """
     if not config.GEMINI_API_KEY:
         print("Error: GEMINI_API_KEY not configured for summarization.")
@@ -14,48 +16,93 @@ def generate_summary_with_gemini(school: dict[str, str], article_text: str, arti
         print(f"Info: Skipping summarization for {article_url} due to empty article text.")
         return "Summarization skipped: Article text was empty."
 
-    print(f"Generating English summary with Gemini for: {article_url[:100]}...")
+    print(f"Generating English summary with Gemini Pro for: {article_url[:100]}...")
     try:
         genai.configure(api_key=config.GEMINI_API_KEY)
-        model = genai.GenerativeModel(config.GEMINI_SUMMARY_MODEL)
+        model = genai.GenerativeModel(config.GEMINI_PRO_MODEL)
     except Exception as e:
         print(f"Error initializing Gemini model for summarization: {str(e)}")
         return None
 
     title_context = f"The original article title is: '{article_title}'. " if article_title and article_title != "N/A" else ""
 
-    # Determine a practical context limit for summarization task, can be different from verification
-    # Using the same flash context limit for now, but could be a separate config if GEMINI_SUMMARY_MODEL is different
-    context_char_limit = getattr(config, 'GEMINI_SUMMARY_MODEL_CONTEXT_LIMIT_CHARS', 
-                                 getattr(config, 'GEMINI_FLASH_MODEL_CONTEXT_LIMIT_CHARS', 100000)) # Fallback
+    # Use Pro model's larger context limit
+    context_char_limit = getattr(config, 'GEMINI_PRO_MODEL_CONTEXT_LIMIT_CHARS', 2000000)
+    article_text_limit = min(len(article_text), context_char_limit // 2)  # Use half for safety
 
-    prompt = f"""You are a professional English-language news writer. Your task is to create a detailed yet concise news summary 
-(approximately 5-7 sentences, or 100-180 words) based on the provided article text. 
-The summary is for Chinese international students at New York University (NYU). 
-Focus on the key information most relevant to their studies, work, daily life, or immigration/visa policies, 
-especially concerning events or policies in New York or the U.S.
+    # Get school-specific context from the school profile
+    school_name = school.get('school_name', 'the university')
+    school_location = school.get('school_location', 'the local area')
+    audience_en = school.get('prompt_context', {}).get('audience_en', f'Chinese international students at {school_name}')
+    
+    prompt = f"""You are a professional English-language news writer. Your task is to create a detailed yet concise news summary based on the provided article text.
+
+## Role
+You are a professional English-language news writer specializing in accurate, factual reporting.
+
+## Task
+Create a detailed yet concise news summary (approximately 5-7 sentences, or 100-180 words) based on the provided article text.
+The summary is for {audience_en}.
+
+## Requirements
+
+### Accuracy & Factuality (Highest Priority)
+- Include ONLY information explicitly stated in the article text
+- Do NOT infer, guess, or add information not present in the article
+- Do NOT include personal opinions, interpretations, or conclusions not in the original text
+- Verify all dates, names, and numbers against the article text
+- If information is unclear or missing, do not fill in gaps with assumptions
+
+### Content Requirements
+Focus on key information most relevant to {audience_en}, especially concerning:
+- Their studies, work, daily life, or immigration/visa policies
+- Events or policies in {school_location} or the U.S.
 
 Key points to cover, ensuring important details are retained:
 - What happened (core event/announcement)?
 - When and where did it happen (specific dates, locations)?
 - Who was involved (key individuals, groups, departments)?
-- Main consequences, implications, or direct impacts for NYU Chinese international students.
-- Include crucial numbers, statistics, or significant outcomes.
+- Main consequences, implications, or direct impacts for {audience_en}
+- Include crucial numbers, statistics, or significant outcomes
 
-Maintain a factual and objective tone. Do not add personal opinions or information not in the article text. 
-Provide the summary directly, without introductory phrases like 'This article is about...'.
+### Style Requirements
+- Maintain a factual and objective tone
+- Use clear, professional language
+- Provide the summary directly, without introductory phrases like 'This article is about...'
+- Write in complete sentences with proper grammar
+
+### Format Requirements
+- Length: 5-7 sentences, or 100-180 words
+- Structure: Coherent narrative flow, not bullet points
+
+## Input Data
 
 {title_context}The article URL is: {article_url} (for your reference).
 
---- Full Article Text (first {context_char_limit} characters) ---
-{article_text[:context_char_limit]}
+--- Full Article Text (first {article_text_limit} characters) ---
+{article_text[:article_text_limit]}
 --- End of Article Text ---
 
-Detailed News Summary (5-7 sentences, 100-180 words, for Chinese international students at NYU):
+## Output
+
+Detailed News Summary (5-7 sentences, 100-180 words, for {audience_en}):
 """ 
 
     try:
-        print(f"Sending summarization request to Gemini API ({config.GEMINI_SUMMARY_MODEL})...")
+        print(f"Sending summarization request to Gemini API ({config.GEMINI_PRO_MODEL})...")
+        
+        # Log the prompt
+        prompt_logger.log_prompt(
+            "generate_summary_with_gemini",
+            prompt,
+            context={
+                "article_url": article_url,
+                "article_title": article_title,
+                "school": school.get('school_name', 'Unknown'),
+                "article_text_length": len(article_text)
+            }
+        )
+        
         response = model.generate_content(prompt)
         
         summary_text = getattr(response, 'text', '').strip()

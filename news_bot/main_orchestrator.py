@@ -6,7 +6,7 @@ from .core import config, school_config
 from .discovery import search_client
 from .processing import article_handler
 from .generation import summarizer
-from .utils import file_manager
+from .utils import file_manager, prompt_logger
 from .localization import translator
 from .reporting import google_docs_exporter
 
@@ -24,6 +24,10 @@ def run_news_bot():
     print("=== Project NEXUS - Student News Bot - Starting Run ===")
     print(f"=== Run timestamp: {run_start_time.isoformat()} ===")
     print("===========================================")
+    
+    # Initialize prompt logging
+    prompt_log_file = prompt_logger.initialize_prompt_log()
+    print(f"=== Prompt logging enabled: {prompt_log_file} ===")
 
     try:
         config.validate_config()
@@ -146,17 +150,15 @@ def run_news_bot():
         translation_output = translator.translate_and_restyle_to_chinese(english_report_data_for_translation)
         
         chinese_title = "中文标题失败"
-        initial_chinese_report = "初步中文报道失败"
-        refined_chinese_report = "优化中文报道失败"
+        refined_chinese_report = "翻译失败"
 
         if translation_output:
             chinese_title = translation_output.get("chinese_title", chinese_title)
-            initial_chinese_report = translation_output.get("chinese_news_report", initial_chinese_report)
-            refined_chinese_report = translation_output.get("refined_chinese_news_report", initial_chinese_report)
+            refined_chinese_report = translation_output.get("refined_chinese_news_report", refined_chinese_report)
             
             log_msg = "  Info: Chinese translation processed."
             if "失败" in chinese_title or "failed" in chinese_title.lower(): log_msg += " Title gen issue."
-            if "失败" in refined_chinese_report or "failed" in refined_chinese_report.lower(): log_msg += " Refinement issue."
+            if "失败" in refined_chinese_report or "failed" in refined_chinese_report.lower(): log_msg += " Translation issue."
             print(log_msg)
         else:
             print(f"  Warning: Failed to get response from Chinese translation module.")
@@ -170,7 +172,6 @@ def run_news_bot():
             "verification_details": verification_results, 
             "english_summary": english_summary,
             "chinese_title": chinese_title, 
-            "initial_chinese_report": initial_chinese_report,
             "refined_chinese_news_report": refined_chinese_report,
             "processing_timestamp": datetime.now().isoformat()
         })
@@ -209,6 +210,22 @@ def run_news_bot():
     print(f"=== Total Run Duration: {run_end_time - run_start_time} ===")
     print(f"=== Date Range Processed: {start_date} to {end_date} ===")
     print("=====================================")
+    
+    # Write footer to prompt log
+    prompt_log_file = prompt_logger.get_prompt_log_file()
+    if prompt_log_file:
+        try:
+            with open(prompt_log_file, 'a', encoding='utf-8') as f:
+                f.write("\n" + "=" * 80 + "\n")
+                f.write(f"Run completed: {run_end_time.isoformat()}\n")
+                f.write(f"Total Run Duration: {run_end_time - run_start_time}\n")
+                f.write(f"Date Range Processed: {start_date} to {end_date}\n")
+                f.write(f"Total Prompts Logged: {prompt_logger.get_prompt_count()}\n")
+                f.write(f"Total Articles Processed: {len(final_news_reports)}\n")
+                f.write("=" * 80 + "\n")
+            print(f"=== Prompt log saved: {prompt_log_file} ===")
+        except Exception as e:
+            print(f"Warning: Failed to write footer to prompt log: {e}")
 
 if __name__ == '__main__':
     run_news_bot()
