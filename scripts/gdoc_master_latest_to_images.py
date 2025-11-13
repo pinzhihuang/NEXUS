@@ -90,9 +90,9 @@ def _resolve_doc_id(url_or_id: str) -> str:
 # ---------------- 周标题解析 ----------------
 # 形如：2025.10.19 - 10.25
 WEEK_RE = re.compile(
-    r"(?P<y>\d{4})\.(?P<m1>\d{1,2})\.(?P<d1>\d{1,2})\s*-\s*(?P<m2>\d{1,2})\.(?P<d2>\d{1,2})"
+    r"(?P<y>\d{4})\.(?P<m1>\d{1,2})\.(?P<d1>\d{1,2})\s*-\s*"
+    r"(?:\d{4}\.)?(?P<m2>\d{1,2})\.(?P<d2>\d{1,2})"
 )
-
 @dataclass
 class WeekBlock:
     title: str
@@ -290,8 +290,8 @@ def _process_one_child_doc(doc_url: str, *, out_base: Path, page_width: int,
                 out_dir=str(out_dir),
                 page_width=page_width,
                 device_scale=device_scale,
-                title_size=22.093076923,
-                body_size=20.0,
+                title_size=26.093076923,
+                body_size=24.0,
                 brand_color=brand_color,
                 school_name=school_name,
             )
