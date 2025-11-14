@@ -1,0 +1,247 @@
+================================================================================
+Gemini API Prompts Log
+Run started: 2025-11-12T20:54:59.887661
+================================================================================
+
+
+================================================================================
+Prompt #1 - verify_article_with_gemini
+Timestamp: 2025-11-12T20:55:08.644459
+
+Context:
+  article_url: https://nyunews.com/news/2025/11/06/beyond-nyu-niko-mccarty/
+  publication_date: 2025-11-06
+  school: New York University (NYU)
+  article_text_length: 5772
+
+Prompt:
+--------------------------------------------------------------------------------
+You are a news article analyst. Your task is to extract key metadata from the article text.
+
+## Requirements
+
+### Accuracy & Factuality (Highest Priority)
+- Extract dates ONLY from the article text or URL - do not infer or guess dates
+- Base article type classification strictly on the content structure and purpose
+- Do not add information not present in the article
+
+### Task
+Analyze the article and provide your analysis in EXACTLY three lines, each starting with the specified prefix:
+
+1. Publication Date: [Review the article text AND the Article URL (https://nyunews.com/news/2025/11/06/beyond-nyu-niko-mccarty/). Extract the most prominent date, ideally the publication date. Format YYYY-MM-DD or 'Date not found'. No other explanation.]
+2. Article Type: [Is this primarily a news article reporting on events/facts, or an opinion/blog/event listing/announcement? Answer ONLY 'News article', 'Opinion/Blog', 'Event/Announcement', or 'Type unclear'. No other explanation.]
+3. Analysis Notes: [Brief internal notes if needed, or 'N/A'. This line is for your process.]
+
+## Input Data
+
+--- Article Text (first 5772 characters) ---
+When the COVID-19 pandemic shut down labs across the country, Niko McCarty’s research career at the California Institute of Technology was abruptly halted. The then-bioengineering Ph.D. student was stranded in limbo, not knowing what his next steps should be.
+Yet, McCarty saw a bright opportunity ahead of him. Leveraging his deep scientific knowledge, he moved across the country to attend NYU’s graduate journalism program where he rediscovered his love for science writing.
+McCarty spoke with WSN about what inspired him to become a journalist, and how he found his audience.
+This interview has been edited for length and clarity.
+WSN:What is your first memory of writing?
+McCarty:I was a very voracious reader, and I would read three books a week. After school, I would read for hours every night, but I wasn’t writing myself. I wasn’t really creating at that point, and I didn’t know how to write. When I was assigned school essays, they were very generic and boring in general.
+Throughout his childhood in the Chicago suburbs, McCarty felt called to write but kept this deep-seated passion a secret from his parents. When college approached, McCarty was hesitant to pursue writing as his parents had offered to pay his tuition if he studied a “worthwhile” science subject.
+While pursuing a degree in biochemistry at the University of Iowa, McCarty was inspired by Iowa City’s creative writing culture as a UNESCO City of Literature. He was working for a local magazine, Little Village, where he published his first article on the corrosion of the local bee population.
+After graduating, McCarty enrolled in Caltech’sPh.D.program in bioengineering, where he studied protein-genome binding, a highly challenging project that many scientists have struggled with prior. Soon after, the pandemic completely derailed his plans, locking him out of the labs and halting his experiments indefinitely.
+WSN:How would you describe your experience moving to New York for graduate school?
+McCarty:I was afraid to tell my Ph.D. advisor that I was going to leave because I had spent years in his lab. I was scared of leaving friends behind, scared of leaving my apartment and moving across the country.
+NYU got me my first job as a staff journalist, which basically set me up for everything. Because they require internships, I found my first writing mentor at NYU. I usually tell people, you don’t have to do a master’s in science journalism to work as a science journalist. I think NYU is probably the best in terms of setting you up for real-world success and how hands-on they are.
+Amid the chaos, McCarty sought opportunities outside the lab. His first instinct was to turn his love for writing from a hobby into a career. After emailing the NYU science journalism graduate program director, he moved to New York City to launch himself into writing.
+Nonetheless, the isolation that McCarty experienced at Caltech remained after he moved into his small Lower East Side apartment with his wife. Since classes were online due to the pandemic lockdown, he dedicated all of his time towards data journalism projects, where he learned to create data graphics and build interactive articles.
+It was during this period in 2021 that he caught onto the growing popularity of Substack, where he sent out newsletters sharing biology research papers that he found interesting. In his first year, he gained 3,000 followers of mostly scientists.
+WSN:How did you feel when you first started your Substack blog?
+McCarty:It’s extremely daunting to put yourself out there. But once you do that, you stop caring about it and it’s not a big deal anymore. It’s the same with starting a blog and sending out essays — of course, you’re worried that people will think your take is stupid. The pressure is higher when your audience becomes bigger. But at the same time, you’re less concerned about sending something out in the world, even though you get much more negative feedback, because now people are actually reading.
+In 2022, as subscriber growth plateaued, McCarty shifted from sharing links to writing full articles. He noticed that many people wrote essays on similar research and discoveries that he felt strongly about.
+McCarty’sSubstackcaught the attention of the CEO of Asimov, who recruited him to run the marketing team for the biotechnology company, that specializes in genetic tools and models. He later proposed to launchAsimov Press, an editorially independent science journalism publication focusing on new biology research findings and technology inventions.
+He wanted Asimov Press to cover both highly technical scientific discoveries while educating the public — essentially turning science concepts into accessible and informative stories. Bridging this gap meant that McCarty’s team had to confront a major dilemma — figuring out how to deliver both in-depth science knowledge while making complex biology concepts digestible for new readers.
+WSN:What do you hope the future of science journalism will look like?
+McCarty:I am increasingly drawn to very experimental reporting. For example, with AI coding tools, you can make really interesting interactive articles without needing to understand how to code. I would like to see deep science reporting become more interactive, more digital and more community-driven, where people can comment or highlight things in your article that are confusing.
+We’re going to see a reversion to books where people want to hold books in their hands. That’s why Asimov Press still prints books. We have sold out of every book we’ve ever printed because there’s a huge demand for print still. I think swimming against the tide in interesting ways will yield really compelling outcomes in journalism.
+Contact Kaitlyn Sze Tu at[email protected].
+--- End of Article Text ---
+
+Your response (exactly 3 lines as specified above):
+
+--------------------------------------------------------------------------------
+
+
+================================================================================
+Prompt #2 - generate_summary_with_gemini
+Timestamp: 2025-11-12T20:55:21.303228
+
+Context:
+  article_url: https://nyunews.com/news/2025/11/06/beyond-nyu-niko-mccarty/
+  article_title: Beyond NYU: Leaving Caltech for a career in journalism
+  school: New York University (NYU)
+  article_text_length: 5772
+
+Prompt:
+--------------------------------------------------------------------------------
+You are a professional English-language news writer. Your task is to create a detailed yet concise news summary based on the provided article text.
+
+## Role
+You are a professional English-language news writer specializing in accurate, factual reporting.
+
+## Task
+Create a detailed yet concise news summary (approximately 5-7 sentences, or 100-180 words) based on the provided article text.
+The summary is for Chinese international students at New York University (NYU).
+
+## Requirements
+
+### Accuracy & Factuality (Highest Priority)
+- Include ONLY information explicitly stated in the article text
+- Do NOT infer, guess, or add information not present in the article
+- Do NOT include personal opinions, interpretations, or conclusions not in the original text
+- Verify all dates, names, and numbers against the article text
+- If information is unclear or missing, do not fill in gaps with assumptions
+
+### Content Requirements
+Focus on key information most relevant to Chinese international students at New York University (NYU), especially concerning:
+- Their studies, work, daily life, or immigration/visa policies
+- Events or policies in New York or the U.S.
+
+Key points to cover, ensuring important details are retained:
+- What happened (core event/announcement)?
+- When and where did it happen (specific dates, locations)?
+- Who was involved (key individuals, groups, departments)?
+- Main consequences, implications, or direct impacts for Chinese international students at New York University (NYU)
+- Include crucial numbers, statistics, or significant outcomes
+
+### Style Requirements
+- Maintain a factual and objective tone
+- Use clear, professional language
+- Provide the summary directly, without introductory phrases like 'This article is about...'
+- Write in complete sentences with proper grammar
+
+### Format Requirements
+- Length: 5-7 sentences, or 100-180 words
+- Structure: Coherent narrative flow, not bullet points
+
+## Input Data
+
+The original article title is: 'Beyond NYU: Leaving Caltech for a career in journalism'. The article URL is: https://nyunews.com/news/2025/11/06/beyond-nyu-niko-mccarty/ (for your reference).
+
+--- Full Article Text (first 5772 characters) ---
+When the COVID-19 pandemic shut down labs across the country, Niko McCarty’s research career at the California Institute of Technology was abruptly halted. The then-bioengineering Ph.D. student was stranded in limbo, not knowing what his next steps should be.
+Yet, McCarty saw a bright opportunity ahead of him. Leveraging his deep scientific knowledge, he moved across the country to attend NYU’s graduate journalism program where he rediscovered his love for science writing.
+McCarty spoke with WSN about what inspired him to become a journalist, and how he found his audience.
+This interview has been edited for length and clarity.
+WSN:What is your first memory of writing?
+McCarty:I was a very voracious reader, and I would read three books a week. After school, I would read for hours every night, but I wasn’t writing myself. I wasn’t really creating at that point, and I didn’t know how to write. When I was assigned school essays, they were very generic and boring in general.
+Throughout his childhood in the Chicago suburbs, McCarty felt called to write but kept this deep-seated passion a secret from his parents. When college approached, McCarty was hesitant to pursue writing as his parents had offered to pay his tuition if he studied a “worthwhile” science subject.
+While pursuing a degree in biochemistry at the University of Iowa, McCarty was inspired by Iowa City’s creative writing culture as a UNESCO City of Literature. He was working for a local magazine, Little Village, where he published his first article on the corrosion of the local bee population.
+After graduating, McCarty enrolled in Caltech’sPh.D.program in bioengineering, where he studied protein-genome binding, a highly challenging project that many scientists have struggled with prior. Soon after, the pandemic completely derailed his plans, locking him out of the labs and halting his experiments indefinitely.
+WSN:How would you describe your experience moving to New York for graduate school?
+McCarty:I was afraid to tell my Ph.D. advisor that I was going to leave because I had spent years in his lab. I was scared of leaving friends behind, scared of leaving my apartment and moving across the country.
+NYU got me my first job as a staff journalist, which basically set me up for everything. Because they require internships, I found my first writing mentor at NYU. I usually tell people, you don’t have to do a master’s in science journalism to work as a science journalist. I think NYU is probably the best in terms of setting you up for real-world success and how hands-on they are.
+Amid the chaos, McCarty sought opportunities outside the lab. His first instinct was to turn his love for writing from a hobby into a career. After emailing the NYU science journalism graduate program director, he moved to New York City to launch himself into writing.
+Nonetheless, the isolation that McCarty experienced at Caltech remained after he moved into his small Lower East Side apartment with his wife. Since classes were online due to the pandemic lockdown, he dedicated all of his time towards data journalism projects, where he learned to create data graphics and build interactive articles.
+It was during this period in 2021 that he caught onto the growing popularity of Substack, where he sent out newsletters sharing biology research papers that he found interesting. In his first year, he gained 3,000 followers of mostly scientists.
+WSN:How did you feel when you first started your Substack blog?
+McCarty:It’s extremely daunting to put yourself out there. But once you do that, you stop caring about it and it’s not a big deal anymore. It’s the same with starting a blog and sending out essays — of course, you’re worried that people will think your take is stupid. The pressure is higher when your audience becomes bigger. But at the same time, you’re less concerned about sending something out in the world, even though you get much more negative feedback, because now people are actually reading.
+In 2022, as subscriber growth plateaued, McCarty shifted from sharing links to writing full articles. He noticed that many people wrote essays on similar research and discoveries that he felt strongly about.
+McCarty’sSubstackcaught the attention of the CEO of Asimov, who recruited him to run the marketing team for the biotechnology company, that specializes in genetic tools and models. He later proposed to launchAsimov Press, an editorially independent science journalism publication focusing on new biology research findings and technology inventions.
+He wanted Asimov Press to cover both highly technical scientific discoveries while educating the public — essentially turning science concepts into accessible and informative stories. Bridging this gap meant that McCarty’s team had to confront a major dilemma — figuring out how to deliver both in-depth science knowledge while making complex biology concepts digestible for new readers.
+WSN:What do you hope the future of science journalism will look like?
+McCarty:I am increasingly drawn to very experimental reporting. For example, with AI coding tools, you can make really interesting interactive articles without needing to understand how to code. I would like to see deep science reporting become more interactive, more digital and more community-driven, where people can comment or highlight things in your article that are confusing.
+We’re going to see a reversion to books where people want to hold books in their hands. That’s why Asimov Press still prints books. We have sold out of every book we’ve ever printed because there’s a huge demand for print still. I think swimming against the tide in interesting ways will yield really compelling outcomes in journalism.
+Contact Kaitlyn Sze Tu at[email protected].
+--- End of Article Text ---
+
+## Output
+
+Detailed News Summary (5-7 sentences, 100-180 words, for Chinese international students at New York University (NYU)):
+
+--------------------------------------------------------------------------------
+
+
+================================================================================
+Prompt #3 - translate_and_restyle_to_chinese
+Timestamp: 2025-11-12T20:55:41.739469
+
+Context:
+  source_url: https://nyunews.com/news/2025/11/06/beyond-nyu-niko-mccarty/
+  publication_date: 2025-11-06
+  original_title: Beyond NYU: Leaving Caltech for a career in journalism
+  english_summary_length: 855
+
+Prompt:
+--------------------------------------------------------------------------------
+你是一位专业的中文新闻写作者和翻译。你的任务是将英文新闻摘要翻译成一篇准确、精炼的中文新闻，并生成一个吸引人的标题。
+
+## 角色
+你是一位专业的中文新闻写作者，专门为中国留学生撰写准确、精炼的新闻。
+
+## 任务
+将英文新闻摘要翻译成简体中文，生成一个吸引人的标题，并在一步中完成翻译和精炼。
+
+## 要求
+
+### 准确性与事实性（最高优先级）
+- 仅翻译英文摘要中明确陈述的信息 - 不要添加、推断或猜测
+- 保留所有事实细节：日期、姓名、数字、地点、组织
+- 不要添加原文中没有的后果、影响或观点
+- 避免使用"可能"、"引发"、"导致"等暗示未陈述后果的词语
+- 对照原始英文文本验证所有翻译
+
+### 标题生成要求
+1. 创建简洁、相关且吸引人的简体中文新闻标题
+2. 将标题放在第一行，前缀为"Chinese Title:"
+3. 如果单行标题超过15个中文字符，将其分成2个逗号分隔的段落，每段≤12个字符，在自然语义断点处分割
+4. 每个段落必须形成一个完整的短语（例如：主谓或动宾），不能是孤立的名词
+5. 对于每条新闻，考虑三种标题风格：
+   a) 弱点击诱式
+   b) 口语化风格
+   c) 简洁直接
+   选择最适合新闻主题的风格
+6. 避免使用隐喻、成语、谚语、双关语、谐音或其他修辞手法
+7. 避免过于正式或文学化的措辞 - 使用直接、自然的用词
+8. 避免单字缩写（例如：不要用"美"来代指"全美"）
+
+### 翻译与内容要求
+1. 将英文摘要翻译成简体中文新闻文章格式
+2. 如果英文摘要包含多个新闻主题，选择最重要的一个并专注于它 - 保持文章连贯
+3. 不要试图包含原始英文摘要中的所有信息 - 优先考虑关键事实
+4. 对于不太常见的英文人名、组织名或项目名，翻译成中文并在括号中保留英文：中文名 (English Name)
+5. 对于非常知名的实体或常见的英文名称，可以直接使用中文翻译
+
+### 风格与精炼要求
+1. 使用严肃、正式、客观的新闻写作风格
+2. 使用短句和准确的词汇 - 避免复杂的长句
+3. 保持语言自然专业 - 尽量减少形容词
+4. 保持句子之间的逻辑连贯有序
+5. 不要包含额外的评论或观点
+6. 不要写结论 - 如果提到，可以以最新更新结尾，例如："目前，学校对此事件还没有做出回应。"
+
+### 结构与格式要求
+1. 每个关键事实点必须包含至少2句话：
+   - 第一句：核心事实的主要描述
+   - 第二句：阐述背景，提供具体细节、解释、影响、后续事件、采访引语（如有）或背景信息
+2. 如果两个相似或相关的事实存在，将它们合并为一个段落，而不是分开的段落
+3. 控制每个段落为80-250个中文字符 - 超过此长度的段落必须在保持逻辑连贯性的情况下分割，段落之间要有明确的因果或时间关系
+4. 总长度：250-500个中文字符
+5. 特别注意最后一句话 - 确保它切题并具有价值
+6. 删除任何对核心新闻故事没有事实价值的句子或短语
+
+## 输入数据
+
+原始英文摘要（用于翻译）：
+'''
+Niko McCarty, a former bioengineering Ph.D. student at the California Institute of Technology, pivoted to a journalism career after the COVID-19 pandemic halted his lab research. He moved to New York and enrolled in New York University’s graduate journalism program, which he praised as being the "best in terms of setting you up for real-world success." McCarty credits NYU’s hands-on approach and mandatory internships with helping him secure his first staff journalist job and a writing mentor. While studying at NYU in 2021, he started a science-focused Substack newsletter that quickly gained 3,000 followers in its first year. This successful project attracted the attention of a biotechnology company’s CEO, leading to a job offer. McCarty now runs Asimov Press, an editorially independent science journalism publication he launched at the company.
+'''
+原始文章标题（供参考）：Beyond NYU: Leaving Caltech for a career in journalism
+
+## 输出格式
+
+你的回复必须严格按照以下格式：
+- 第1行："Chinese Title: [你的中文标题]"
+- 第2行：（空行）
+- 第3行及以后：[精炼的中文新闻正文]
+
+"Chinese Title:"之后的内容应该只是精炼的中文新闻正文 - 不要添加任何评论。
+
+你的回复：
+
+--------------------------------------------------------------------------------
+

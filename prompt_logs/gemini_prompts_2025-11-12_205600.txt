@@ -1,0 +1,133 @@
+================================================================================
+Gemini API Prompts Log
+Run started: 2025-11-12T20:56:00.742792
+================================================================================
+
+
+================================================================================
+Prompt #1 - verify_article_with_gemini
+Timestamp: 2025-11-12T20:56:15.624317
+
+Context:
+  article_url: https://news.emory.edu/stories/2025/11/er_ecas_oxford_teagle_grant_06-11-2025/story.html
+  publication_date: 2025-11-06
+  school: Emory University
+  article_text_length: 5334
+
+Prompt:
+--------------------------------------------------------------------------------
+You are a news article analyst. Your task is to extract key metadata from the article text.
+
+## Requirements
+
+### Accuracy & Factuality (Highest Priority)
+- Extract dates ONLY from the article text or URL - do not infer or guess dates
+- Base article type classification strictly on the content structure and purpose
+- Do not add information not present in the article
+
+### Task
+Analyze the article and provide your analysis in EXACTLY three lines, each starting with the specified prefix:
+
+1. Publication Date: [Review the article text AND the Article URL (https://news.emory.edu/stories/2025/11/er_ecas_oxford_teagle_grant_06-11-2025/story.html). Extract the most prominent date, ideally the publication date. Format YYYY-MM-DD or 'Date not found'. No other explanation.]
+2. Article Type: [Is this primarily a news article reporting on events/facts, or an opinion/blog/event listing/announcement? Answer ONLY 'News article', 'Opinion/Blog', 'Event/Announcement', or 'Type unclear'. No other explanation.]
+3. Analysis Notes: [Brief internal notes if needed, or 'N/A'. This line is for your process.]
+
+## Input Data
+
+--- Article Text (first 5334 characters) ---
+This summer, 14 professors from the Emory College of Arts and Sciences huddled together for five days, sharing which books mattered most to them and why. Soon, a theme emerged: The value of observation with an open mind and the patience to be curious.
+By August, they developed an interdisciplinary first-year seminar built around a common syllabus and readings centered on attention and distraction. Faculty from 13 different departments — from physics to religion to languages — will teach the seminar. Four pilot sections of the seminar will launch in the spring 2026 semester, with a goal of offering 16 sections next academic year and 30 sections in 2027-28.
+The seminar is part of Emory College’s new “Asking Big Questions” program, which seeks to reinvigorate the humanities by emphasizing key liberal arts skills, such as critical thinking, and connect them to students’ professional goals, regardless of major.
+A shared $275,000 Emory College-Oxford College grant from theTeagle Foundationis funding the faculty-led innovation. Oxford College launched a similarcohort initiativethis fall with its Professional Advancement through Humanities Study (PATHS) certificate program.
+All Oxford College students in their first semester take one of four signature seminars — Social Responsibility and Ethics, Global Engagement, Creativity and Innovation, or Communication and Critical Thinking — as part of the PATHS program and read from shared texts. Oxford College students recently attended the Oxford Theater production of an adaptation of one of those texts, “Hakawatis: Women of the Arabian Nights,” and held a joint discussion to connect their classroom experiences to the performance.
+Emory College’s initiative will operate similarly with shared texts. The core syllabus includes readings from Sophocles, Simone Weil and Rabindranath Tagore, as well as a number of extracurricular activities that students in all sections will experience together.
+Activities include a presentation from theEmory Center for Contemplative Science and Compassion-Based Ethics, nature walks, visits to theCarlos MuseumandEmory Planetarium, meetings with alumni, and large-scale public reading parties around campus — all focused on how we decide what to pay attention to and what to filter out.
+“All of these efforts will lead to much more intentional collaboration across the two campuses in support of students in their first two years of undergraduate studies,” says Molly McGehee, interim dean of Oxford College and co-principal investigator for the project.
+Each professor will also add specific readings or events tied to their home department.
+“We envision this seminar as a baseline for stimulating students’ intellectual curiosity for whatever it is they want to do,” says Samuel Candler Dobbs Professor of EnglishBenjamin Reiss. “We want to get away from task-oriented work and move toward helping our students develop a sense of community from the opportunity to meet and learn about different perspectives from one another.”
+Creating a shared intellectual experience for students required faculty to step outside their usual lanes of expertise and collaborate on common goals, saysJoe Crespino, the senior associate dean of faculty and divisional dean of humanities and social sciences, who serves as co-principal investigator of the Teagle-funded project with Reiss.
+“It was inspiring to see the creativity and curiosity that our colleagues brought to the workshop this summer,” Crespino says. “We think this project will energize the faculty both as teachers and intellectuals as they engage with colleagues and students to address the big, enduring questions about the human experience that are at the core of the humanities.”
+Professors who volunteered for this summer’s workshops say they were drawn to the opportunity to collaborate across courses, to create shared experiences for students and to show, from day one, how the broad skills of a liberal arts education will add value to whatever life they lead.
+“We want to affirm that they will benefit from developing the ability to read widely, think deeply and connect through their learning to people who are not necessarily from their own background,” saysDevaka Premawardhana, Winship Distinguished Research Associate Professor of Religion.
+“With so much uncertainty in the career landscape, those are the transferable skills that are widely applicable to a life well lived and to whatever job life leads to,” he adds.
+The project will expand over the three years of the Teagle grant. Reiss envisions involving more faculty to help refine the syllabus and teach sections of the course, in addition to developing “field trips” into Atlanta for different activities.
+Faculty will also revisit the theme and contents of the course in future workshops, so that fresh ideas will continue to guide the student experience.
+Johanna Montlouis-Gabriel, an assistant professor of French and decolonial pedagogies, is eager for the opportunity to lead a seminar. Sitting among faculty working this summer, she felt part of an intellectual community that she wants to help students build and experience.
+“The whole project is really exciting,” says Montlouis-Gabriel, who hopes to encourage questions of perspective by including essays from Maryse Condé and stories from Assia Djebar.
+--- End of Article Text ---
+
+Your response (exactly 3 lines as specified above):
+
+--------------------------------------------------------------------------------
+
+
+================================================================================
+Prompt #2 - verify_article_with_gemini
+Timestamp: 2025-11-12T20:56:31.470936
+
+Context:
+  article_url: https://news.emory.edu/stories/2025/11/er_erica_dunbar_gilded_age_profile_06-11-2025/story.html
+  publication_date: 2025-11-06
+  school: Emory University
+  article_text_length: 8936
+
+Prompt:
+--------------------------------------------------------------------------------
+You are a news article analyst. Your task is to extract key metadata from the article text.
+
+## Requirements
+
+### Accuracy & Factuality (Highest Priority)
+- Extract dates ONLY from the article text or URL - do not infer or guess dates
+- Base article type classification strictly on the content structure and purpose
+- Do not add information not present in the article
+
+### Task
+Analyze the article and provide your analysis in EXACTLY three lines, each starting with the specified prefix:
+
+1. Publication Date: [Review the article text AND the Article URL (https://news.emory.edu/stories/2025/11/er_erica_dunbar_gilded_age_profile_06-11-2025/story.html). Extract the most prominent date, ideally the publication date. Format YYYY-MM-DD or 'Date not found'. No other explanation.]
+2. Article Type: [Is this primarily a news article reporting on events/facts, or an opinion/blog/event listing/announcement? Answer ONLY 'News article', 'Opinion/Blog', 'Event/Announcement', or 'Type unclear'. No other explanation.]
+3. Analysis Notes: [Brief internal notes if needed, or 'N/A'. This line is for your process.]
+
+## Input Data
+
+--- Article Text (first 8936 characters) ---
+In the HBO series "The Gilded Age," actor Denée Benton portrays Peggy Scott (right), shown here in Season 3 with Audra McDonald, who plays her mother, Dorothy Scott.
+— Photo by Karolina Wojtasik/HBO
+Emory professorErica Armstrong Dunbarhas written or co-authored eight books that share the often-overlooked historical experiences of Black American women from Harriet Tubman to Ida B. Wells.
+Theacclaimed scholar’sstorytelling skills even earned her a finalist ranking for the 2017 National Book Award for Nonfiction for “Never Caught,” her narrative account of Ona Judge, an enslaved woman who liberated herself from George and Martha Washington.
+This summer, Dunbar hit the pages ofThe New York Timesfor her work to flesh out the fictional character Peggy Scott, an educated and ambitious Black writer played by Tony Award-nominated actor Denée Benton in HBO’s critically acclaimed series “The Gilded Age.”
+The character functions as a composite of real Black women from the era, including journalists Ida B. Wells and Gertrude Bustill Mossell and novelist Julia C. Collins. “The Gilded Age” focuses on the late-19th-century struggle between old-money elite and new-money families in Manhattan. During an interview for the show’s new season, Benton praised Dunbar’s impact in enriching Peggy and other Black characters.
+“It makes me emotional to think about how far we’ve come since 2019 with the show,” Benton told The Times. “Originally, we were going to watch Peggy walk a very narrow path and see her parents sometimes. And Dr. Erica Dunbar and I were able to be like: 'We have an opportunity to show something that’s never been onscreen. We have to widen this lens.' And now we have a robust Black cast on this show. We have Black writers; we have so much richness.”
+Dunbar earned an Emmy nod last year for her work as the show’s historical consultant and co-executive producer. This fall, just weeks after the season finale, she began teaching undergraduate students about her research into the lives of African Americans from enslavement up to Reconstruction.
+We asked Dunbar, professor of African American studies, to share her experiences shining a light on racial and gender injustice on the show and how she balances her work on“The Gilded Age”with her scholarly research, collaborations and courses at Emory. This interview has been edited for brevity and clarity.
+I had worked in television before, but on the documentary side — I had never even thought of working in scripted television.
+I started working with the production in 2019, when it was in development. A producer reached out and said they were working on a period show for HBO with a storyline centered on a Black woman. They knew I was an expert in African American women’s history and asked if I was interested in reading through a couple of early scripts for historical accuracy and cultural sensitivity.
+I don’t know how they found me, but I said sure, not knowing what the show was or who created it. I just signed the NDA [non-disclosure agreement], read the scripts and marked them up with comments and suggestions — like what I would do for students — and sent it back. I thought that was that.
+That producer called me a few weeks later and said the show’s creator liked my notes and wanted to meet with me. That’s when they told me the creator wasJulian Fellowesand asked if I was familiar with his work. Of course I was — I watched “Downton Abbey” religiously.
+At the end of that meeting, he asked if I would consider coming on as a historical consultant, reading every script.
+For me, it was a new way of doing historical work. I also understood that there would be a different set of parameters for a fictional show. For a few months, I acclimated to it being a drama, not a documentary, by writing notes and comments on scripts and sometimes calling to talk to Julian and co-writer Sonja Warfield.
+It quickly became clear my notes were more about story development, especially around the Peggy Scott storyline. That’s when they promoted me to consulting producer, in addition to my work with historical consulting.
+That morphed into an even larger role when, instead of going into production in March 2020, the pandemic forced us to pause. I was already thinking about story rather than strictly facts. Then came a moment where everyone had time to think more broadly about a story that allows us entrance into the world of the Black elite in 1880s New York City.
+I saw an opportunity for us to do something we had never really seen in television, to explore a world of Black privilege and expand the traditional storyline of 19th-century Black America. We think we know that story. It’s about sharecropping or very Southern and oppressed — at least, that’s what we have seen on television. We had never seen a depiction of Black life in 1880s New York, and my argument was that you can’t understand New York at the time if you can’t understand the role of the Black elite.
+Denée (Benton) was also vocal about the opportunity to tell a different kind of story with Peggy Scott. Peggy was originally slotted to be a domestic, which was in large part the work many Black women in 1880s New York engaged in to earn money. But we knew there were other forms of employment opening up, and we could tell the story of Black advancement and triumph as well as the disrespect and indignities that Black New Yorkers faced every day, no matter their class or education.
+Having more time to think about it showed us we had the opportunity to think about Peggy as a fictional character in a way that included non-fictional people and moments.
+The story already has historical white figures, such as Mrs. (Caroline) Astor and J.P. Morgan. It was Julian who had the idea to make Peggy a secretary. That made sense for employment at the time and allowed her to have career aspirations on the side.
+I was thinking of her as a journalist, like Ida B. Wells. Then we tied her story to a real person, T. Thomas Fortune, who was the most well-known Black journalist of the decade and ran what is arguably the most influential newspaper in New York.
+Now you have a storyline that allows us to explore the foundations of historically Black colleges and universities (HBCUs). Peggy was educated at the Institute for Colored Youth in Philadelphia, the oldest of all the HBCUs, now known as Cheyney University. We have Peggy and Fortune go to Alabama for the founding of Tuskegee University. We tied the focus and commitment of Black education post-emancipation to Peggy’s character and life.
+Sunday nights at 9 p.m. is the biggest classroom I have ever had. I adore teaching 25 students in my classrooms on Mondays and Wednesdays. I also recognize the importance of being able to share some of that knowledge with five million people on a Sunday night, in a textured and story-driven way.
+I was not originally sure where a scholar or historian would fit in the world of television, but it has become very clear to me that there should be multiple historians included if we want to tell accurate stories.
+I continue to read across seasons for historical accuracy and share ideas on several storylines, but “The Gilded Age” also has additional researchers. I still work on my teaching job at Emory and on book projects. Having multiple eyes on multiple storylines is better for the show.
+I work on research packets for Julian and Sonia before they start writing scripts. Julian is very, very committed to having every detail be as authentic as possible.
+Ultimately, people are driven by authentic human stories. We think about the importance of that authenticity, even though we know it’s fictional. I have spent 25 years as a scholar focused on my craft, but this has taught me there is space for my research in all creative spaces, including television and film. Ultimately, it’s about the story, and I am a storyteller.
+I am very fortunate to have spent six years getting to weigh in on a show that works so hard to ensure that the audience is engaged with the story.
+I took that lesson with me when I completely changed how I deliver my lectures. I never had text-only slides, but now I include moving images, historical photos and even audio recordings of formerly enslaved people.
+This fall, my first lecture opened with my own introduction to slavery, playing the students scenes from “Roots” and explaining what that meant to America and to television in the 1970s.
+I have tethered film, television and audio to every lecture, because I want them to leave each time with a memorable experience, where they want to talk about what they’re seeing and learning.
+If I am going to compete with their phones and social media for attention, I think it has to be through storytelling that is provocative and inspires them to ask more questions. That will always be central to what I do. It reminds us of the long ago and far away, but also of real people with human stories.
+--- End of Article Text ---
+
+Your response (exactly 3 lines as specified above):
+
+--------------------------------------------------------------------------------
+
