@@ -2,7 +2,7 @@
 # Adds Chromium and required dependencies for headless browser
 
 [phases.setup]
-nixPkgs = ["...", "chromium", "nss", "freetype", "harfbuzz", "cacert", "liberation_ttf", "fontconfig"]
+nixPkgs = ["...", "chromium"]
 
 [phases.install]
 cmds = [
