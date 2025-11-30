@@ -3,4 +3,3 @@
 
 [phases.setup]
 nixPkgs = ["...", "chromium"]
-aptPkgs = ["chromium", "chromium-driver"]

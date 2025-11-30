@@ -1,25 +1,82 @@
 # app.py - Flask Web Interface for Project NEXUS News Bot
 
-from flask import Flask, render_template, request, jsonify, Response, send_file
-from datetime import datetime, date, timedelta
-from pathlib import Path
-import json
-import os
-import threading
-from queue import Queue
-import zipfile
-import tempfile
-import shutil
+import sys
+import traceback
 
-from news_bot.core import config, school_config
-from news_bot.discovery import search_client
-from news_bot.processing import article_handler
-from news_bot.generation import summarizer
-from news_bot.utils import file_manager, prompt_logger
-from news_bot.localization import translator
+# Add startup logging
+print("="* 60, file=sys.stderr)
+print("🚀 NEXUS: Starting Flask app import...", file=sys.stderr)
+print("="* 60, file=sys.stderr)
+
+try:
+    from flask import Flask, render_template, request, jsonify, Response, send_file
+    print("✅ Flask imported successfully", file=sys.stderr)
+except Exception as e:
+    print(f"❌ Failed to import Flask: {e}", file=sys.stderr)
+    traceback.print_exc()
+    raise
+
+try:
+    from datetime import datetime, date, timedelta
+    from pathlib import Path
+    import json
+    import os
+    import threading
+    from queue import Queue
+    import zipfile
+    import tempfile
+    import shutil
+    print("✅ Standard library modules imported", file=sys.stderr)
+except Exception as e:
+    print(f"❌ Failed to import standard library: {e}", file=sys.stderr)
+    traceback.print_exc()
+    raise
+
+try:
+    from news_bot.core import config, school_config
+    print("✅ Config modules imported", file=sys.stderr)
+except Exception as e:
+    print(f"❌ Failed to import config: {e}", file=sys.stderr)
+    traceback.print_exc()
+    raise
+
+try:
+    from news_bot.discovery import search_client
+    from news_bot.processing import article_handler
+    from news_bot.generation import summarizer
+    from news_bot.utils import file_manager, prompt_logger
+    from news_bot.localization import translator
+    print("✅ News bot modules imported successfully", file=sys.stderr)
+except Exception as e:
+    print(f"❌ Failed to import news bot modules: {e}", file=sys.stderr)
+    traceback.print_exc()
+    raise
+
+print("✅ All imports successful - creating Flask app...", file=sys.stderr)
 
 app = Flask(__name__)
-app.config['SECRET_KEY'] = 'nexus-news-bot-secret-key'
+app.config['SECRET_KEY'] = os.environ.get('SECRET_KEY', 'nexus-news-bot-secret-key')
+print("✅ Flask app created successfully", file=sys.stderr)
+print(f"📦 App name: {app.name}", file=sys.stderr)
+print(f"📁 Root path: {app.root_path}", file=sys.stderr)
+
+# Basic health check route (must be defined early, before any config imports fail)
+@app.route('/health')
+def health_check():
+    """Railway health check endpoint - doesn't depend on config."""
+    return jsonify({
+        'status': 'healthy',
+        'service': 'NEXUS News Bot',
+        'timestamp': datetime.now().isoformat()
+    }), 200
+
+# Initialize app on module load (for Gunicorn)
+try:
+    # Ensure output directory exists
+    os.makedirs(config.DEFAULT_OUTPUT_DIR, exist_ok=True)
+    print(f"✅ Output directory ready: {config.DEFAULT_OUTPUT_DIR}")
+except Exception as e:
+    print(f"⚠️  Warning: Could not create output directory: {e}")
 
 # Global queue for progress updates
 progress_queue = Queue()
@@ -244,14 +301,37 @@ def run_news_bot_async(school_id, start_date_str, end_date_str, max_reports):
 @app.route('/')
 def index():
     """Render the main page."""
-    schools = school_config.SCHOOL_PROFILES
-    start_date, end_date = config.get_news_date_range()
-    
-    return render_template('index.html', 
-                         schools=schools,
-                         default_start_date=start_date.isoformat(),
-                         default_end_date=end_date.isoformat(),
-                         max_reports=config.MAX_FINAL_REPORTS)
+    try:
+        schools = school_config.SCHOOL_PROFILES
+        start_date, end_date = config.get_news_date_range()
+        
+        return render_template('index.html', 
+                             schools=schools,
+                             default_start_date=start_date.isoformat(),
+                             default_end_date=end_date.isoformat(),
+                             max_reports=config.MAX_FINAL_REPORTS)
+    except Exception as e:
+        # Graceful fallback if config fails
+        print(f"Error loading index: {e}")
+        import traceback
+        traceback.print_exc()
+        return f"""
+        <html>
+        <head><title>NEXUS - Configuration Error</title></head>
+        <body style="font-family: Arial; padding: 40px; max-width: 800px; margin: 0 auto;">
+            <h1>⚠️ Configuration Error</h1>
+            <p>The application failed to load its configuration.</p>
+            <p><strong>Error:</strong> {str(e)}</p>
+            <h2>Troubleshooting Steps:</h2>
+            <ol>
+                <li>Ensure <code>OPENROUTER_API_KEY</code> environment variable is set in Railway</li>
+                <li>Check Railway logs for more details</li>
+                <li>Verify all required environment variables are configured</li>
+            </ol>
+            <p><a href="/health">Health Check</a> | <a href="/api/debug/chromium">Chromium Debug</a></p>
+        </body>
+        </html>
+        """, 500
 
 @app.route('/api/config', methods=['GET'])
 def get_config():
@@ -602,6 +682,12 @@ def debug_chromium():
         result['auto_detection_error'] = str(e)
     
     return jsonify(result)
+
+# Module loaded successfully
+print("="* 60, file=sys.stderr)
+print("✅ NEXUS Flask app fully loaded - ready for requests", file=sys.stderr)
+print(f"📝 Total routes registered: {len(app.url_map._rules)}", file=sys.stderr)
+print("="* 60, file=sys.stderr)
 
 if __name__ == '__main__':
     # Ensure output directory exists
