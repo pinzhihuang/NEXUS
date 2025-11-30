@@ -14,21 +14,3 @@ cmds = [
 
 [start]
 cmd = "bash -x start.sh 2>&1"
-
-[phases.install]
-cmds = [
-  "echo '=================================================='",
-  "echo '🔍 NIXPACKS BUILD - Verifying Chromium Installation'",
-  "echo '=================================================='",
-  "bash verify_build.sh || echo 'verify_build.sh not found or failed'",
-  "echo '=================================================='",
-  "echo 'Direct verification:'",
-  "which chromium || echo 'WARNING: chromium not in PATH'",
-  "chromium --version || echo 'WARNING: chromium --version failed'",
-  "ls -la /nix/store/*/bin/chromium 2>/dev/null || echo 'WARNING: No chromium in /nix/store'",
-  "find /nix/store -name chromium -type f -executable 2>/dev/null | head -5 || echo 'WARNING: find chromium failed'",
-  "echo '=================================================='",
-]
-
-[start]
-cmd = "bash start.sh"
