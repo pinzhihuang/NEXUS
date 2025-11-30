@@ -542,6 +542,67 @@ def download_images_zip(output_dir):
             'details': str(e)
         }), 500
 
+@app.route('/api/debug/chromium', methods=['GET'])
+def debug_chromium():
+    """Debug endpoint to check Chromium installation (Railway troubleshooting)."""
+    import subprocess
+    import glob
+    
+    result = {
+        'timestamp': datetime.now().isoformat(),
+        'platform': os.name,
+        'environment': {}
+    }
+    
+    # Check environment variables
+    for key in ['PUPPETEER_EXECUTABLE_PATH', 'CHROME_PATH', 'PATH']:
+        result['environment'][key] = os.environ.get(key, 'Not set')
+    
+    # Check if chromium is in PATH
+    chromium_which = shutil.which('chromium')
+    chromium_browser_which = shutil.which('chromium-browser')
+    chrome_which = shutil.which('google-chrome')
+    
+    result['executables'] = {
+        'chromium': chromium_which,
+        'chromium-browser': chromium_browser_which,
+        'google-chrome': chrome_which,
+    }
+    
+    # Check Nix store (Railway/Nixpacks)
+    try:
+        nix_chromium = glob.glob('/nix/store/*/bin/chromium')
+        result['nix_store_chromium'] = nix_chromium if nix_chromium else 'Not found'
+    except Exception as e:
+        result['nix_store_chromium'] = f'Error: {e}'
+    
+    # Try to get Chromium version
+    for cmd in ['chromium', 'chromium-browser', 'google-chrome']:
+        try:
+            proc = subprocess.run(
+                [cmd, '--version'],
+                capture_output=True,
+                text=True,
+                timeout=5
+            )
+            result[f'{cmd}_version'] = proc.stdout.strip()
+            break
+        except Exception as e:
+            result[f'{cmd}_version'] = f'Error: {e}'
+    
+    # Test image generator's auto-detection
+    try:
+        from news_bot.processing.image_generator import _guess_chrome_path
+        detected_path = _guess_chrome_path()
+        result['auto_detected_path'] = detected_path if detected_path else 'None'
+        
+        if detected_path:
+            result['auto_detected_exists'] = Path(detected_path).exists()
+    except Exception as e:
+        result['auto_detection_error'] = str(e)
+    
+    return jsonify(result)
+
 if __name__ == '__main__':
     # Ensure output directory exists
     os.makedirs(config.DEFAULT_OUTPUT_DIR, exist_ok=True)

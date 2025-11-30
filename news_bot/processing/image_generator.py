@@ -88,10 +88,13 @@ def _font_data_uri() -> str:
     return ""  # 找不到就返回空，后续兜底使用 file:// 绝对路径
 
 def _guess_chrome_path() -> str | None:
+    """Find Chrome/Chromium executable path across different environments."""
+    # 1. Check environment variables first
     for key in ("PUPPETEER_EXECUTABLE_PATH", "PYPPETEER_EXECUTABLE_PATH", "CHROME_PATH"):
         p = os.environ.get(key)
         if p and Path(p).exists():
             return p
+    
     import sys
     if sys.platform == "darwin":  # macOS
         candidates = [
@@ -105,19 +108,31 @@ def _guess_chrome_path() -> str | None:
             r"C:\Program Files (x86)\Google\Chrome\Application\chrome.exe",
             r"C:\Program Files\Microsoft\Edge\Application\msedge.exe",
         ]
-    else:  # linux
+    else:  # linux (Railway, Docker, etc.)
         candidates = [
+            shutil.which("chromium-browser"),  # Nixpacks/Railway
+            shutil.which("chromium"),          # Nixpacks/Railway
             shutil.which("google-chrome"),
             shutil.which("chrome"),
-            shutil.which("chromium-browser"),
-            shutil.which("chromium"),
-            "/usr/bin/google-chrome",
             "/usr/bin/chromium-browser",
             "/usr/bin/chromium",
+            "/usr/bin/google-chrome",
+            "/nix/store/*/bin/chromium",  # Nixpacks pattern (check with glob)
         ]
+        
+        # Special handling for Nix store paths (Railway/Nixpacks)
+        try:
+            import glob
+            nix_chromium = glob.glob("/nix/store/*/bin/chromium")
+            if nix_chromium:
+                candidates.insert(0, nix_chromium[0])
+        except Exception:
+            pass
+    
     for c in candidates:
         if c and Path(c).exists():
             return c
+    
     return None
 
 # ================= 渲染 HTML（正文） =================
@@ -163,8 +178,13 @@ def _render_html(
 
 # ================= HTML → PNG =================
 async def _html_to_png(html: str, out_path: Path, page_width: int, device_scale: int) -> None:
+    """Convert HTML to PNG using Puppeteer/Chromium."""
+    import threading
+    print(f"[_html_to_png] Starting in thread: {threading.current_thread().name}")
+    
     from pyppeteer import launch
     chrome_path = _guess_chrome_path()
+    
     launch_kwargs = dict(
         headless=True,
         # ★ Critical fix for Flask threaded environment:
@@ -178,28 +198,58 @@ async def _html_to_png(html: str, out_path: Path, page_width: int, device_scale:
             "--disable-gpu",
             "--disable-web-security",
             "--allow-file-access-from-files",
+            "--disable-setuid-sandbox",  # Additional Railway/container flag
+            "--disable-dev-profile",
+            "--single-process",  # Helps in constrained environments
         ],
     )
+    
     if chrome_path:
         launch_kwargs["executablePath"] = chrome_path
         print(f"[puppeteer] Using system browser: {chrome_path}")
     else:
-        print("[puppeteer] No system browser found. Will try bundled Chromium (may download).")
+        print("[puppeteer] ⚠️  No system browser found. Will try bundled Chromium (may fail in Railway).")
+        print("[puppeteer] 💡 If this fails, ensure nixpacks.toml includes chromium in nixPkgs")
 
-    browser = await launch(**launch_kwargs)
+    print(f"[_html_to_png] About to call launch() with kwargs: {list(launch_kwargs.keys())}")
+    print(f"[_html_to_png] Signal handler flags: SIGINT={launch_kwargs['handleSIGINT']}, SIGTERM={launch_kwargs['handleSIGTERM']}, SIGHUP={launch_kwargs['handleSIGHUP']}")
+    
     try:
+        browser = await launch(**launch_kwargs)
+        print("[_html_to_png] Browser launched successfully")
+    except Exception as e:
+        print(f"[_html_to_png] ❌ Browser launch FAILED: {type(e).__name__}: {e}")
+        if not chrome_path:
+            print("[_html_to_png] 💡 TIP: Install Chromium via nixpacks.toml or set PUPPETEER_EXECUTABLE_PATH")
+        raise
+    
+    try:
+        print("[_html_to_png] Creating new page...")
         page = await browser.newPage()
+        
+        print("[_html_to_png] Setting viewport...")
         await page.setViewport({
             "width": page_width,
             "height": 1500,
             "deviceScaleFactor": device_scale,
         })
+        
+        print("[_html_to_png] Setting content...")
         await page.setContent(html)
+        
+        print("[_html_to_png] Waiting for selector #page-root...")
         await page.waitForSelector("#page-root", {"timeout": 15000})
+        
+        print("[_html_to_png] Waiting 800ms...")
         await page.waitFor(800)
+        
+        print(f"[_html_to_png] Taking screenshot to {out_path}...")
         await page.screenshot({"path": str(out_path), "fullPage": True})
+        print("[_html_to_png] Screenshot saved successfully")
     finally:
+        print("[_html_to_png] Closing browser...")
         await browser.close()
+        print("[_html_to_png] Browser closed")
 
 def _run_async_thread_safe(coro):
     """
@@ -210,11 +260,20 @@ def _run_async_thread_safe(coro):
     1. Always creating a fresh event loop for the current thread
     2. Not relying on asyncio.run() which sets up signal handlers
     """
+    import threading
+    print(f"[_run_async_thread_safe] Starting in thread: {threading.current_thread().name}")
+    
     # Always create a new event loop to avoid signal handler issues
+    print("[_run_async_thread_safe] Creating new event loop...")
     loop = asyncio.new_event_loop()
     asyncio.set_event_loop(loop)
+    print(f"[_run_async_thread_safe] Event loop created and set for thread {threading.current_thread().name}")
+    
     try:
-        return loop.run_until_complete(coro)
+        print("[_run_async_thread_safe] Running coroutine...")
+        result = loop.run_until_complete(coro)
+        print("[_run_async_thread_safe] Coroutine completed successfully")
+        return result
     except Exception as e:
         print(f"[_run_async_thread_safe] ERROR: {type(e).__name__}: {e}")
         import traceback
@@ -284,9 +343,16 @@ def generate_image_from_article(
     brand_color: str = "#57068c",
     left_bar_color: str | None = None,   # ★ 关键：从上游接受交替色
 ) -> str:
+    """Generate a WeChat-style article image from text content."""
+    import threading
+    print(f"[generate_image_from_article] Called from thread: {threading.current_thread().name}")
+    print(f"[generate_image_from_article] Output path: {output_path}")
+    print(f"[generate_image_from_article] Title: {title[:50]}...")
+    
     out = Path(output_path).resolve()
     out.parent.mkdir(parents=True, exist_ok=True)
 
+    print("[generate_image_from_article] Rendering HTML...")
     html = _render_html(
         title=title.strip(),
         content=content.strip(),
@@ -301,12 +367,18 @@ def generate_image_from_article(
         brand_color=brand_color,
         left_bar_color=left_bar_color,   # ★ 关键：继续传到模板
     )
+    
+    print("[generate_image_from_article] HTML rendered, calling _run_async_thread_safe...")
     _run_async_thread_safe(_html_to_png(html, out, page_width, device_scale))
+    
+    print("[generate_image_from_article] Screenshot complete, cropping...")
     _smart_crop_bottom_keep(
         out,
         keep_px=crop_bottom_keep, keep_left=crop_keep_left,
         keep_right=crop_keep_right, keep_top=crop_keep_top
     )
+    
+    print(f"[generate_image_from_article] ✅ Complete: {out}")
     return str(out)
 
 # =============== 对外函数：参考来源页 =================
