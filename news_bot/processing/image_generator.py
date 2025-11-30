@@ -163,9 +163,6 @@ def _render_html(
 
 # ================= HTML → PNG =================
 async def _html_to_png(html: str, out_path: Path, page_width: int, device_scale: int) -> None:
-    import threading
-    print(f"[_html_to_png] Starting in thread: {threading.current_thread().name}")
-    
     from pyppeteer import launch
     chrome_path = _guess_chrome_path()
     launch_kwargs = dict(
@@ -189,44 +186,20 @@ async def _html_to_png(html: str, out_path: Path, page_width: int, device_scale:
     else:
         print("[puppeteer] No system browser found. Will try bundled Chromium (may download).")
 
-    print(f"[_html_to_png] About to call launch() with kwargs: {list(launch_kwargs.keys())}")
-    print(f"[_html_to_png] Signal handler flags: SIGINT={launch_kwargs.get('handleSIGINT')}, SIGTERM={launch_kwargs.get('handleSIGTERM')}, SIGHUP={launch_kwargs.get('handleSIGHUP')}")
+    browser = await launch(**launch_kwargs)
     try:
-        browser = await launch(**launch_kwargs)
-        print(f"[_html_to_png] Browser launched successfully")
-    except Exception as e:
-        print(f"[_html_to_png] ERROR in launch(): {type(e).__name__}: {e}")
-        import traceback
-        traceback.print_exc()
-        raise
-    
-    try:
-        print(f"[_html_to_png] Creating new page...")
         page = await browser.newPage()
-        print(f"[_html_to_png] Setting viewport...")
         await page.setViewport({
             "width": page_width,
             "height": 1500,
             "deviceScaleFactor": device_scale,
         })
-        print(f"[_html_to_png] Setting content...")
         await page.setContent(html)
-        print(f"[_html_to_png] Waiting for selector #page-root...")
         await page.waitForSelector("#page-root", {"timeout": 15000})
-        print(f"[_html_to_png] Waiting 800ms...")
         await page.waitFor(800)
-        print(f"[_html_to_png] Taking screenshot to {out_path}...")
         await page.screenshot({"path": str(out_path), "fullPage": True})
-        print(f"[_html_to_png] Screenshot saved successfully")
-    except Exception as e:
-        print(f"[_html_to_png] ERROR during page operations: {type(e).__name__}: {e}")
-        import traceback
-        traceback.print_exc()
-        raise
     finally:
-        print(f"[_html_to_png] Closing browser...")
         await browser.close()
-        print(f"[_html_to_png] Browser closed")
 
 def _run_async_thread_safe(coro):
     """
@@ -237,21 +210,11 @@ def _run_async_thread_safe(coro):
     1. Always creating a fresh event loop for the current thread
     2. Not relying on asyncio.run() which sets up signal handlers
     """
-    import threading
-    thread_id = threading.current_thread().name
-    print(f"[_run_async_thread_safe] Starting in thread: {thread_id}")
-    
     # Always create a new event loop to avoid signal handler issues
-    print(f"[_run_async_thread_safe] Creating new event loop...")
     loop = asyncio.new_event_loop()
     asyncio.set_event_loop(loop)
-    print(f"[_run_async_thread_safe] Event loop created and set for thread {thread_id}")
-    
     try:
-        print(f"[_run_async_thread_safe] Running coroutine...")
-        result = loop.run_until_complete(coro)
-        print(f"[_run_async_thread_safe] Coroutine completed successfully")
-        return result
+        return loop.run_until_complete(coro)
     except Exception as e:
         print(f"[_run_async_thread_safe] ERROR: {type(e).__name__}: {e}")
         import traceback
@@ -321,15 +284,9 @@ def generate_image_from_article(
     brand_color: str = "#57068c",
     left_bar_color: str | None = None,   # ★ 关键：从上游接受交替色
 ) -> str:
-    import threading
-    print(f"\n[generate_image_from_article] Called from thread: {threading.current_thread().name}")
-    print(f"[generate_image_from_article] Output path: {output_path}")
-    print(f"[generate_image_from_article] Title: {title[:50]}...")
-    
     out = Path(output_path).resolve()
     out.parent.mkdir(parents=True, exist_ok=True)
 
-    print(f"[generate_image_from_article] Rendering HTML...")
     html = _render_html(
         title=title.strip(),
         content=content.strip(),
@@ -344,15 +301,12 @@ def generate_image_from_article(
         brand_color=brand_color,
         left_bar_color=left_bar_color,   # ★ 关键：继续传到模板
     )
-    print(f"[generate_image_from_article] HTML rendered, calling _run_async_thread_safe...")
     _run_async_thread_safe(_html_to_png(html, out, page_width, device_scale))
-    print(f"[generate_image_from_article] Screenshot complete, cropping...")
     _smart_crop_bottom_keep(
         out,
         keep_px=crop_bottom_keep, keep_left=crop_keep_left,
         keep_right=crop_keep_right, keep_top=crop_keep_top
     )
-    print(f"[generate_image_from_article] ✅ Complete: {out}")
     return str(out)
 
 # =============== 对外函数：参考来源页 =================

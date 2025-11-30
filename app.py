@@ -546,12 +546,18 @@ if __name__ == '__main__':
     # Ensure output directory exists
     os.makedirs(config.DEFAULT_OUTPUT_DIR, exist_ok=True)
     
+    # Get port from environment (Railway provides this) or default to 5000
+    port = int(os.environ.get('PORT', 5000))
+    debug = os.environ.get('FLASK_ENV', 'development') != 'production'
+    
     print("=" * 60)
     print("🚀 Project NEXUS - News Bot Web Interface")
     print("=" * 60)
-    print(f"📊 Dashboard: http://127.0.0.1:5000")
+    print(f"📊 Dashboard: http://0.0.0.0:{port}")
     print(f"📁 Output Directory: {config.DEFAULT_OUTPUT_DIR}")
+    print(f"🔧 Environment: {os.environ.get('FLASK_ENV', 'development')}")
     print("=" * 60)
     
-    app.run(debug=True, threaded=True, port=5000)
+    # Bind to 0.0.0.0 for Railway deployment
+    app.run(host='0.0.0.0', port=port, debug=debug, threaded=True)
 

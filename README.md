@@ -2,6 +2,61 @@
 
 Project NEXUS is an automated system for discovering, verifying, summarizing, and translating news relevant to international students at various universities. It aims to provide a centralized and accessible source of important campus and community information.
 
+## 🚀 Quick Deploy to Railway
+
+[![Deploy on Railway](https://railway.app/button.svg)](https://railway.app/new/template)
+
+### Railway Deployment Steps
+
+1. **Click the "Deploy on Railway" button above** or manually create a new project on [Railway](https://railway.app)
+
+2. **Connect your GitHub repository** to Railway
+
+3. **Set Environment Variables** in Railway Dashboard:
+   
+   Required:
+   ```
+   OPENROUTER_API_KEY=sk-or-v1-YOUR_KEY_HERE
+   ```
+   
+   Optional (for advanced features):
+   ```
+   GOOGLE_API_KEY=YOUR_GOOGLE_API_KEY_FOR_PSE
+   CUSTOM_SEARCH_ENGINE_ID=YOUR_GOOGLE_PSE_CX_ID
+   TARGET_GOOGLE_DOC_ID=YOUR_GOOGLE_DOCUMENT_ID_HERE
+   SECRET_KEY=your-random-secret-key-here
+   ```
+
+4. **Deploy!** Railway will automatically:
+   - Detect Python version from `runtime.txt`
+   - Install dependencies from `requirements.txt`
+   - Install Chromium for image generation via pyppeteer
+   - Start the Flask web server via `Procfile`
+
+5. **Access your app** at the URL provided by Railway (e.g., `https://your-app.railway.app`)
+
+### Get Your OpenRouter API Key
+
+1. Go to [OpenRouter](https://openrouter.ai/) and create an account
+2. Navigate to [API Keys](https://openrouter.ai/keys) and create a new key
+3. Add credits at [Settings/Credits](https://openrouter.ai/settings/credits)
+4. Copy your API key and add it to Railway environment variables
+
+### Railway Configuration Files
+
+- `Procfile` - Tells Railway how to start the web server
+- `runtime.txt` - Specifies Python version (3.11.9)
+- `railway.json` - Railway build and deploy configuration
+- `.env.example` - Template for required environment variables
+
+### Post-Deployment
+
+After deployment, your web interface will be available at your Railway URL. You can:
+- 📊 Generate weekly news reports through the web dashboard
+- 🖼️ Create WeChat-style images from reports
+- 📥 Download generated images as ZIP files
+- ✏️ Edit and refine reports with AI assistance
+
 ## Feature Log
 
 [2025-10-29]
@@ -116,12 +171,18 @@ NEXUS/
 │       ├── __init__.py
 │       └── file_manager.py     # JSON saving utility
 │
+├── app.py                      # Flask web interface
+├── templates/                  # HTML templates
+│   └── index.html
 ├── .env.example                # Example environment file
 ├── requirements.txt            # Dependencies
+├── Procfile                    # Railway deployment
+├── runtime.txt                 # Python version for Railway
+├── railway.json                # Railway configuration
 └── README.md                   # This file
 ```
 
-## Setup
+## Local Setup
 
 1.  **Clone Repository & Navigate**: 
     ```bash
@@ -177,6 +238,24 @@ NEXUS/
 
 ## Usage
 
+### Web Interface (Recommended)
+
+Start the Flask web server:
+```bash
+python launch_web_interface.py
+# or
+python app.py
+```
+
+Then open http://localhost:5000 in your browser to:
+- Select a school and date range
+- Generate news reports automatically
+- Edit reports with AI assistance
+- Generate WeChat-style images
+- Download images as ZIP
+
+### Command Line
+
 Run the main script from the `NEXUS` root directory:
 ```bash
 python -m news_bot.main_orchestrator
@@ -220,3 +299,46 @@ caffeinate -i <your_path_to_NEXUS>/run_nexus_automation.sh
     *   Adjust `RELEVANCE_KEYWORDS`.
     *   Optionally set `TARGET_GOOGLE_DOC_ID` in `.env` if you want to update a specific doc for this new university.
 3.  **Prompts (Optional)**: For significantly different target audiences or news styles, review and tweak prompts in `article_handler.py`, `summarizer.py`, and `translator.py`.
+
+## Troubleshooting
+
+### Railway Deployment Issues
+
+**Chromium/Puppeteer not working:**
+- The `railway.json` includes `pyppeteer-install` in the build command
+- If issues persist, check Railway logs for Chromium installation errors
+
+**Environment variables not loading:**
+- Make sure you've added `OPENROUTER_API_KEY` in Railway Dashboard → Variables
+- Railway automatically provides `PORT` - don't set it manually
+
+**Application not starting:**
+- Check Railway logs for Python or dependency errors
+- Verify `requirements.txt` has all necessary packages
+- Ensure `runtime.txt` specifies a supported Python version
+
+### Local Development Issues
+
+**Port already in use:**
+```bash
+# On Windows
+netstat -ano | findstr :5000
+taskkill /PID <PID> /F
+
+# On Mac/Linux
+lsof -ti:5000 | xargs kill
+```
+
+**Missing dependencies:**
+```bash
+pip install -r requirements.txt --upgrade
+```
+
+**Pyppeteer/Chromium issues:**
+```bash
+pyppeteer-install
+```
+
+## License
+
+This project is for educational and community service purposes.
