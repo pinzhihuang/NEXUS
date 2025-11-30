@@ -5,3 +5,6 @@
 nixPkgs = ["...", "chromium"]
 aptPkgs = ["chromium", "chromium-driver"]
 
+[start]
+cmd = "gunicorn app:app --bind 0.0.0.0:${PORT:-8000} --workers 4 --threads 2 --timeout 120"
+
