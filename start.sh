@@ -63,6 +63,8 @@ echo "Starting Gunicorn on 0.0.0.0:${PORT:-8080}"
 echo "========================================="
 
 # Start Gunicorn with verbose logging
+# NOTE: --preload removed to allow fast health check response
+# The app now lazy-loads dependencies on first route access
 exec gunicorn app:app \
   --bind "0.0.0.0:${PORT:-8080}" \
   --workers 2 \
@@ -70,7 +72,6 @@ exec gunicorn app:app \
   --timeout 120 \
   --access-logfile - \
   --error-logfile - \
-  --log-level debug \
-  --preload 2>&1
+  --log-level debug 2>&1
 
 
