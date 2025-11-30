@@ -1,125 +1,88 @@
 # app.py - Flask Web Interface for Project NEXUS News Bot
-"""
-IMPORTANT: This file is structured for fast startup and Railway compatibility.
-- Minimal imports at module level for quick health check response
-- Heavy imports are lazy-loaded only when routes are actually used
-- This allows Gunicorn to bind to port quickly and pass health checks
-"""
 
 import sys
-import os
+import traceback
 
-# Add startup logging (minimal)
-print("🚀 NEXUS: Starting Flask app...", file=sys.stderr)
+# Add startup logging
+print("="* 60, file=sys.stderr)
+print("🚀 NEXUS: Starting Flask app import...", file=sys.stderr)
+print("="* 60, file=sys.stderr)
 
-# MINIMAL IMPORTS for fast startup
-from flask import Flask, render_template, request, jsonify, Response, send_file
-from datetime import datetime
-import json
+try:
+    from flask import Flask, render_template, request, jsonify, Response, send_file
+    print("✅ Flask imported successfully", file=sys.stderr)
+except Exception as e:
+    print(f"❌ Failed to import Flask: {e}", file=sys.stderr)
+    traceback.print_exc()
+    raise
 
-# Create Flask app IMMEDIATELY (before any heavy imports)
+try:
+    from datetime import datetime, date, timedelta
+    from pathlib import Path
+    import json
+    import os
+    import threading
+    from queue import Queue
+    import zipfile
+    import tempfile
+    import shutil
+    print("✅ Standard library modules imported", file=sys.stderr)
+except Exception as e:
+    print(f"❌ Failed to import standard library: {e}", file=sys.stderr)
+    traceback.print_exc()
+    raise
+
+try:
+    from news_bot.core import config, school_config
+    print("✅ Config modules imported", file=sys.stderr)
+except Exception as e:
+    print(f"❌ Failed to import config: {e}", file=sys.stderr)
+    traceback.print_exc()
+    raise
+
+try:
+    from news_bot.discovery import search_client
+    from news_bot.processing import article_handler
+    from news_bot.generation import summarizer
+    from news_bot.utils import file_manager, prompt_logger
+    from news_bot.localization import translator
+    print("✅ News bot modules imported successfully", file=sys.stderr)
+except Exception as e:
+    print(f"❌ Failed to import news bot modules: {e}", file=sys.stderr)
+    traceback.print_exc()
+    raise
+
+print("✅ All imports successful - creating Flask app...", file=sys.stderr)
+
 app = Flask(__name__)
 app.config['SECRET_KEY'] = os.environ.get('SECRET_KEY', 'nexus-news-bot-secret-key')
+print("✅ Flask app created successfully", file=sys.stderr)
+print(f"📦 App name: {app.name}", file=sys.stderr)
+print(f"📁 Root path: {app.root_path}", file=sys.stderr)
 
-print(f"✅ Flask app created ({app.name})", file=sys.stderr)
-
-# =============================================================================
-# CRITICAL: Health check endpoints FIRST - before any config/bot imports
-# These must work even if config is missing or bot modules fail to load
-# =============================================================================
-
+# Basic health check route (must be defined early, before any config imports fail)
 @app.route('/health')
-@app.route('/healthz')
+@app.route('/healthz')  # Common k8s/Railway health check path
 def health_check():
-    """Railway health check endpoint - ultra-lightweight, no dependencies."""
+    """Railway health check endpoint - doesn't depend on config."""
     return jsonify({
         'status': 'healthy',
         'service': 'NEXUS News Bot',
-        'timestamp': datetime.now().isoformat()
-    }), 200
+        'timestamp': datetime.now().isoformat(),
+        'routes': len(app.url_map._rules)
+    }), 200, {'Content-Type': 'application/json'}
 
+# Simple ping endpoint (ultra-lightweight)
 @app.route('/ping')
 def ping():
-    """Ultra-simple ping endpoint."""
-    return 'pong', 200
+    """Ultra-simple ping endpoint for load balancer health checks."""
+    return 'pong', 200, {'Content-Type': 'text/plain'}
 
-print("✅ Health check endpoints registered", file=sys.stderr)
+# Directory creation moved to route handlers to avoid blocking during import
+# Railway needs the app to import quickly so health check can respond
 
-# =============================================================================
-# LAZY IMPORTS: Heavy modules imported on-demand, not at module level
-# This prevents blocking during Gunicorn startup
-# =============================================================================
-
-_modules_loaded = False
-_load_error = None
-
-def ensure_modules_loaded():
-    """Lazy-load all heavy dependencies on first route access."""
-    global _modules_loaded, _load_error
-    global config, school_config, search_client, article_handler
-    global summarizer, file_manager, prompt_logger, translator
-    global date, timedelta, Path, threading, Queue, zipfile, tempfile, shutil
-    
-    if _modules_loaded:
-        return True
-    
-    if _load_error:
-        raise _load_error
-    
-    try:
-        print("📦 Lazy-loading news bot modules...", file=sys.stderr)
-        
-        # Standard library (fast)
-        from datetime import date, timedelta
-        from pathlib import Path
-        import threading
-        from queue import Queue
-        import zipfile
-        import tempfile
-        import shutil
-        
-        # News bot modules (slower)
-        from news_bot.core import config, school_config
-        from news_bot.discovery import search_client
-        from news_bot.processing import article_handler
-        from news_bot.generation import summarizer
-        from news_bot.utils import file_manager, prompt_logger
-        from news_bot.localization import translator
-        
-        # Make available globally
-        globals()['config'] = config
-        globals()['school_config'] = school_config
-        globals()['search_client'] = search_client
-        globals()['article_handler'] = article_handler
-        globals()['summarizer'] = summarizer
-        globals()['file_manager'] = file_manager
-        globals()['prompt_logger'] = prompt_logger
-        globals()['translator'] = translator
-        globals()['date'] = date
-        globals()['timedelta'] = timedelta
-        globals()['Path'] = Path
-        globals()['threading'] = threading
-        globals()['Queue'] = Queue
-        globals()['zipfile'] = zipfile
-        globals()['tempfile'] = tempfile
-        globals()['shutil'] = shutil
-        
-        _modules_loaded = True
-        print("✅ All news bot modules loaded", file=sys.stderr)
-        return True
-        
-    except Exception as e:
-        import traceback
-        _load_error = e
-        print(f"❌ Failed to load modules: {e}", file=sys.stderr)
-        traceback.print_exc(file=sys.stderr)
-        raise
-
-# =============================================================================
-# Global state (lightweight, initialized immediately)
-# =============================================================================
-
-progress_queue = None  # Will be initialized on first use
+# Global queue for progress updates
+progress_queue = Queue()
 current_job_status = {
     'running': False,
     'progress': 0,
@@ -129,14 +92,6 @@ current_job_status = {
     'reports_generated': 0,
     'error': None
 }
-
-def ensure_progress_queue():
-    """Initialize progress queue on first use."""
-    global progress_queue
-    if progress_queue is None:
-        ensure_modules_loaded()
-        progress_queue = Queue()
-    return progress_queue
 
 def send_progress(message, progress=None):
     """Send progress update to the queue."""
@@ -156,15 +111,11 @@ def send_progress(message, progress=None):
         'timestamp': datetime.now().isoformat()
     }
     
-    queue = ensure_progress_queue()
-    queue.put(json.dumps(update))
+    progress_queue.put(json.dumps(update))
 
 def run_news_bot_async(school_id, start_date_str, end_date_str, max_reports):
     """Run the news bot in a background thread."""
     global current_job_status
-    
-    # Ensure modules are loaded
-    ensure_modules_loaded()
     
     try:
         current_job_status['running'] = True
@@ -354,7 +305,9 @@ def run_news_bot_async(school_id, start_date_str, end_date_str, max_reports):
 def index():
     """Render the main page."""
     try:
-        ensure_modules_loaded()
+        # Ensure output directory exists (lazy initialization)
+        os.makedirs(config.DEFAULT_OUTPUT_DIR, exist_ok=True)
+        
         schools = school_config.SCHOOL_PROFILES
         start_date, end_date = config.get_news_date_range()
         
@@ -398,7 +351,6 @@ def index():
 @app.route('/api/config', methods=['GET'])
 def get_config():
     """Get current configuration."""
-    ensure_modules_loaded()
     start_date, end_date = config.get_news_date_range()
     
     return jsonify({
@@ -424,8 +376,6 @@ def get_config():
 def start_job():
     """Start a news collection job."""
     global current_job_status
-    
-    ensure_modules_loaded()
     
     if current_job_status['running']:
         return jsonify({'error': 'A job is already running'}), 400
@@ -469,11 +419,9 @@ def get_status():
 @app.route('/api/progress')
 def progress_stream():
     """Server-Sent Events endpoint for real-time progress updates."""
-    queue = ensure_progress_queue()
-    
     def generate():
         while True:
-            message = queue.get()
+            message = progress_queue.get()
             yield f"data: {message}\n\n"
     
     return Response(generate(), mimetype='text/event-stream')
@@ -482,7 +430,8 @@ def progress_stream():
 def list_reports():
     """List all generated reports."""
     try:
-        ensure_modules_loaded()
+        # Ensure output directory exists
+        os.makedirs(config.DEFAULT_OUTPUT_DIR, exist_ok=True)
         reports_dir = config.DEFAULT_OUTPUT_DIR
         
         if not os.path.exists(reports_dir):
@@ -512,7 +461,6 @@ def list_reports():
 def get_report(filename):
     """Get a specific report."""
     try:
-        ensure_modules_loaded()
         # Sanitize filename to prevent directory traversal
         filename = os.path.basename(filename)
         filepath = os.path.join(config.DEFAULT_OUTPUT_DIR, filename)
@@ -533,8 +481,6 @@ def get_report(filename):
 @app.route('/api/save-report', methods=['POST'])
 def save_report():
     """Save edited report data back to JSON file."""
-    ensure_modules_loaded()
-    
     data = request.json
     report_filename = data.get('report_filename')
     report_data = data.get('report_data')
@@ -562,8 +508,6 @@ def save_report():
 @app.route('/api/ai-edit', methods=['POST'])
 def ai_edit_text():
     """Use AI to edit text based on user prompt."""
-    ensure_modules_loaded()
-    
     data = request.json
     text = data.get('text', '')
     prompt = data.get('prompt', '')
@@ -607,8 +551,6 @@ Please provide ONLY the edited text, without any explanations or additional comm
 @app.route('/api/generate-images', methods=['POST'])
 def generate_wechat_images():
     """Generate WeChat-style images directly from JSON report (no Google Docs needed)."""
-    ensure_modules_loaded()
-    
     data = request.json
     report_filename = data.get('report_filename')
     report_data = data.get('report_data')  # Optional: use edited data instead of file
@@ -680,7 +622,6 @@ def generate_wechat_images():
 def download_images_zip(output_dir):
     """Download generated images as a ZIP file."""
     try:
-        ensure_modules_loaded()
         # Sanitize path to prevent directory traversal
         safe_dir = output_dir.replace('..', '').replace('/', os.sep).replace('\\', os.sep)
         images_dir = Path('wechat_images') / safe_dir
@@ -773,13 +714,13 @@ def debug_chromium():
     
     return jsonify(result)
 
-print("✅ NEXUS Flask app initialized - ready for requests", file=sys.stderr)
-print(f"📝 Total routes: {len(app.url_map._rules)}", file=sys.stderr)
+# Module loaded successfully
+print("="* 60, file=sys.stderr)
+print("✅ NEXUS Flask app fully loaded - ready for requests", file=sys.stderr)
+print(f"📝 Total routes registered: {len(app.url_map._rules)}", file=sys.stderr)
+print("="* 60, file=sys.stderr)
 
 if __name__ == '__main__':
-    # Load modules immediately in dev mode
-    ensure_modules_loaded()
-    
     # Ensure output directory exists
     os.makedirs(config.DEFAULT_OUTPUT_DIR, exist_ok=True)
     

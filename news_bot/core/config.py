@@ -160,8 +160,5 @@ def validate_config():
     # Google Docs export removed - using JSON only
 
 # Only OPENROUTER_API_KEY is required; Google PSE keys are optional since PSE is disabled
-if not OPENROUTER_API_KEY:
-    if os.path.exists(DOTENV_PATH):
-        print(f"Warning: Attempted to load .env from {DOTENV_PATH}, but OPENROUTER_API_KEY is still missing from the environment.")
-    else:
-        print(f"Warning: .env file not found at {DOTENV_PATH}. Critical API keys might be missing.")
+# Note: Validation warnings moved to validate_config() to avoid blocking during import
+# This allows Railway health checks to respond quickly

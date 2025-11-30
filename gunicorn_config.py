@@ -11,5 +11,6 @@ keepalive = 5
 accesslog = "-"  # Log to stdout
 errorlog = "-"   # Log to stderr
 loglevel = "info"
-preload_app = True
+# preload_app = False - DISABLED for fast startup and health check response
+# Railway needs quick binding to port for health checks to pass
 
