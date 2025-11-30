@@ -89,14 +89,26 @@ def _font_data_uri() -> str:
 
 def _guess_chrome_path() -> str | None:
     """Find Chrome/Chromium executable path across different environments."""
+    import subprocess
+    
+    print("[chrome_path] ========================================")
+    print("[chrome_path] Starting Chromium detection process")
+    print("[chrome_path] ========================================")
+    
     # 1. Check environment variables first
+    print("[chrome_path] Step 1: Checking environment variables...")
     for key in ("PUPPETEER_EXECUTABLE_PATH", "PYPPETEER_EXECUTABLE_PATH", "CHROME_PATH"):
         p = os.environ.get(key)
+        print(f"[chrome_path]   ${key} = {p if p else 'NOT SET'}")
         if p and Path(p).exists():
-            print(f"[chrome_path] Found via env var {key}: {p}")
+            print(f"[chrome_path] ✅ Found via env var {key}: {p}")
             return p
+        elif p:
+            print(f"[chrome_path] ⚠️  Env var {key} is set but path doesn't exist: {p}")
     
     import sys
+    print(f"[chrome_path] Step 2: Platform = {sys.platform}")
+    
     if sys.platform == "darwin":  # macOS
         candidates = [
             "/Applications/Google Chrome.app/Contents/MacOS/Google Chrome",
@@ -110,21 +122,64 @@ def _guess_chrome_path() -> str | None:
             r"C:\Program Files\Microsoft\Edge\Application\msedge.exe",
         ]
     else:  # linux (Railway, Docker, etc.)
+        print("[chrome_path] Step 3: Linux detected - searching for Chromium...")
+        
+        # Check if /nix/store exists
+        nix_store_exists = Path("/nix/store").exists()
+        print(f"[chrome_path]   /nix/store exists: {nix_store_exists}")
+        
+        if nix_store_exists:
+            try:
+                print("[chrome_path]   Listing /nix/store contents (first 10)...")
+                nix_entries = list(Path("/nix/store").iterdir())[:10]
+                for entry in nix_entries:
+                    print(f"[chrome_path]     - {entry.name}")
+            except Exception as e:
+                print(f"[chrome_path]   ⚠️  Could not list /nix/store: {e}")
+        
         # Special handling for Nix store paths (Railway/Nixpacks) - check FIRST
         nix_chromium_paths = []
+        print("[chrome_path] Step 4: Searching Nix store with glob...")
         try:
             import glob
+            print("[chrome_path]   Running: glob.glob('/nix/store/*/bin/chromium')")
             nix_chromium_paths = glob.glob("/nix/store/*/bin/chromium")
+            print(f"[chrome_path]   Result: {len(nix_chromium_paths)} paths found")
             if nix_chromium_paths:
-                print(f"[chrome_path] Found {len(nix_chromium_paths)} Nix Chromium paths")
                 for path in nix_chromium_paths:
-                    print(f"[chrome_path]   - {path}")
+                    print(f"[chrome_path]     - {path}")
         except Exception as e:
-            print(f"[chrome_path] Error globbing Nix paths: {e}")
+            print(f"[chrome_path]   ❌ Error globbing Nix paths: {e}")
+            import traceback
+            traceback.print_exc()
         
+        # Try alternative: subprocess find
+        if not nix_chromium_paths and nix_store_exists:
+            print("[chrome_path] Step 5: Trying subprocess find...")
+            try:
+                result = subprocess.run(
+                    ["find", "/nix/store", "-path", "*/bin/chromium", "-type", "f"],
+                    capture_output=True,
+                    text=True,
+                    timeout=10
+                )
+                if result.returncode == 0 and result.stdout.strip():
+                    found = result.stdout.strip().split('\n')
+                    print(f"[chrome_path]   Found {len(found)} paths via find:")
+                    for path in found[:5]:  # Show first 5
+                        print(f"[chrome_path]     - {path}")
+                    if found:
+                        nix_chromium_paths = found
+                else:
+                    print(f"[chrome_path]   find returned: {result.returncode}")
+                    print(f"[chrome_path]   stderr: {result.stderr}")
+            except Exception as e:
+                print(f"[chrome_path]   ❌ Error with find command: {e}")
+        
+        print("[chrome_path] Step 6: Checking shutil.which()...")
         candidates = [
-            shutil.which("chromium-browser"),  # Nixpacks/Railway
-            shutil.which("chromium"),          # Nixpacks/Railway
+            shutil.which("chromium-browser"),
+            shutil.which("chromium"),
             shutil.which("google-chrome"),
             shutil.which("chrome"),
             "/usr/bin/chromium-browser",
@@ -132,19 +187,28 @@ def _guess_chrome_path() -> str | None:
             "/usr/bin/google-chrome",
         ]
         
+        for i, c in enumerate(candidates[:4]):  # First 4 are which() results
+            print(f"[chrome_path]   shutil.which result {i}: {c if c else 'None'}")
+        
         # Prepend Nix paths to candidates
         if nix_chromium_paths:
+            print(f"[chrome_path] Prepending {len(nix_chromium_paths)} Nix paths to candidates")
             candidates = nix_chromium_paths + candidates
     
-    print(f"[chrome_path] Checking {len(candidates)} candidate paths...")
-    for c in candidates:
-        if c and Path(c).exists():
-            print(f"[chrome_path] ✅ Found working path: {c}")
-            return c
-        elif c:
-            print(f"[chrome_path] ❌ Path doesn't exist: {c}")
+    print(f"[chrome_path] Step 7: Checking {len(candidates)} total candidate paths...")
+    for i, c in enumerate(candidates):
+        if c:
+            exists = Path(c).exists()
+            print(f"[chrome_path]   [{i+1}/{len(candidates)}] {c} - exists={exists}")
+            if exists:
+                print(f"[chrome_path] ✅ SUCCESS: Found working path: {c}")
+                return c
+        else:
+            print(f"[chrome_path]   [{i+1}/{len(candidates)}] (None/empty)")
     
-    print("[chrome_path] ⚠️  No Chrome/Chromium found in any standard location")
+    print("[chrome_path] ========================================")
+    print("[chrome_path] ❌ FAILED: No Chrome/Chromium found")
+    print("[chrome_path] ========================================")
     return None
 
 # ================= 渲染 HTML（正文） =================
