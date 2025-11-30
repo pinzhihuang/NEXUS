@@ -6,9 +6,13 @@ nixPkgs = ["...", "chromium"]
 
 [phases.install]
 cmds = [
+  "echo '=== BUILD: Installing Python dependencies ==='",
+  "pip install --no-cache-dir -r requirements.txt",
   "echo '=== BUILD: Verifying Chromium ==='",
   "which chromium && echo 'BUILD: Chromium found in PATH' || echo 'BUILD ERROR: chromium not in PATH'",
   "chromium --version || echo 'BUILD ERROR: chromium --version failed'",
+  "echo '=== BUILD: Verifying gunicorn ==='",
+  "which gunicorn && gunicorn --version || echo 'BUILD ERROR: gunicorn not found'",
   "echo '=== BUILD: Complete ==='",
 ]
 
