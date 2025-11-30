@@ -62,13 +62,21 @@ print(f"📁 Root path: {app.root_path}", file=sys.stderr)
 
 # Basic health check route (must be defined early, before any config imports fail)
 @app.route('/health')
+@app.route('/healthz')  # Common k8s/Railway health check path
 def health_check():
     """Railway health check endpoint - doesn't depend on config."""
     return jsonify({
         'status': 'healthy',
         'service': 'NEXUS News Bot',
-        'timestamp': datetime.now().isoformat()
-    }), 200
+        'timestamp': datetime.now().isoformat(),
+        'routes': len(app.url_map._rules)
+    }), 200, {'Content-Type': 'application/json'}
+
+# Simple ping endpoint (ultra-lightweight)
+@app.route('/ping')
+def ping():
+    """Ultra-simple ping endpoint for load balancer health checks."""
+    return 'pong', 200, {'Content-Type': 'text/plain'}
 
 # Initialize app on module load (for Gunicorn)
 try:
@@ -312,26 +320,35 @@ def index():
                              max_reports=config.MAX_FINAL_REPORTS)
     except Exception as e:
         # Graceful fallback if config fails
-        print(f"Error loading index: {e}")
+        print(f"❌ Error loading index: {e}", file=sys.stderr)
         import traceback
-        traceback.print_exc()
-        return f"""
-        <html>
-        <head><title>NEXUS - Configuration Error</title></head>
-        <body style="font-family: Arial; padding: 40px; max-width: 800px; margin: 0 auto;">
-            <h1>⚠️ Configuration Error</h1>
-            <p>The application failed to load its configuration.</p>
-            <p><strong>Error:</strong> {str(e)}</p>
-            <h2>Troubleshooting Steps:</h2>
-            <ol>
-                <li>Ensure <code>OPENROUTER_API_KEY</code> environment variable is set in Railway</li>
-                <li>Check Railway logs for more details</li>
-                <li>Verify all required environment variables are configured</li>
-            </ol>
-            <p><a href="/health">Health Check</a> | <a href="/api/debug/chromium">Chromium Debug</a></p>
-        </body>
-        </html>
-        """, 500
+        traceback.print_exc(file=sys.stderr)
+        
+        # Return a simple error page that loads fast
+        return f"""<!DOCTYPE html>
+<html>
+<head>
+    <title>NEXUS - Configuration Error</title>
+    <meta charset="utf-8">
+    <style>
+        body {{ font-family: Arial, sans-serif; padding: 40px; max-width: 800px; margin: 0 auto; }}
+        code {{ background: #f4f4f4; padding: 2px 6px; border-radius: 3px; }}
+        .error {{ color: #d32f2f; }}
+    </style>
+</head>
+<body>
+    <h1>⚠️ Configuration Error</h1>
+    <p>The application failed to load its configuration.</p>
+    <p class="error"><strong>Error:</strong> {str(e)[:200]}</p>
+    <h2>Troubleshooting Steps:</h2>
+    <ol>
+        <li>Ensure <code>OPENROUTER_API_KEY</code> is set in Railway Variables</li>
+        <li>Check Railway logs for detailed error messages</li>
+        <li>Verify all environment variables are configured</li>
+    </ol>
+    <p><a href="/health">Health Check</a> | <a href="/api/debug/chromium">Chromium Debug</a></p>
+</body>
+</html>""", 500
 
 @app.route('/api/config', methods=['GET'])
 def get_config():

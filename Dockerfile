@@ -23,11 +23,11 @@ COPY . .
 RUN mkdir -p news_reports prompt_logs
 
 # Expose port
-EXPOSE 8000
+EXPOSE 8080
 
 # Set environment variables
 ENV PYTHONUNBUFFERED=1
-ENV PORT=8000
+ENV PORT=8080
 
 # Health check
 HEALTHCHECK --interval=30s --timeout=10s --start-period=40s --retries=3 \
