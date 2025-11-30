@@ -6,11 +6,14 @@ nixPkgs = ["...", "chromium"]
 
 [phases.install]
 cmds = [
-  "echo '=== Verifying Chromium ==='",
-  "which chromium || echo 'WARNING: chromium not in PATH'",
-  "chromium --version || echo 'WARNING: chromium --version failed'",
-  "echo '========================='",
+  "echo '=== BUILD: Verifying Chromium ==='",
+  "which chromium && echo 'BUILD: Chromium found in PATH' || echo 'BUILD ERROR: chromium not in PATH'",
+  "chromium --version || echo 'BUILD ERROR: chromium --version failed'",
+  "echo '=== BUILD: Complete ==='",
 ]
+
+[start]
+cmd = "bash -x start.sh 2>&1"
 
 [phases.install]
 cmds = [
