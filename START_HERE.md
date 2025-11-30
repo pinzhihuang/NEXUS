@@ -67,10 +67,24 @@ python launch_web_interface.py
    - Statistics update in real-time
    - Activity log shows each step
 
-6. **Get your results!**
-   - Reports saved in `news_reports/` folder
-   - JSON files with all data
-   - Google Doc link (if configured)
+6. **Review your results!**
+   - See all collected articles with Chinese translations
+   - Each article shows:
+     - Chinese title (AI-generated)
+     - Chinese news report (professional translation)
+     - Original English title
+     - Source URL and publication date
+
+7. **Optional: Generate WeChat Images**
+   - Click "🎨 Generate WeChat Images" button
+   - Creates beautiful WeChat-style images directly from JSON
+   - Images are saved to `wechat_images/<School_Weekly>/` folder
+   - Perfect for sharing on WeChat, social media, or newsletters
+   - No Google Docs required - works directly from JSON!
+
+8. **Get your results!**
+   - **JSON file:** `news_reports/` folder (always saved)
+   - **WeChat Images:** `wechat_images/` folder (optional, click button to generate)
 
 ## What the Program Does
 
@@ -80,7 +94,7 @@ python launch_web_interface.py
 2. ✅ **Verifies** they're relevant and recent (using AI)
 3. 📝 **Summarizes** in English (using AI)
 4. 🌏 **Translates** to Chinese (using AI)
-5. 💾 **Saves** as JSON and Google Docs
+5. 💾 **Saves** as JSON files
 
 **Purpose:** Help Chinese international students stay informed about campus news in their native language.
 
@@ -198,7 +212,7 @@ Activity log with emojis and timestamps
 - **Real-time Updates:** Server-Sent Events
 - **Background Processing:** Threading
 - **AI Models:** Google Gemini via OpenRouter
-- **Export:** JSON + Google Docs API
+- **Export:** JSON files only (simple and reliable)
 
 ## Next Steps
 

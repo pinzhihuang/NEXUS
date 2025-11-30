@@ -1,11 +1,15 @@
 # app.py - Flask Web Interface for Project NEXUS News Bot
 
-from flask import Flask, render_template, request, jsonify, Response
+from flask import Flask, render_template, request, jsonify, Response, send_file
 from datetime import datetime, date, timedelta
+from pathlib import Path
 import json
 import os
 import threading
 from queue import Queue
+import zipfile
+import tempfile
+import shutil
 
 from news_bot.core import config, school_config
 from news_bot.discovery import search_client
@@ -13,7 +17,6 @@ from news_bot.processing import article_handler
 from news_bot.generation import summarizer
 from news_bot.utils import file_manager, prompt_logger
 from news_bot.localization import translator
-from news_bot.reporting import google_docs_exporter
 
 app = Flask(__name__)
 app.config['SECRET_KEY'] = 'nexus-news-bot-secret-key'
@@ -214,16 +217,7 @@ def run_news_bot_async(school_id, start_date_str, end_date_str, max_reports):
             saved_filepath = file_manager.save_data_to_json(final_news_reports, output_filename_base)
             
             if saved_filepath:
-                send_progress(f"✅ Saved {len(final_news_reports)} reports to JSON", 90)
-            
-            # Export to Google Doc
-            send_progress("📄 Exporting to Google Docs...", 95)
-            gdoc_url = google_docs_exporter.update_or_create_news_document(
-                chosen_school, final_news_reports, start_date, end_date
-            )
-            
-            if gdoc_url:
-                send_progress(f"✅ Google Doc created: {gdoc_url}", 98)
+                send_progress(f"✅ Saved {len(final_news_reports)} reports to JSON", 95)
             
             # Write footer to prompt log
             if prompt_log_file:
@@ -372,6 +366,181 @@ def get_report(filename):
         data = json.load(f)
     
     return jsonify(data)
+
+@app.route('/api/save-report', methods=['POST'])
+def save_report():
+    """Save edited report data back to JSON file."""
+    data = request.json
+    report_filename = data.get('report_filename')
+    report_data = data.get('report_data')
+    
+    if not report_filename or not report_data:
+        return jsonify({'error': 'Report filename and data are required'}), 400
+    
+    report_path = Path(config.DEFAULT_OUTPUT_DIR) / report_filename
+    
+    try:
+        # Save the edited data
+        with open(report_path, 'w', encoding='utf-8') as f:
+            json.dump(report_data, f, ensure_ascii=False, indent=2)
+        
+        return jsonify({
+            'success': True,
+            'message': 'Report saved successfully'
+        })
+    except Exception as e:
+        return jsonify({
+            'error': 'Failed to save report',
+            'details': str(e)
+        }), 500
+
+@app.route('/api/ai-edit', methods=['POST'])
+def ai_edit_text():
+    """Use AI to edit text based on user prompt."""
+    data = request.json
+    text = data.get('text', '')
+    prompt = data.get('prompt', '')
+    article_index = data.get('article_index', None)
+    
+    if not text or not prompt:
+        return jsonify({'error': 'Text and prompt are required'}), 400
+    
+    try:
+        from news_bot.utils.openrouter_client import generate_content
+        
+        # Create a comprehensive prompt for editing
+        edit_prompt = f"""You are a professional Chinese news editor. The user wants you to edit the following Chinese news text.
+
+User's request: {prompt}
+
+Original text:
+{text}
+
+Please provide ONLY the edited text, without any explanations or additional comments. Return the complete edited text that addresses the user's request."""
+        
+        edited_text = generate_content(edit_prompt, temperature=0.7)
+        
+        if not edited_text:
+            return jsonify({
+                'error': 'Failed to get AI response',
+                'details': 'OpenRouter API returned no content'
+            }), 500
+        
+        return jsonify({
+            'success': True,
+            'edited_text': edited_text.strip()
+        })
+        
+    except Exception as e:
+        return jsonify({
+            'error': 'Failed to edit text with AI',
+            'details': str(e)
+        }), 500
+
+@app.route('/api/generate-images', methods=['POST'])
+def generate_wechat_images():
+    """Generate WeChat-style images directly from JSON report (no Google Docs needed)."""
+    data = request.json
+    report_filename = data.get('report_filename')
+    report_data = data.get('report_data')  # Optional: use edited data instead of file
+    
+    if not report_filename:
+        return jsonify({'error': 'Report filename is required'}), 400
+    
+    report_path = Path(config.DEFAULT_OUTPUT_DIR) / report_filename
+    
+    # If edited data provided, save it temporarily
+    if report_data:
+        temp_path = Path(tempfile.mkdtemp()) / report_filename
+        with open(temp_path, 'w', encoding='utf-8') as f:
+            json.dump(report_data, f, ensure_ascii=False, indent=2)
+        json_path = str(temp_path)
+    else:
+        if not report_path.exists():
+            return jsonify({'error': f'Report file not found: {report_filename}'}), 404
+        json_path = str(report_path)
+    
+    try:
+        # Import the direct JSON to images converter
+        from scripts.json_to_wechat_images import json_to_wechat_images
+        
+        # Generate images directly from JSON
+        result = json_to_wechat_images(
+            json_path=json_path,
+            output_base_dir='wechat_images',
+            page_width=540,
+            device_scale=4,
+            title_size=22.093076923,
+            body_size=20.0,
+            top_n_sources=10,
+        )
+        
+        # Clean up temp file if used
+        if report_data and temp_path.exists():
+            temp_path.unlink()
+            temp_path.parent.rmdir()
+        
+        if result['success']:
+            return jsonify({
+                'success': True,
+                'message': f'Generated {result["total_images"]} WeChat-style images',
+                'output_dir': result['output_dir'],
+                'school': result['school'],
+                'brand_color': result['brand_color'],
+                'total_images': result['total_images'],
+                'files': result['generated_files'],
+            })
+        else:
+            return jsonify({
+                'error': result.get('error', 'Unknown error'),
+            }), 500
+        
+    except ImportError as e:
+        return jsonify({
+            'error': 'Image generation module not available',
+            'details': str(e),
+            'note': 'Make sure pyppeteer is installed: pip install pyppeteer'
+        }), 500
+    except Exception as e:
+        return jsonify({
+            'error': 'Failed to generate images',
+            'details': str(e)
+        }), 500
+
+@app.route('/api/download-images/<path:output_dir>', methods=['GET'])
+def download_images_zip(output_dir):
+    """Download generated images as a ZIP file."""
+    try:
+        # Sanitize path to prevent directory traversal
+        safe_dir = output_dir.replace('..', '').replace('/', os.sep).replace('\\', os.sep)
+        images_dir = Path('wechat_images') / safe_dir
+        
+        if not images_dir.exists() or not images_dir.is_dir():
+            return jsonify({'error': 'Images directory not found'}), 404
+        
+        # Create temporary ZIP file
+        temp_zip = tempfile.NamedTemporaryFile(delete=False, suffix='.zip')
+        temp_zip_path = temp_zip.name
+        temp_zip.close()
+        
+        # Create ZIP archive
+        with zipfile.ZipFile(temp_zip_path, 'w', zipfile.ZIP_DEFLATED) as zipf:
+            for image_file in images_dir.glob('*.png'):
+                zipf.write(image_file, image_file.name)
+        
+        # Send ZIP file
+        return send_file(
+            temp_zip_path,
+            mimetype='application/zip',
+            as_attachment=True,
+            download_name=f'{safe_dir}_images.zip'
+        )
+        
+    except Exception as e:
+        return jsonify({
+            'error': 'Failed to create ZIP file',
+            'details': str(e)
+        }), 500
 
 if __name__ == '__main__':
     # Ensure output directory exists

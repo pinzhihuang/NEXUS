@@ -34,3 +34,8 @@ typing-inspection==0.4.1
 typing_extensions==4.14.1
 uritemplate==4.2.0
 urllib3==2.5.0
+gunicorn==21.2.0  
+Jinja2==3.1.2  
+markdown2==2.4.10  
+Pillow==10.1.0  
+pyppeteer==1.0.2 

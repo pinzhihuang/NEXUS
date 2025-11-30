@@ -250,6 +250,104 @@
             margin: 5px 0;
             color: #1565c0;
         }
+
+        .report-details {
+            background: #f8f9fa;
+            padding: 20px;
+            border-radius: 8px;
+            margin-top: 15px;
+            max-height: 400px;
+            overflow-y: auto;
+        }
+
+        .report-item {
+            background: white;
+            padding: 15px;
+            margin-bottom: 15px;
+            border-radius: 8px;
+            border-left: 4px solid #667eea;
+        }
+
+        .report-item h4 {
+            color: #667eea;
+            margin-bottom: 10px;
+        }
+
+        .report-item p {
+            margin: 5px 0;
+            color: #555;
+            line-height: 1.6;
+        }
+
+        .report-item .chinese {
+            color: #333;
+            font-weight: 500;
+        }
+
+        .report-item .url {
+            font-size: 0.85rem;
+            color: #999;
+            word-break: break-all;
+        }
+
+        .report-item textarea {
+            width: 100%;
+            padding: 10px;
+            border: 2px solid #e0e0e0;
+            border-radius: 6px;
+            font-family: inherit;
+            font-size: 1rem;
+            resize: vertical;
+            min-height: 100px;
+        }
+
+        .report-item textarea:focus {
+            outline: none;
+            border-color: #667eea;
+        }
+
+        .report-item input[type="text"] {
+            width: 100%;
+            padding: 10px;
+            border: 2px solid #e0e0e0;
+            border-radius: 6px;
+            font-family: inherit;
+            font-size: 1rem;
+        }
+
+        .report-item input[type="text"]:focus {
+            outline: none;
+            border-color: #667eea;
+        }
+
+        .edit-mode-btn.active {
+            background: #667eea !important;
+            color: white !important;
+        }
+
+        #generate-images-btn {
+            background: linear-gradient(135deg, #43e97b 0%, #38f9d7 100%);
+        }
+
+        #generate-images-btn:hover:not(:disabled) {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(67, 233, 123, 0.4);
+        }
+
+        #ai-edit-btn:hover:not(:disabled) {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(102, 126, 234, 0.4);
+        }
+
+        #save-report-btn:hover:not(:disabled) {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(67, 233, 123, 0.4);
+        }
+
+        #download-zip-btn:hover:not(:disabled) {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(250, 112, 154, 0.4);
+        }
     </style>
 </head>
 <body>
@@ -267,7 +365,8 @@
                 <p>1. Select a university to collect news from</p>
                 <p>2. Choose your date range (default: last 7 days)</p>
                 <p>3. Click "Start News Collection" and monitor progress</p>
-                <p>4. Reports will be saved as JSON and exported to Google Docs</p>
+                <p>4. Reports will be saved as JSON files</p>
+                <p>5. Optionally generate WeChat-style images from the JSON</p>
             </div>
 
             <form id="config-form">
@@ -340,6 +439,68 @@
                 <div class="log-entry">Ready to start news collection...</div>
             </div>
         </div>
+
+        <div class="card" id="report-review-container" style="display: none;">
+            <h2>📋 Review Generated Report</h2>
+            
+            <div class="info-box">
+                <p><strong>✅ Report Generated Successfully!</strong></p>
+                <p id="report-summary"></p>
+            </div>
+
+            <div class="report-details" id="report-details"></div>
+
+            <!-- AI Chat Interface -->
+            <div style="margin-top: 30px; border-top: 2px solid #e0e0e0; padding-top: 20px;">
+                <h3 style="color: #667eea; margin-bottom: 15px;">🤖 AI Text Editor</h3>
+                <div style="background: #f8f9fa; padding: 15px; border-radius: 8px; margin-bottom: 15px;">
+                    <label style="display: block; margin-bottom: 8px; font-weight: 600;">Select article to edit:</label>
+                    <select id="article-selector" style="width: 100%; padding: 8px; border: 2px solid #e0e0e0; border-radius: 6px; margin-bottom: 15px;">
+                        <option value="">Select an article...</option>
+                    </select>
+                    
+                    <div id="edit-mode-selector" style="display: none;">
+                        <label style="display: block; margin-bottom: 8px; font-weight: 600;">Edit mode:</label>
+                        <div style="display: flex; gap: 10px; margin-bottom: 15px;">
+                            <button type="button" class="edit-mode-btn active" data-mode="title" style="flex: 1; padding: 10px; border: 2px solid #667eea; background: #667eea; color: white; border-radius: 6px; cursor: pointer;">Edit Title</button>
+                            <button type="button" class="edit-mode-btn" data-mode="content" style="flex: 1; padding: 10px; border: 2px solid #e0e0e0; background: white; color: #667eea; border-radius: 6px; cursor: pointer;">Edit Content</button>
+                        </div>
+                    </div>
+                    
+                    <div id="chat-interface" style="display: none;">
+                        <label style="display: block; margin-bottom: 8px; font-weight: 600;">Enter your editing prompt:</label>
+                        <textarea id="ai-prompt-input" placeholder="e.g., 'Make the title more engaging', 'Simplify the language', 'Add more details about...'" style="width: 100%; padding: 12px; border: 2px solid #e0e0e0; border-radius: 6px; min-height: 80px; font-family: inherit; resize: vertical;"></textarea>
+                        <button type="button" id="ai-edit-btn" style="margin-top: 10px; padding: 10px 20px; background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: white; border: none; border-radius: 6px; cursor: pointer; font-weight: 600;">
+                            ✨ Apply AI Edit
+                        </button>
+                        <div id="ai-edit-status" style="display: none; margin-top: 10px;"></div>
+                    </div>
+                </div>
+            </div>
+
+            <div style="margin-top: 20px;">
+                <button type="button" class="btn" id="save-report-btn" style="background: linear-gradient(135deg, #43e97b 0%, #38f9d7 100%); margin-bottom: 10px;">
+                    💾 Save Changes
+                </button>
+                <button type="button" class="btn" id="generate-images-btn">
+                    🎨 Generate WeChat Images
+                </button>
+                
+                <div id="image-generation-status" style="display: none; margin-top: 15px;"></div>
+                
+                <div id="download-section" style="display: none; margin-top: 20px;">
+                    <button type="button" class="btn" id="download-zip-btn" style="background: linear-gradient(135deg, #fa709a 0%, #fee140 100%);">
+                        📦 Download Images as ZIP
+                    </button>
+                </div>
+            </div>
+
+            <div style="margin-top: 20px;">
+                <button type="button" class="btn" id="start-new-btn" onclick="startNewCollection()">
+                    🔄 Start New Collection
+                </button>
+            </div>
+        </div>
     </div>
 
     <script>
@@ -353,8 +514,14 @@
         const reportsGenerated = document.getElementById('reports-generated');
         const logContainer = document.getElementById('log-container');
         const resultMessage = document.getElementById('result-message');
+        const reportReviewContainer = document.getElementById('report-review-container');
+        const generateImagesBtn = document.getElementById('generate-images-btn');
 
         let eventSource = null;
+        let currentReportFilename = null;
+        let currentReportData = null;  // Store the report data for editing
+        let currentEditMode = 'title';  // 'title' or 'content'
+        let currentEditingIndex = null;
 
         function addLog(message) {
             const entry = document.createElement('div');
@@ -388,9 +555,14 @@
                     resultMessage.innerHTML = `
                         <div class="success">
                             <strong>✅ Success!</strong> Generated ${data.reports_generated} news reports.
-                            Check the output directory for JSON files and Google Docs.
+                            Reports saved as JSON. Review, edit, and optionally generate WeChat images below.
                         </div>
                     `;
+                    
+                    // Show review section after a brief delay
+                    setTimeout(() => {
+                        loadLatestReport();
+                    }, 1000);
                 } else {
                     resultMessage.innerHTML = `
                         <div class="info-box">
@@ -404,6 +576,332 @@
                     eventSource = null;
                 }
             }
+        }
+
+        async function loadLatestReport() {
+            try {
+                // Get list of reports
+                const response = await fetch('/api/reports');
+                const data = await response.json();
+                
+                if (data.reports && data.reports.length > 0) {
+                    // Get the most recent report
+                    const latestReport = data.reports[0];
+                    currentReportFilename = latestReport.filename;
+                    
+                    // Fetch the report content
+                    const reportResponse = await fetch(`/api/reports/${latestReport.filename}`);
+                    const reportData = await reportResponse.json();
+                    
+                    displayReport(reportData, latestReport);
+                }
+            } catch (error) {
+                console.error('Failed to load report:', error);
+            }
+        }
+
+        function displayReport(reportData, reportMeta) {
+            // Store report data for editing
+            currentReportData = JSON.parse(JSON.stringify(reportData));  // Deep copy
+            
+            // Show report review container
+            reportReviewContainer.style.display = 'block';
+            
+            // Update summary
+            const summary = document.getElementById('report-summary');
+            summary.textContent = `${reportData.length} articles collected and translated to Chinese`;
+            
+            // Populate article selector
+            const articleSelector = document.getElementById('article-selector');
+            articleSelector.innerHTML = '<option value="">Select an article...</option>';
+            reportData.forEach((item, index) => {
+                const option = document.createElement('option');
+                option.value = index;
+                option.textContent = `${index + 1}. ${item.chinese_title.substring(0, 50)}...`;
+                articleSelector.appendChild(option);
+            });
+            
+            // Display report items (editable)
+            const detailsContainer = document.getElementById('report-details');
+            detailsContainer.innerHTML = '';
+            
+            reportData.forEach((item, index) => {
+                const itemDiv = document.createElement('div');
+                itemDiv.className = 'report-item';
+                itemDiv.setAttribute('data-index', index);
+                itemDiv.innerHTML = `
+                    <div style="margin-bottom: 10px;">
+                        <label style="display: block; font-weight: 600; margin-bottom: 5px; color: #667eea;">Chinese Title:</label>
+                        <input type="text" class="editable-title" data-index="${index}" value="${item.chinese_title.replace(/"/g, '&quot;')}" style="width: 100%; padding: 10px; border: 2px solid #e0e0e0; border-radius: 6px;">
+                    </div>
+                    <div style="margin-bottom: 10px;">
+                        <label style="display: block; font-weight: 600; margin-bottom: 5px; color: #667eea;">Chinese Content:</label>
+                        <textarea class="editable-content" data-index="${index}" style="width: 100%; padding: 10px; border: 2px solid #e0e0e0; border-radius: 6px; min-height: 150px; font-family: inherit;">${item.refined_chinese_news_report.replace(/</g, '&lt;').replace(/>/g, '&gt;')}</textarea>
+                    </div>
+                    <div style="margin-top: 10px; padding-top: 10px; border-top: 1px solid #e0e0e0;">
+                        <p style="margin: 5px 0; font-size: 0.9rem;"><strong>Original:</strong> ${item.original_title}</p>
+                        <p style="margin: 5px 0; font-size: 0.9rem;"><strong>Date:</strong> ${item.reported_publication_date}</p>
+                        <p class="url" style="margin: 5px 0;"><strong>Source:</strong> ${item.source_url}</p>
+                    </div>
+                `;
+                detailsContainer.appendChild(itemDiv);
+            });
+            
+            // Setup edit mode buttons
+            document.querySelectorAll('.edit-mode-btn').forEach(btn => {
+                btn.addEventListener('click', function() {
+                    document.querySelectorAll('.edit-mode-btn').forEach(b => b.classList.remove('active'));
+                    this.classList.add('active');
+                    currentEditMode = this.dataset.mode;
+                });
+            });
+            
+            // Setup article selector
+            articleSelector.addEventListener('change', function() {
+                const index = parseInt(this.value);
+                if (index >= 0) {
+                    currentEditingIndex = index;
+                    document.getElementById('edit-mode-selector').style.display = 'block';
+                    document.getElementById('chat-interface').style.display = 'block';
+                } else {
+                    currentEditingIndex = null;
+                    document.getElementById('edit-mode-selector').style.display = 'none';
+                    document.getElementById('chat-interface').style.display = 'none';
+                }
+            });
+            
+            // Scroll to review section
+            reportReviewContainer.scrollIntoView({ behavior: 'smooth', block: 'start' });
+        }
+
+        // Handle save report
+        const saveReportBtn = document.getElementById('save-report-btn');
+        if (saveReportBtn) {
+            saveReportBtn.addEventListener('click', async () => {
+                if (!currentReportFilename || !currentReportData) {
+                    alert('No report data to save.');
+                    return;
+                }
+                
+                // Update report data from editable fields
+                document.querySelectorAll('.editable-title').forEach(input => {
+                    const index = parseInt(input.dataset.index);
+                    currentReportData[index].chinese_title = input.value;
+                });
+                
+                document.querySelectorAll('.editable-content').forEach(textarea => {
+                    const index = parseInt(textarea.dataset.index);
+                    currentReportData[index].refined_chinese_news_report = textarea.value;
+                });
+                
+                saveReportBtn.disabled = true;
+                saveReportBtn.textContent = '⏳ Saving...';
+                
+                try {
+                    const response = await fetch('/api/save-report', {
+                        method: 'POST',
+                        headers: {
+                            'Content-Type': 'application/json'
+                        },
+                        body: JSON.stringify({
+                            report_filename: currentReportFilename,
+                            report_data: currentReportData
+                        })
+                    });
+                    
+                    const result = await response.json();
+                    
+                    if (response.ok) {
+                        saveReportBtn.textContent = '✅ Saved!';
+                        setTimeout(() => {
+                            saveReportBtn.textContent = '💾 Save Changes';
+                            saveReportBtn.disabled = false;
+                        }, 2000);
+                    } else {
+                        throw new Error(result.error || 'Failed to save');
+                    }
+                } catch (error) {
+                    alert('Failed to save: ' + error.message);
+                    saveReportBtn.disabled = false;
+                    saveReportBtn.textContent = '💾 Save Changes';
+                }
+            });
+        }
+
+        // Handle AI edit
+        const aiEditBtn = document.getElementById('ai-edit-btn');
+        if (aiEditBtn) {
+            aiEditBtn.addEventListener('click', async () => {
+                if (currentEditingIndex === null) {
+                    alert('Please select an article first.');
+                    return;
+                }
+                
+                const prompt = document.getElementById('ai-prompt-input').value.trim();
+                if (!prompt) {
+                    alert('Please enter an editing prompt.');
+                    return;
+                }
+                
+                const article = currentReportData[currentEditingIndex];
+                const textToEdit = currentEditMode === 'title' 
+                    ? article.chinese_title 
+                    : article.refined_chinese_news_report;
+                
+                aiEditBtn.disabled = true;
+                aiEditBtn.textContent = '⏳ Processing...';
+                
+                const statusDiv = document.getElementById('ai-edit-status');
+                statusDiv.style.display = 'block';
+                statusDiv.className = 'progress-status';
+                statusDiv.innerHTML = '<p>🤖 AI is editing your text...</p>';
+                
+                try {
+                    const response = await fetch('/api/ai-edit', {
+                        method: 'POST',
+                        headers: {
+                            'Content-Type': 'application/json'
+                        },
+                        body: JSON.stringify({
+                            text: textToEdit,
+                            prompt: prompt,
+                            article_index: currentEditingIndex
+                        })
+                    });
+                    
+                    const result = await response.json();
+                    
+                    if (response.ok) {
+                        // Update the appropriate field
+                        if (currentEditMode === 'title') {
+                            const titleInput = document.querySelector(`.editable-title[data-index="${currentEditingIndex}"]`);
+                            titleInput.value = result.edited_text;
+                            currentReportData[currentEditingIndex].chinese_title = result.edited_text;
+                        } else {
+                            const contentTextarea = document.querySelector(`.editable-content[data-index="${currentEditingIndex}"]`);
+                            contentTextarea.value = result.edited_text;
+                            currentReportData[currentEditingIndex].refined_chinese_news_report = result.edited_text;
+                        }
+                        
+                        statusDiv.className = 'success';
+                        statusDiv.innerHTML = '<p>✅ Text edited successfully! Review and save if you\'re happy with the changes.</p>';
+                        
+                        // Clear prompt
+                        document.getElementById('ai-prompt-input').value = '';
+                    } else {
+                        throw new Error(result.error || 'Failed to edit text');
+                    }
+                } catch (error) {
+                    statusDiv.className = 'error';
+                    statusDiv.innerHTML = `<p>❌ Error: ${error.message}</p>`;
+                } finally {
+                    aiEditBtn.disabled = false;
+                    aiEditBtn.textContent = '✨ Apply AI Edit';
+                }
+            });
+        }
+
+        // Handle image generation
+        if (generateImagesBtn) {
+            generateImagesBtn.addEventListener('click', async () => {
+                if (!currentReportFilename) {
+                    alert('No report file selected. Please run news collection first.');
+                    return;
+                }
+                
+                generateImagesBtn.disabled = true;
+                generateImagesBtn.textContent = '⏳ Generating Images...';
+                
+                const statusDiv = document.getElementById('image-generation-status');
+                statusDiv.style.display = 'block';
+                statusDiv.className = 'progress-status';
+                statusDiv.innerHTML = '<p>🎨 Generating WeChat-style images from JSON report...</p><p>⏱️ This may take 2-3 minutes...</p>';
+                
+                // Update report data from editable fields before generating
+                if (currentReportData) {
+                    document.querySelectorAll('.editable-title').forEach(input => {
+                        const index = parseInt(input.dataset.index);
+                        currentReportData[index].chinese_title = input.value;
+                    });
+                    
+                    document.querySelectorAll('.editable-content').forEach(textarea => {
+                        const index = parseInt(textarea.dataset.index);
+                        currentReportData[index].refined_chinese_news_report = textarea.value;
+                    });
+                }
+                
+                try {
+                    const response = await fetch('/api/generate-images', {
+                        method: 'POST',
+                        headers: {
+                            'Content-Type': 'application/json'
+                        },
+                        body: JSON.stringify({
+                            report_filename: currentReportFilename,
+                            report_data: currentReportData  // Send edited data
+                        })
+                    });
+                    
+                    const result = await response.json();
+                    
+                    if (response.ok) {
+                        statusDiv.className = 'success';
+                        statusDiv.innerHTML = `
+                            <strong>✅ Success!</strong>
+                            <p>${result.message}</p>
+                            <p>🎨 <strong>School:</strong> ${result.school}</p>
+                            <p>📁 <strong>Output:</strong> <code>${result.output_dir}</code></p>
+                            <p>📊 <strong>Total Images:</strong> ${result.total_images}</p>
+                            <p style="margin-top: 10px; font-size: 0.9rem;">
+                                Images are saved to the <code>wechat_images/</code> folder in your project directory.
+                                You can now use these images on WeChat, social media, or newsletters!
+                            </p>
+                        `;
+                        generateImagesBtn.textContent = '✅ Images Generated';
+                        
+                        // Show download section
+                        const downloadSection = document.getElementById('download-section');
+                        downloadSection.style.display = 'block';
+                        
+                        // Setup download button
+                        const downloadBtn = document.getElementById('download-zip-btn');
+                        downloadBtn.onclick = () => {
+                            const outputDir = result.output_dir.replace(/^wechat_images[\\\/]/, '');
+                            window.location.href = `/api/download-images/${outputDir}`;
+                        };
+                    } else {
+                        throw new Error(result.error || 'Failed to generate images');
+                    }
+                } catch (error) {
+                    statusDiv.className = 'error';
+                    statusDiv.innerHTML = `
+                        <strong>❌ Error:</strong>
+                        <p>${error.message}</p>
+                        <p style="font-size: 0.9rem; margin-top: 10px;">
+                            Make sure pyppeteer is installed: <code>pip install pyppeteer</code>
+                        </p>
+                    `;
+                    generateImagesBtn.disabled = false;
+                    generateImagesBtn.textContent = '🎨 Generate WeChat Images';
+                }
+            });
+        }
+
+        function startNewCollection() {
+            // Reset everything
+            reportReviewContainer.style.display = 'none';
+            progressContainer.classList.remove('active');
+            resultMessage.innerHTML = '';
+            currentReportFilename = null;
+            currentReportData = null;
+            currentEditingIndex = null;
+            document.getElementById('article-selector').value = '';
+            document.getElementById('edit-mode-selector').style.display = 'none';
+            document.getElementById('chat-interface').style.display = 'none';
+            document.getElementById('download-section').style.display = 'none';
+            
+            // Scroll to top
+            window.scrollTo({ top: 0, behavior: 'smooth' });
         }
 
         function startProgressStream() {
