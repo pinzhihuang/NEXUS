@@ -1,43 +1,32 @@
-# Railway Deployment Checklist
+# 🚀 Railway Deployment Guide - Project NEXUS
 
-## Files Created for Railway Deployment
+## Quick Deploy to Railway
 
-✅ **Procfile** - Defines how Railway starts your web server
-- Uses gunicorn with 4 workers and 2 threads
-- Binds to 0.0.0.0:$PORT (Railway provides PORT automatically)
+### Step 1: Prepare Files (Already Done ✅)
 
-✅ **runtime.txt** - Specifies Python version (3.11.9)
+These files configure Railway deployment:
+- `nixpacks.toml` - Installs Chromium for image generation
+- `railway.json` - Build and deploy configuration  
+- `Procfile` - Server startup command
+- `runtime.txt` - Python version
+- `requirements.txt` - Python dependencies
 
-✅ **railway.json** - Railway build and deploy configuration
-- Automatically installs pyppeteer and Chromium for image generation
-- Configures restart policy for reliability
+### Step 2: Push to GitHub
 
-✅ **.env.example** - Template for environment variables
-- Shows all required and optional variables
-- Use this as a reference when setting up Railway environment
-
-✅ **app.py** - Updated for production deployment
-- Reads PORT from environment variable
-- Binds to 0.0.0.0 for Railway
-- Checks FLASK_ENV for production/development mode
-
-## Deployment Steps
-
-### 1. Push to GitHub
 ```bash
 git add .
-git commit -m "Add Railway deployment configuration"
+git commit -m "Add Railway deployment with Chromium support"
 git push origin main
 ```
 
-### 2. Deploy on Railway
+### Step 3: Deploy on Railway
 
-1. Go to [Railway.app](https://railway.app) and sign in
+1. Go to [railway.app](https://railway.app) and sign in with GitHub
 2. Click "New Project" → "Deploy from GitHub repo"
 3. Select your repository
-4. Railway will auto-detect the configuration
+4. Railway will auto-detect configuration and deploy
 
-### 3. Set Environment Variables
+### Step 4: Set Environment Variables
 
 In Railway Dashboard → Your Project → Variables, add:
 
@@ -46,79 +35,116 @@ In Railway Dashboard → Your Project → Variables, add:
 OPENROUTER_API_KEY=sk-or-v1-YOUR_KEY_HERE
 ```
 
-**Optional (for advanced features):**
+**Optional:**
 ```
 GOOGLE_API_KEY=YOUR_GOOGLE_API_KEY
 CUSTOM_SEARCH_ENGINE_ID=YOUR_PSE_ID
-TARGET_GOOGLE_DOC_ID=YOUR_DOC_ID
-SECRET_KEY=random-secret-key-change-this
+SECRET_KEY=random-secret-key
 ```
 
-### 4. Deploy!
+### Step 5: Test Your Deployment
 
-Railway will automatically:
-- Install Python 3.11.9
-- Install all dependencies from requirements.txt
-- Install Chromium via pyppeteer
-- Start the web server using gunicorn
+1. Railway provides a URL like: `https://your-app.railway.app`
+2. Test image generation: `/api/debug/chromium` should show Chromium installed
+3. Run a news collection job and generate images
 
-### 5. Access Your App
+---
 
-Railway will provide a URL like: `https://your-app.railway.app`
+## What's Configured for Railway
 
-## What Changed for Railway
+### Chromium Installation (`nixpacks.toml`)
+```toml
+[phases.setup]
+nixPkgs = ["...", "chromium"]
+aptPkgs = ["chromium", "chromium-driver"]
+```
 
-### app.py
-- Now reads `PORT` from environment (Railway requirement)
-- Binds to `0.0.0.0` instead of `127.0.0.1` (for external access)
-- Checks `FLASK_ENV` to disable debug mode in production
+This ensures Chromium is available for WeChat-style image generation.
 
-### Build Process
-- `railway.json` ensures Chromium is installed for image generation
-- `Procfile` uses gunicorn instead of Flask development server
-- Multiple workers/threads for better performance
+### Build Configuration (`railway.json`)
+- Uses Nixpacks builder (auto-detects Python)
+- Starts with Gunicorn (production server)
+- 4 workers, 2 threads per worker
+- 120-second timeout for long-running requests
+- Auto-restart on failure
 
-### Environment Variables
-- All secrets moved to environment variables (not in code)
-- `.env.example` provides clear documentation
-- Railway Dashboard makes it easy to manage variables
+### Debug Endpoint
+Visit `/api/debug/chromium` to verify Chromium installation:
+```json
+{
+  "auto_detected_path": "/nix/store/.../bin/chromium",
+  "chromium_version": "Chromium 120.0.6099.109",
+  "executables": {
+    "chromium": "/nix/store/.../bin/chromium"
+  }
+}
+```
 
-## Verification
-
-After deployment, test these features:
-1. ✅ Homepage loads at your Railway URL
-2. ✅ Can start a news collection job
-3. ✅ Can view and edit generated reports
-4. ✅ Can generate WeChat-style images
-5. ✅ Can download images as ZIP
+---
 
 ## Troubleshooting
 
-### Check Railway Logs
-Railway Dashboard → Your Project → Deployments → View Logs
+### "Browser closed unexpectedly" Error
 
-Common issues:
-- **Missing OPENROUTER_API_KEY**: Add it in Variables tab
-- **Chromium not found**: Check build logs for pyppeteer-install
-- **Port binding error**: Ensure app.py uses PORT from environment
-- **Import errors**: Check all dependencies in requirements.txt
+**Cause:** Chromium not installed properly
 
-### Need Help?
-- Railway Docs: https://docs.railway.app
-- Railway Discord: https://discord.gg/railway
-- Project Issues: Create an issue in your GitHub repo
+**Solution:**
+1. Check Railway build logs for "installing 'chromium'"
+2. Visit `/api/debug/chromium` to verify Chromium path
+3. If not found, set environment variable:
+   ```
+   PUPPETEER_EXECUTABLE_PATH=/nix/store/HASH/bin/chromium
+   ```
+
+### Build Fails with "pip: command not found"
+
+**Cause:** Custom nixpacks.toml interfering with Python setup
+
+**Solution:** The current `nixpacks.toml` uses `"..."` to keep Railway's auto-detected Python setup and just adds Chromium.
+
+### Images Not Generating
+
+**Check these:**
+1. Chromium installed: `/api/debug/chromium`
+2. Railway logs show: `[puppeteer] Using system browser`
+3. No timeout errors (increase timeout if needed)
+
+---
 
 ## Cost Estimate
 
-Railway Pricing (as of 2024):
-- **Free Tier**: $5 credit/month (enough for testing)
-- **Hobby Plan**: $5/month + usage
-- **Pro Plan**: $20/month + usage
+Railway Pricing:
+- **Free Trial:** $5 credit
+- **Hobby Plan:** $5/month + usage
 
-This app uses:
-- Minimal compute (web server is lightweight)
-- No database needed
-- Most cost comes from OpenRouter API calls
+Estimated costs:
+- **Light use** (weekly jobs): ~$2-3/month
+- **Medium use** (daily jobs): ~$5-8/month  
+- **Heavy use** (multiple daily): ~$10-15/month
 
-Estimated monthly cost: $5-15 depending on usage
+---
 
+## Performance Tips
+
+1. **Reduce workers** if memory limited:
+   ```
+   --workers 2 --threads 2
+   ```
+
+2. **Lower image quality** for faster generation:
+   ```python
+   device_scale=2  # instead of 4
+   ```
+
+3. **Monitor usage** in Railway dashboard
+
+---
+
+## Need Help?
+
+- Check Railway deployment logs
+- Check Railway application logs  
+- Test `/api/debug/chromium` endpoint
+- Enable verbose logging: `WXIMG_DEBUG=1`
+
+**You're now deployed! 🎉**

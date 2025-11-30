@@ -1,0 +1,24 @@
+version: '3.8'
+
+services:
+  nexus-bot:
+    build: .
+    ports:
+      - "8000:8000"
+    environment:
+      - OPENROUTER_API_KEY=${OPENROUTER_API_KEY}
+      - RECENCY_THRESHOLD_DAYS=${RECENCY_THRESHOLD_DAYS:-7}
+      - MAX_FINAL_REPORTS=${MAX_FINAL_REPORTS:-20}
+      - DEFAULT_OUTPUT_DIR=news_reports
+    volumes:
+      - ./news_reports:/app/news_reports
+      - ./prompt_logs:/app/prompt_logs
+      - ./.env:/app/.env
+    restart: unless-stopped
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8000/"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 40s
+

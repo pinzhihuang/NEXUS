@@ -216,10 +216,17 @@ Activity log with emojis and timestamps
 
 ## Next Steps
 
-### To Start Using Now:
+### To Start Using Now (Local):
 ```bash
 python launch_web_interface.py
 ```
+
+### To Deploy to Cloud:
+See `DEPLOYMENT.md` for comprehensive cloud deployment guides:
+- ☁️ Tencent Cloud (Recommended for China)
+- 🚂 Railway (Easy international deployment)
+- 🐳 Docker/Docker Compose
+- And more options!
 
 ### To Learn More:
 - Read this entire file (you're almost done!)
