@@ -8,11 +8,11 @@ echo "All environment variables:"
 env | grep -i port || echo "No PORT-related variables found"
 echo "========================="
 
-# Run Chromium setup script
+# Run Chromium setup script and source it to export variables
 if [ -f "railway_setup.sh" ]; then
     echo ""
     echo "=== Running Chromium Setup ==="
-    bash railway_setup.sh
+    source railway_setup.sh
     echo "========================="
     echo ""
 fi
@@ -22,6 +22,7 @@ PORT=${PORT:-8080}
 
 echo "Starting Gunicorn on port $PORT"
 echo "Binding to: 0.0.0.0:${PORT}"
+echo "PUPPETEER_EXECUTABLE_PATH=${PUPPETEER_EXECUTABLE_PATH:-not set}"
 
 # Start Gunicorn with proper configuration
 exec gunicorn app:app \

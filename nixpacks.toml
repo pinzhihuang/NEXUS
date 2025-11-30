@@ -5,4 +5,13 @@
 nixPkgs = ["...", "chromium", "nss", "freetype", "harfbuzz", "ca-certificates", "ttf-freefont", "fontconfig"]
 
 [phases.install]
-cmds = ["chromium --version || echo 'Chromium not found in PATH'", "which chromium || echo 'which: chromium not found'", "ls -la /nix/store/*/bin/chromium 2>/dev/null || echo 'No chromium in /nix/store'"]
+cmds = [
+  "echo 'Verifying Chromium installation...'",
+  "which chromium || echo 'WARNING: chromium not in PATH'",
+  "chromium --version || echo 'WARNING: chromium --version failed'",
+  "ls -la /nix/store/*/bin/chromium 2>/dev/null || echo 'WARNING: No chromium in /nix/store'",
+  "find /nix/store -name chromium -type f -executable 2>/dev/null | head -5 || echo 'WARNING: find chromium failed'"
+]
+
+[start]
+cmd = "bash start.sh"
