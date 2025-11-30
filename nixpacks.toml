@@ -6,6 +6,17 @@ nixPkgs = ["...", "chromium"]
 
 [phases.install]
 cmds = [
+  "echo '=== Verifying Chromium ==='",
+  "which chromium || echo 'WARNING: chromium not in PATH'",
+  "chromium --version || echo 'WARNING: chromium --version failed'",
+  "echo '========================='",
+]
+
+[start]
+cmd = "gunicorn app:app --bind 0.0.0.0:${PORT:-8080} --workers 2 --threads 2 --timeout 120 --access-logfile - --error-logfile - --log-level info"
+
+[phases.install]
+cmds = [
   "echo '=================================================='",
   "echo '🔍 NIXPACKS BUILD - Verifying Chromium Installation'",
   "echo '=================================================='",

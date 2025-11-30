@@ -1,32 +1,26 @@
 #!/bin/bash
-# Railway startup script - ensures PORT is properly used and Chromium is configured
+# Railway startup script
 
-# Debug: Show all environment variables related to PORT
-echo "=== Environment Check ==="
-echo "PORT variable: '${PORT}'"
-echo "All environment variables:"
-env | grep -i port || echo "No PORT-related variables found"
-echo "========================="
+set -e
 
-# Run Chromium setup script and source it to export variables
-if [ -f "railway_setup.sh" ]; then
-    echo ""
-    echo "=== Running Chromium Setup ==="
-    source railway_setup.sh
-    echo "========================="
-    echo ""
+echo "=== Railway Startup ==="
+echo "PORT: ${PORT:-8080}"
+echo "PUPPETEER_EXECUTABLE_PATH: ${PUPPETEER_EXECUTABLE_PATH:-not set}"
+
+# Try to find and set Chromium path
+if command -v chromium &> /dev/null; then
+    export PUPPETEER_EXECUTABLE_PATH=$(which chromium)
+    echo "Found Chromium: $PUPPETEER_EXECUTABLE_PATH"
+    $PUPPETEER_EXECUTABLE_PATH --version || echo "Chromium version check failed"
+else
+    echo "WARNING: Chromium not found in PATH"
 fi
 
-# Use Railway's PORT or default to 8080 (Railway's expected port)
-PORT=${PORT:-8080}
+echo "======================="
 
-echo "Starting Gunicorn on port $PORT"
-echo "Binding to: 0.0.0.0:${PORT}"
-echo "PUPPETEER_EXECUTABLE_PATH=${PUPPETEER_EXECUTABLE_PATH:-not set}"
-
-# Start Gunicorn with proper configuration
+# Start Gunicorn
 exec gunicorn app:app \
-  --bind "0.0.0.0:${PORT}" \
+  --bind "0.0.0.0:${PORT:-8080}" \
   --workers 2 \
   --threads 2 \
   --timeout 120 \
