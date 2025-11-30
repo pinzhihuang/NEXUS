@@ -93,6 +93,7 @@ def _guess_chrome_path() -> str | None:
     for key in ("PUPPETEER_EXECUTABLE_PATH", "PYPPETEER_EXECUTABLE_PATH", "CHROME_PATH"):
         p = os.environ.get(key)
         if p and Path(p).exists():
+            print(f"[chrome_path] Found via env var {key}: {p}")
             return p
     
     import sys
@@ -109,6 +110,18 @@ def _guess_chrome_path() -> str | None:
             r"C:\Program Files\Microsoft\Edge\Application\msedge.exe",
         ]
     else:  # linux (Railway, Docker, etc.)
+        # Special handling for Nix store paths (Railway/Nixpacks) - check FIRST
+        nix_chromium_paths = []
+        try:
+            import glob
+            nix_chromium_paths = glob.glob("/nix/store/*/bin/chromium")
+            if nix_chromium_paths:
+                print(f"[chrome_path] Found {len(nix_chromium_paths)} Nix Chromium paths")
+                for path in nix_chromium_paths:
+                    print(f"[chrome_path]   - {path}")
+        except Exception as e:
+            print(f"[chrome_path] Error globbing Nix paths: {e}")
+        
         candidates = [
             shutil.which("chromium-browser"),  # Nixpacks/Railway
             shutil.which("chromium"),          # Nixpacks/Railway
@@ -117,22 +130,21 @@ def _guess_chrome_path() -> str | None:
             "/usr/bin/chromium-browser",
             "/usr/bin/chromium",
             "/usr/bin/google-chrome",
-            "/nix/store/*/bin/chromium",  # Nixpacks pattern (check with glob)
         ]
         
-        # Special handling for Nix store paths (Railway/Nixpacks)
-        try:
-            import glob
-            nix_chromium = glob.glob("/nix/store/*/bin/chromium")
-            if nix_chromium:
-                candidates.insert(0, nix_chromium[0])
-        except Exception:
-            pass
+        # Prepend Nix paths to candidates
+        if nix_chromium_paths:
+            candidates = nix_chromium_paths + candidates
     
+    print(f"[chrome_path] Checking {len(candidates)} candidate paths...")
     for c in candidates:
         if c and Path(c).exists():
+            print(f"[chrome_path] ✅ Found working path: {c}")
             return c
+        elif c:
+            print(f"[chrome_path] ❌ Path doesn't exist: {c}")
     
+    print("[chrome_path] ⚠️  No Chrome/Chromium found in any standard location")
     return None
 
 # ================= 渲染 HTML（正文） =================
@@ -194,13 +206,27 @@ async def _html_to_png(html: str, out_path: Path, page_width: int, device_scale:
         handleSIGHUP=False,
         args=[
             "--no-sandbox",
+            "--disable-setuid-sandbox",
             "--disable-dev-shm-usage",
             "--disable-gpu",
             "--disable-web-security",
             "--allow-file-access-from-files",
-            "--disable-setuid-sandbox",  # Additional Railway/container flag
             "--disable-dev-profile",
             "--single-process",  # Helps in constrained environments
+            "--disable-software-rasterizer",
+            "--disable-extensions",
+            "--disable-background-networking",
+            "--disable-default-apps",
+            "--disable-sync",
+            "--disable-translate",
+            "--hide-scrollbars",
+            "--metrics-recording-only",
+            "--mute-audio",
+            "--no-first-run",
+            "--safebrowsing-disable-auto-update",
+            "--disable-crash-reporter",
+            "--disable-logging",
+            "--disable-permissions-api",
         ],
     )
     
