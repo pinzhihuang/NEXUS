@@ -1,20 +1,13 @@
 # Nixpacks configuration for Railway deployment
-# Adds Chromium and required dependencies for headless browser
+# Adds Chromium for headless browser support
 
 [phases.setup]
+# Add chromium to the base Nix packages
+# "..." means keep all default packages that Nixpacks would include
 nixPkgs = ["...", "chromium"]
 
-[phases.install]
-cmds = [
-  "echo '=== BUILD: Installing Python dependencies ==='",
-  "pip install --no-cache-dir -r requirements.txt",
-  "echo '=== BUILD: Verifying Chromium ==='",
-  "which chromium && echo 'BUILD: Chromium found in PATH' || echo 'BUILD ERROR: chromium not in PATH'",
-  "chromium --version || echo 'BUILD ERROR: chromium --version failed'",
-  "echo '=== BUILD: Verifying gunicorn ==='",
-  "which gunicorn && gunicorn --version || echo 'BUILD ERROR: gunicorn not found'",
-  "echo '=== BUILD: Complete ==='",
-]
+# Don't override [phases.install] - let Nixpacks auto-detect Python and run pip install
+# Nixpacks will automatically run: pip install -r requirements.txt
 
 [start]
 cmd = "bash -x start.sh 2>&1"
