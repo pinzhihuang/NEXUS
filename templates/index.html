@@ -581,22 +581,44 @@
         async function loadLatestReport() {
             try {
                 // Get list of reports
+                console.log('Fetching reports list...');
                 const response = await fetch('/api/reports');
+                
+                if (!response.ok) {
+                    throw new Error(`HTTP ${response.status}: ${response.statusText}`);
+                }
+                
                 const data = await response.json();
+                console.log('Reports data:', data);
+                
+                if (data.error) {
+                    console.error('Server error:', data.error);
+                    return;
+                }
                 
                 if (data.reports && data.reports.length > 0) {
                     // Get the most recent report
                     const latestReport = data.reports[0];
                     currentReportFilename = latestReport.filename;
+                    console.log('Loading report:', latestReport.filename);
                     
                     // Fetch the report content
                     const reportResponse = await fetch(`/api/reports/${latestReport.filename}`);
+                    
+                    if (!reportResponse.ok) {
+                        throw new Error(`HTTP ${reportResponse.status}: ${reportResponse.statusText}`);
+                    }
+                    
                     const reportData = await reportResponse.json();
+                    console.log('Report loaded successfully');
                     
                     displayReport(reportData, latestReport);
+                } else {
+                    console.log('No reports available');
                 }
             } catch (error) {
                 console.error('Failed to load report:', error);
+                console.error('Error details:', error.message, error.stack);
             }
         }
 

@@ -431,38 +431,52 @@ def progress_stream():
 @app.route('/api/reports', methods=['GET'])
 def list_reports():
     """List all generated reports."""
-    reports_dir = config.DEFAULT_OUTPUT_DIR
-    
-    if not os.path.exists(reports_dir):
-        return jsonify({'reports': []})
-    
-    reports = []
-    for filename in os.listdir(reports_dir):
-        if filename.endswith('.json'):
-            filepath = os.path.join(reports_dir, filename)
-            stat = os.stat(filepath)
-            reports.append({
-                'filename': filename,
-                'size': stat.st_size,
-                'modified': datetime.fromtimestamp(stat.st_mtime).isoformat(),
-                'url': f'/api/reports/{filename}'
-            })
-    
-    reports.sort(key=lambda x: x['modified'], reverse=True)
-    return jsonify({'reports': reports})
+    try:
+        reports_dir = config.DEFAULT_OUTPUT_DIR
+        
+        if not os.path.exists(reports_dir):
+            return jsonify({'reports': []})
+        
+        reports = []
+        for filename in os.listdir(reports_dir):
+            if filename.endswith('.json'):
+                filepath = os.path.join(reports_dir, filename)
+                stat = os.stat(filepath)
+                reports.append({
+                    'filename': filename,
+                    'size': stat.st_size,
+                    'modified': datetime.fromtimestamp(stat.st_mtime).isoformat(),
+                    'url': f'/api/reports/{filename}'
+                })
+        
+        reports.sort(key=lambda x: x['modified'], reverse=True)
+        return jsonify({'reports': reports})
+    except Exception as e:
+        print(f"Error in list_reports: {e}", file=sys.stderr)
+        import traceback
+        traceback.print_exc()
+        return jsonify({'error': str(e), 'reports': []}), 500
 
 @app.route('/api/reports/<filename>', methods=['GET'])
 def get_report(filename):
     """Get a specific report."""
-    filepath = os.path.join(config.DEFAULT_OUTPUT_DIR, filename)
-    
-    if not os.path.exists(filepath):
-        return jsonify({'error': 'Report not found'}), 404
-    
-    with open(filepath, 'r', encoding='utf-8') as f:
-        data = json.load(f)
-    
-    return jsonify(data)
+    try:
+        # Sanitize filename to prevent directory traversal
+        filename = os.path.basename(filename)
+        filepath = os.path.join(config.DEFAULT_OUTPUT_DIR, filename)
+        
+        if not os.path.exists(filepath):
+            return jsonify({'error': 'Report not found'}), 404
+        
+        with open(filepath, 'r', encoding='utf-8') as f:
+            data = json.load(f)
+        
+        return jsonify(data)
+    except Exception as e:
+        print(f"Error in get_report: {e}", file=sys.stderr)
+        import traceback
+        traceback.print_exc()
+        return jsonify({'error': str(e)}), 500
 
 @app.route('/api/save-report', methods=['POST'])
 def save_report():
