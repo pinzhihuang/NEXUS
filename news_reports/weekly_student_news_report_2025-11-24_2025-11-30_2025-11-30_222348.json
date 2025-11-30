@@ -1,0 +1,21 @@
+[
+  {
+    "news_id": 1,
+    "original_title": "City Scoop: Trump awed in meeting with Mamdani, and other top stories across NYC",
+    "source_url": "https://nyunews.com/news/2025/11/24/trump-mamdani-meeting-border-czar-escalates-immigration-nyc-subway-wire-thief-delays-subways/",
+    "source_method": "archive_scan",
+    "reported_publication_date": "2025-11-24",
+    "verification_details": {
+      "url": "https://nyunews.com/news/2025/11/24/trump-mamdani-meeting-border-czar-escalates-immigration-nyc-subway-wire-thief-delays-subways/",
+      "publication_date_str": "2025-11-24",
+      "is_recent": "Within range (from OpenRouter) (2025-11-24 to 2025-11-30)",
+      "is_within_range": true,
+      "is_relevant": "Relevant",
+      "article_type_assessment": "News article"
+    },
+    "english_summary": "Federal immigration enforcement operations will escalate in New York City due to its sanctuary policies, according to White House immigration advisor Tom Homan. This announcement follows a recent incident on Canal Street where nine people were detained, and on Saturday, U.S. Immigration and Customs Enforcement (ICE) agents reappeared there during a vendor's arrest. The vendor, described by the Department of Homeland Security as an undocumented immigrant, was released from NYPD custody before ICE could detain him. In separate news affecting daily commutes, MTA officials reported a thief stealing copper wires caused over 700 subway delays last month. The thefts, which occurred near a station in the Bronx, caused significant disruptions on the 1, 2, 3, 4, 5, and 6 lines during evening rush hours.",
+    "chinese_title": "联邦与纽约警方冲突，ICE将加大执法力度",
+    "refined_chinese_news_report": "白宫移民顾问汤姆·霍曼 (Tom Homan) 近日宣布，联邦移民执法行动将在纽约市升级。霍曼明确指出，此举是针对纽约市现行的“庇护城市”政策。\n该声明发布前不久，联邦与地方执法部门在曼哈顿坚尼街 (Canal Street) 发生了一起冲突。上周六，美国移民及海关执法局 (ICE) 的执法人员准备拘留一名摊贩，却发现纽约市警察局已提前将其释放。根据国土安全部的说法，该摊贩是一名无证移民。\n这并非ICE近期在该地区的唯一行动。就在摊贩事件发生前，ICE已在坚尼街附近拘留了另外九人，显示出联邦执法机构在该地区的活动正变得更加频繁。",
+    "processing_timestamp": "2025-11-30T22:23:48.784371"
+  }
+]

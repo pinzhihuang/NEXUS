@@ -1,0 +1,21 @@
+[
+  {
+    "news_id": 1,
+    "original_title": "City Scoop: Trump awed in meeting with Mamdani, and other top stories across NYC",
+    "source_url": "https://nyunews.com/news/2025/11/24/trump-mamdani-meeting-border-czar-escalates-immigration-nyc-subway-wire-thief-delays-subways/",
+    "source_method": "archive_scan",
+    "reported_publication_date": "2025-11-24",
+    "verification_details": {
+      "url": "https://nyunews.com/news/2025/11/24/trump-mamdani-meeting-border-czar-escalates-immigration-nyc-subway-wire-thief-delays-subways/",
+      "publication_date_str": "2025-11-24",
+      "is_recent": "Within range (from OpenRouter) (2025-11-24 to 2025-11-30)",
+      "is_within_range": true,
+      "is_relevant": "Relevant",
+      "article_type_assessment": "News article"
+    },
+    "english_summary": "The White House’s immigration advisor, Tom Homan, has announced that federal immigration enforcement operations will escalate in New York City due to its sanctuary city policies. This declaration follows a recent incident where U.S. Immigration and Customs Enforcement (ICE) agents appeared on Canal Street during the arrest of a counterfeit goods vendor. Although President Donald Trump stated he will not deploy the National Guard to the city, the increased enforcement presence was explicitly confirmed by Homan. This development comes after a surprisingly productive meeting between President Trump and the city’s new Mayor-elect, Zohran Mamdani, where they pledged to cooperate on city issues. On a separate note affecting daily life, MTA officials reported that a copper wire thief caused over 700 subway delays last month. These thefts led to significant service disruptions on the 1, 2, 3, 4, 5, and 6 lines during evening rush hours.",
+    "chinese_title": "白宫确认执法升级，纽约市成重点目标",
+    "refined_chinese_news_report": "白宫移民顾问汤姆·霍曼 (Tom Homan) 近日宣布，由于纽约市的“庇护城市”政策，联邦将在该市升级移民执法行动。霍曼明确指出，此举是直接回应纽约市现行的相关政策。\n在此声明发布前，美国移民及海关执法局 (ICE) 的执法人员曾出现在运河街 (Canal Street)，参与了一起针对假冒商品摊贩的逮捕行动。尽管总统特朗普表示不会向纽约市部署国民警卫队，但霍曼确认，执法人员的部署规模将会增加。\n这一动态发生于特朗普总统与纽约市新当选市长佐兰·马姆达尼 (Zohran Mamdani) 的一次会面之后。据称，两人在会谈中承诺将就城市问题进行合作。",
+    "processing_timestamp": "2025-11-30T22:25:19.593684"
+  }
+]
