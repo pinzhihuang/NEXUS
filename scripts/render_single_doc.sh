@@ -25,13 +25,26 @@ DOC_ARG="${1:-}"
 if [[ -z "${DOC_ARG}" ]]; then
   read -rp "请输入子文档链接或 docId: " DOC_ARG
 fi
+NO_IMAGES_FLAG=""
 if [[ -n "${2:-}" ]]; then
+  # 如果第二个参数是 "no-images" 或 "--no-images"，则跳过图片提取
+  if [[ "${2}" == "no-images" ]] || [[ "${2}" == "--no-images" ]]; then
+    NO_IMAGES_FLAG="--no-images"
+  else
   BRAND_COLOR="$2"
+  fi
+fi
+# 第三个参数可能是品牌色（如果第二个是 --no-images）
+if [[ -n "${3:-}" ]] && [[ -z "${NO_IMAGES_FLAG}" ]]; then
+  BRAND_COLOR="$3"
 fi
 
 echo "[*] Rendering single doc: ${DOC_ARG}"
 if [[ -n "${BRAND_COLOR}" ]]; then
   echo "[*] Override brand_color=${BRAND_COLOR}"
+fi
+if [[ -n "${NO_IMAGES_FLAG}" ]]; then
+  echo "[*] Skipping image extraction (--no-images)"
 fi
 
 # 6) 调用单文档渲染脚本（仍走 scripts/gdoc_to_wechat_images.py）
@@ -41,4 +54,5 @@ python3 scripts/gdoc_to_wechat_images.py \
   --page-width "${PAGE_WIDTH}" \
   --device-scale "${DEVICE_SCALE}" \
   --top-n "${TOP_N}" \
-  ${BRAND_COLOR:+--brand-color "${BRAND_COLOR}"}
+  ${BRAND_COLOR:+--brand-color "${BRAND_COLOR}"} \
+  ${NO_IMAGES_FLAG}
