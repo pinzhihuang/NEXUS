@@ -4,6 +4,16 @@ Project NEXUS is an automated system for discovering, verifying, summarizing, an
 
 ## Feature Log
 
+[2025-12-20]
+- **Enhanced Rendering & Image Logic**:
+  - **Smart Image Discovery**: Automatically fetches cover images from source URLs (meta tags) if no inline image exists in the Google Doc.
+  - **`--no-images` Mode**: New flag to skip all image extraction/fetching for faster text-only rendering.
+- **Automation & Robustness**:
+  - **Flexible Date Parsing**: Master Doc now supports multiple date formats (e.g., `YYYY.MM.DD - YYYY.MM.DD`) and performs logical date range matching.
+- **Shell & CLI Updates**:
+  - **Extended Wrappers**: `render_single_doc.sh` now supports passing `no-images` as an argument.
+  - **Parameter Support**: Python scripts now accept `--body-size` and `--no-images` as command-line arguments.
+    
 [2025-10-29]
 - Google Docs → WeChat news renderer landed:
   - **Batch renderer** `scripts/gdoc_master_latest_to_images.py` (parse master weekly index; batch render per-school docs).
