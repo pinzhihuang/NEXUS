@@ -1,6 +1,7 @@
 # news_bot/processing/article_handler.py
 
 import requests
+import os
 from bs4 import BeautifulSoup
 from datetime import datetime, date, timedelta
 import json
@@ -58,6 +59,71 @@ def fetch_and_extract_text(url: str) -> str | None:
                     article_body = el
                     print(f"DEBUG: thestudentnews extractor using selector: '{css}'")
                     break
+        
+        # --- Domain-specific extraction: LA Times (robust against paywall/teasers) ---
+        if not article_body and 'latimes.com' in domain:
+            # 1) Try JSON-LD 'articleBody' which LA Times provides with full text
+            try:
+                import json as _json
+                article_text_from_jsonld = None
+                for script in soup.find_all('script', type='application/ld+json'):
+                    try:
+                        data = _json.loads(script.string or "")
+                    except Exception:
+                        continue
+                    # JSON-LD may be a dict or a list of dicts
+                    candidates = data if isinstance(data, list) else [data]
+                    for item in candidates:
+                        if not isinstance(item, dict):
+                            continue
+                        item_type = item.get('@type') or item.get('type')
+                        if isinstance(item_type, list):
+                            item_type = next((t for t in item_type if isinstance(t, str)), None)
+                        if item_type in {'NewsArticle', 'Article'}:
+                            body = item.get('articleBody') or item.get('text')
+                            if body and len(body.split()) > 100:
+                                article_text_from_jsonld = body
+                                break
+                    if article_text_from_jsonld:
+                        break
+                if article_text_from_jsonld:
+                    cleaned = "\n".join([ln.strip() for ln in str(article_text_from_jsonld).splitlines() if ln.strip()])
+                    print("DEBUG: LA Times extractor used JSON-LD articleBody")
+                    return cleaned
+            except Exception as _e_lat_json:
+                print(f"DEBUG: LA Times JSON-LD parse failed: {_e_lat_json}")
+                pass
+            
+            # 2) Fallback to AMP version (?outputType=amp) which is static HTML
+            try:
+                from urllib.parse import urlsplit, urlunsplit, parse_qsl, urlencode
+                parts = urlsplit(url)
+                query_pairs = dict(parse_qsl(parts.query, keep_blank_values=True))
+                if 'outputType' not in query_pairs:
+                    query_pairs['outputType'] = 'amp'
+                amp_url = urlunsplit((parts.scheme, parts.netloc, parts.path, urlencode(query_pairs), parts.fragment))
+                if amp_url != url:
+                    print(f"DEBUG: Fetching LA Times AMP page: {amp_url}")
+                    amp_resp = requests.get(amp_url, headers=headers, timeout=config.URL_FETCH_TIMEOUT)
+                    if amp_resp.ok:
+                        amp_soup = BeautifulSoup(amp_resp.content, 'html.parser')
+                        # Prefer focused article containers; otherwise read from <main> or <article>
+                        amp_selectors = [
+                            '[data-qa="article-body"]',
+                            'div.article-body',
+                            'article .article-body',
+                            'article',
+                            'main'
+                        ]
+                        for css in amp_selectors:
+                            el = amp_soup.select_one(css)
+                            if el:
+                                article_body = el
+                                print(f"DEBUG: LA Times AMP extractor using selector: '{css}'")
+                                break
+            except Exception as _e_lat_amp:
+                print(f"DEBUG: LA Times AMP fetch failed: {_e_lat_amp}")
+                pass
 
         # --- Generic extraction (ordered: specific containers first, 'article' last) ---
         if not article_body:
@@ -272,24 +338,30 @@ Your response (exactly 3 lines as specified above):
             date_source_log = "(no date found)"
 
     # Determine recency based on the final_date_str and configured date range
+    # Allow disabling via env var for temporary bypass during debugging or quota limits
+    disable_range_check = os.getenv("DISABLE_DATE_RANGE_CHECK", "").lower() in {"1", "true", "yes"}
     is_recent_status = "Date unclear"
     is_within_range = False  # Track if date is actually within range
-    
-    if final_date_str.lower() == "date not found" or "error" in final_date_str.lower():
-        is_recent_status = f"Date unclear {date_source_log}"
+
+    if disable_range_check:
+        is_recent_status = "Range check disabled"
+        is_within_range = True
     else:
-        try:
-            publication_date_dt = datetime.strptime(final_date_str, "%Y-%m-%d").date()
-            if publication_date_dt >= start_date and publication_date_dt <= end_date:
-                is_recent_status = f"Within range {date_source_log} ({start_date} to {end_date})"
-                is_within_range = True
-            elif publication_date_dt > end_date:
-                is_recent_status = f"After range {date_source_log} (after {end_date})"
-            else:
-                is_recent_status = f"Before range {date_source_log} (before {start_date})"
-        except ValueError:
-            is_recent_status = f"Date unparsable {date_source_log}"
-            print(f"Warning: Could not parse final date '{final_date_str}' for {article_url}.")
+        if final_date_str.lower() == "date not found" or "error" in final_date_str.lower():
+            is_recent_status = f"Date unclear {date_source_log}"
+        else:
+            try:
+                publication_date_dt = datetime.strptime(final_date_str, "%Y-%m-%d").date()
+                if publication_date_dt >= start_date and publication_date_dt <= end_date:
+                    is_recent_status = f"Within range {date_source_log} ({start_date} to {end_date})"
+                    is_within_range = True
+                elif publication_date_dt > end_date:
+                    is_recent_status = f"After range {date_source_log} (after {end_date})"
+                else:
+                    is_recent_status = f"Before range {date_source_log} (before {start_date})"
+            except ValueError:
+                is_recent_status = f"Date unparsable {date_source_log}"
+                print(f"Warning: Could not parse final date '{final_date_str}' for {article_url}.")
         
     final_results = {
         "url": article_url,

@@ -1,5 +1,5 @@
 import re
-from datetime import datetime, date
+from datetime import datetime, date, timedelta
 from urllib.parse import urljoin
 import requests
 from bs4 import BeautifulSoup
@@ -31,6 +31,80 @@ def _month_iter(start_date: date, end_date: date):
             m = 1
             y += 1
 
+def ubc_scan_ubyssey_pages_for_date_range() -> list[dict]:
+    school = school_config.SCHOOL_PROFILES['ubc']
+    start_date, end_date = config.get_news_date_range()
+    page_url = "https://ubyssey.ca/news/"
+    print(f"\n--- Scanning Ubyssey Pages for {start_date} to {end_date} ---")
+    
+    found_articles = []
+    processed_urls = set()
+    
+    try:
+        headers = {
+            'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/91.0.4472.124 Safari/537.36'
+        }
+        resp = requests.get(page_url, headers=headers, timeout=config.URL_FETCH_TIMEOUT)
+        if resp.status_code == 404:
+            print(f"  Page not found: {page_url}")
+
+        resp.raise_for_status()
+        soup = BeautifulSoup(resp.content, 'html.parser')
+        
+        
+        for article in soup.find_all('article'):
+            headline = article.find('h3', class_='o-article__headline')
+            if not headline:
+                continue
+            title = headline.get_text(strip=True) or 'Untitled'
+            link = headline.find('a', href=True)
+            if not link:
+                continue
+            href = link['href']
+            abs_url = urljoin(page_url, href)
+            if 'ubyssey.ca/news/' not in abs_url:
+                continue
+            if abs_url in processed_urls:
+                continue
+             
+            url_date = article.get("time")
+            if url_date is None:
+                continue
+            if url_date.startswith('today'):
+                url_date = datetime.now().strftime('%Y-%m-%d')
+            elif url_date.startswith('yesterday'):
+                url_date = (datetime.now() - timedelta(days=1)).strftime('%Y-%m-%d')
+            else:
+                # format: Dec. 2, 2025 -> 2025-12-02
+                url_date = extract_date_from_url(url_date)
+                
+            
+            # Compare dates only after converting to a date object
+            try:
+                article_date = datetime.strptime(url_date, '%Y-%m-%d').date()
+                if article_date < start_date:
+                    break_signal = True                       
+                if article_date < start_date or article_date > end_date:
+                    print(start_date, url_date, end_date)
+                    continue
+            except ValueError:
+                # If parsing fails, keep the article without filtering by date
+                pass       
+            
+            found_articles.append({
+                'title': title,
+                'url': abs_url,
+                'snippet': title,
+                'url_date': url_date
+            })
+            processed_urls.add(abs_url)
+            
+    except requests.exceptions.RequestException as e:
+        print(f"  Error accessing UBC Ubyssey page {page_url}: {e}")
+    except Exception as e:
+        print(f"  Error processing UBC Ubyssey page {page_url}: {e}")
+
+    return found_articles
 
 def ubc_scan_category_pages_for_date_range() -> list[dict]:
     school = school_config.SCHOOL_PROFILES['ubc']
@@ -206,22 +280,10 @@ def ubc_scan_archive_pages_for_date_range() -> list[dict]:
     #     except Exception as e:
     #         print(f"  Error processing UBC archive {archive_url}: {e}")
     
-    found_articles.append({
-        "title": "Nitobe Memorial Garden: A garden that bridges worlds",
-        "url": "https://news.ubc.ca/2025/10/nitobe-memorial-garden-bridges-worlds/",
-        "snippet": "Nitobe Memorial Garden: A garden that bridges worlds",
-        "url_date": "2025-10-21"
-    })
-    # found_articles.append({
-    #     "title": "How to welcome newcomer students to schools in Canada — and why everyone benefits",
-    #     "url": "https://news.ubc.ca/2025/10/how-to-welcome-newcomer-students/",
-    #     "snippet": "How to welcome newcomer students to schools in Canada — and why everyone benefits",
-    #     "url_date": "2025-10-16"
-    # })
 
     print(f"UBC monthly archives yielded {len(found_articles)} articles in range")
     print(f"DEBUG: UBC found articles: {found_articles}")
-    found_articles.extend(ubc_scan_category_pages_for_date_range())
+    found_articles.extend(ubc_scan_category_pages_for_date_range() + ubc_scan_ubyssey_pages_for_date_range())
     print(f"DEBUG: UBC found articles after category scan: {found_articles}")
     return found_articles
 
