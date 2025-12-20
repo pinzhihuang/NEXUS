@@ -44,41 +44,8 @@ except ModuleNotFoundError:
     spec.loader.exec_module(g2w)  # type: ignore
 
 # ---------------- Google API 读取 ----------------
-from google.oauth2.credentials import Credentials
-from google_auth_oauthlib.flow import InstalledAppFlow
-from google.auth.transport.requests import Request
-from googleapiclient.discovery import build
-
-SCOPES = [
-    "https://www.googleapis.com/auth/documents.readonly",
-    "https://www.googleapis.com/auth/drive.readonly",
-]
-ROOT = REPO_ROOT
-CREDENTIALS = ROOT / "credentials.json"
-TOKEN = ROOT / "token.pickle"
-
-
-def _get_creds() -> Credentials:
-    import pickle
-    creds: Optional[Credentials] = None
-    if TOKEN.exists():
-        with open(TOKEN, "rb") as f:
-            creds = pickle.load(f)
-    if not creds or not creds.valid:
-        if creds and creds.expired and creds.refresh_token:
-            creds.refresh(Request())
-        else:
-            flow = InstalledAppFlow.from_client_secrets_file(str(CREDENTIALS), SCOPES)
-            creds = flow.run_local_server(port=0)
-        with open(TOKEN, "wb") as f:
-            pickle.dump(creds, f)
-    return creds
-
-
-def _read_doc(doc_id: str) -> dict:
-    service = build("docs", "v1", credentials=_get_creds())
-    return service.documents().get(documentId=doc_id).execute()
-
+# 逻辑已移至 gdoc_to_wechat_images.py，此处仅保留必要的导入
+# ...
 
 def _resolve_doc_id(url_or_id: str) -> str:
     s = (url_or_id or "").strip()
@@ -88,9 +55,11 @@ def _resolve_doc_id(url_or_id: str) -> str:
 
 
 # ---------------- 周标题解析 ----------------
-# 形如：2025.10.19 - 10.25
+# 支持两种格式：
+# 1. 2025.10.19 - 10.25 (第二个日期省略年份)
+# 2. 2025.11.16 - 2025.11.22 (两个日期都包含完整年份)
 WEEK_RE = re.compile(
-    r"(?P<y>\d{4})\.(?P<m1>\d{1,2})\.(?P<d1>\d{1,2})\s*-\s*(?P<m2>\d{1,2})\.(?P<d2>\d{1,2})"
+    r"(?P<y>\d{4})\.(?P<m1>\d{1,2})\.(?P<d1>\d{1,2})\s*-\s*(?:(?P<y2>\d{4})\.)?(?P<m2>\d{1,2})\.(?P<d2>\d{1,2})"
 )
 
 @dataclass
@@ -102,7 +71,7 @@ class WeekBlock:
 
 
 def _extract_week_title_if_any(paragraph: dict) -> Optional[str]:
-    """从段落文本中匹配 '2025.10.19 - 10.25' 这种标题。"""
+    """从段落文本中匹配 '2025.10.19 - 10.25' 或 '2025.11.16 - 2025.11.22' 这种标题。"""
     txt = []
     for el in paragraph.get("elements", []):
         tr = el.get("textRun", {})
@@ -117,8 +86,10 @@ def _extract_week_title_if_any(paragraph: dict) -> Optional[str]:
 
 def _parse_week_dates(week_title: str) -> Tuple[date, date]:
     """
-    解析 '2025.10.19 - 10.25' → (2025-10-19, 2025-10-25)
-    若跨年（如 12 -> 1），自动把结束年 +1。
+    解析周标题日期，支持两种格式：
+    1. '2025.10.19 - 10.25' → (2025-10-19, 2025-10-25)
+    2. '2025.11.16 - 2025.11.22' → (2025-11-16, 2025-11-22)
+    若第二个日期省略年份且跨年（如 12 -> 1），自动把结束年 +1。
     """
     m = WEEK_RE.search(week_title)
     if not m:
@@ -128,7 +99,14 @@ def _parse_week_dates(week_title: str) -> Tuple[date, date]:
     d1 = int(m.group("d1"))
     m2 = int(m.group("m2"))
     d2 = int(m.group("d2"))
-    y2 = y if m2 >= m1 else y + 1
+    
+    # 如果第二个日期有年份，直接使用；否则根据月份判断是否跨年
+    y2_str = m.group("y2")
+    if y2_str:
+        y2 = int(y2_str)
+    else:
+        # 第二个日期省略年份，需要判断是否跨年
+        y2 = y if m2 >= m1 else y + 1
     return date(y, m1, d1), date(y2, m2, d2)
 
 
@@ -268,7 +246,7 @@ def _process_one_child_doc(doc_url: str, *, out_base: Path, page_width: int,
         try:
             if debug:
                 print(f"    -> 获取子文档：{doc_url} (try {attempt})")
-            doc = g2w._read_doc(doc_id)
+            doc = g2w.fetch_doc(doc_id)
             doc_title = (doc.get("title") or "").strip()
 
             brand_color, school_name = g2w.pick_brand_from_title(doc_title)
@@ -287,32 +265,16 @@ def _process_one_child_doc(doc_url: str, *, out_base: Path, page_width: int,
 
             g2w.render_to_images(
                 items,
+                doc_title=doc_title,
                 out_dir=str(out_dir),
                 page_width=page_width,
                 device_scale=device_scale,
-                title_size=22.093076923,
-                body_size=20.0,
+                title_size=22.5,
+                body_size=22.5,
                 brand_color=brand_color,
                 school_name=school_name,
+                top_n=top_n,
             )
-
-            if top_n and top_n > 0:
-                urls, seen = [], set()
-                for it in items:
-                    u = (it.get("source_url") or "").strip()
-                    if u and u not in seen:
-                        seen.add(u)
-                        urls.append(u)
-                if urls:
-                    g2w.make_sources_page(
-                        urls[: top_n],
-                        out_dir=str(out_dir),
-                        filename="00_资料来源.png",
-                        top_n=min(top_n, len(urls)),
-                        page_width=page_width,
-                        device_scale=device_scale,
-                        brand_color=brand_color,
-                    )
             return
         except Exception as e:
             last_err = e
@@ -335,7 +297,7 @@ def main():
     args = ap.parse_args()
 
     master_id = _resolve_doc_id(args.master_doc)
-    master = _read_doc(master_id)
+    master = g2w.fetch_doc(master_id)
     master_title = (master.get("title") or "").strip()
     print(f"总表标题：{master_title}")
 
@@ -355,10 +317,21 @@ def main():
     target: Optional[WeekBlock] = None
     if args.week_title.strip():
         wanted_norm = re.sub(r"\s+", " ", args.week_title.strip())
+        # 首先尝试精确匹配
         for w in weeks:
             if re.sub(r"\s+", " ", w.title.strip()) == wanted_norm:
                 target = w
                 break
+        # 如果精确匹配失败，尝试解析日期并比较日期范围
+        if not target:
+            try:
+                wanted_start, wanted_end = _parse_week_dates(wanted_norm)
+                for w in weeks:
+                    if w.start == wanted_start and w.end == wanted_end:
+                        target = w
+                        break
+            except ValueError:
+                pass  # 如果无法解析，继续使用精确匹配的结果（None）
         if not target:
             print(f"没有找到匹配的周标题：{args.week_title}")
             print("可用周标题：")

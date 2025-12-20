@@ -6,12 +6,12 @@
 ## Overview
 
 - **Shell entrypoints**:
-  - `script/render_latest_week.sh`: One-click render of ALL schools for the latest week found in the master doc.
-  - `script/render_week.sh`: One-click render for either the latest week or an explicitly named week title.
-  - `script/render_single_doc.sh`: One-click render for a single Google Doc (one school’s weekly doc).
+  - `scripts/render_latest_week.sh`: One-click render of ALL schools for the latest week found in the master doc.
+  - `scripts/render_week.sh`: One-click render for either the latest week or an explicitly named week title.
+  - `scripts/render_single_doc.sh`: One-click render for a single Google Doc (one school’s weekly doc).
 - **Python engines**:
-  - `script/gdoc_master_latest_to_images.py`: Parses the master weekly index, finds the target week’s per‑school docs, and batch-calls the single-doc renderer.
-  - `script/gdoc_to_wechat_images.py`: Renders a single weekly doc into multiple WeChat-style images.
+  - `scripts/gdoc_master_latest_to_images.py`: Parses the master weekly index, finds the target week’s per‑school docs, and batch-calls the single-doc renderer.
+  - `scripts/gdoc_to_wechat_images.py`: Renders a single weekly doc into multiple WeChat-style images.
 
 Output is written under `wechat_images/<School_Weekly>/` with consistent file naming. Templates/layout are preserved. For UCD, the left bar alternates blue/yellow for odd/even items automatically.
 
@@ -46,32 +46,33 @@ pip install google-api-python-client google-auth google-auth-oauthlib \
 
 ## What each script does
 
-### script/gdoc_to_wechat_images.py (single-doc renderer)
+### scripts/gdoc_to_wechat_images.py (single-doc renderer)
 
 - Reads one Google Doc and splits news items by Heading 1 sections.
-- Title image priority: inline image in the doc; otherwise, fetched from the source page (og:image, twitter:image, etc.).
+- **Improved Image Logic**: Priority is given to inline images in the doc. If missing, it automatically attempts to fetch a cover from the source page (`og:image`, `twitter:image`, etc.). If neither exists, it renders without a cover.
 - Brand color and school output subfolder are inferred from the doc title; can be overridden.
+- **Folders**: Automatically handles path normalization to prevent double-nested folders (e.g., `EMORY_Weekly/EMORY_Weekly/`).
+- **Cleanup**: Automatically creates and deletes temporary JSON files in the system temp directory during execution.
 - UCD special handling: left bar alternates blue `#022851` (odd) and yellow `#FFBF00` (even).
 - Optional “资料来源” page (`00_资料来源.png`) lists top N unique source links.
 
 Key options:
 
 ```bash
-python script/gdoc_to_wechat_images.py \
+python scripts/gdoc_to_wechat_images.py \
   --doc <docId_or_full_URL> \
   --out wechat_images \
   --page-width 540 \
   --device-scale 4 \
-  --title-size 22.093076923 \
-  --body-size 20 \
   --top-n 10 \
-  --brand-color "#990000"   # optional override
+  --no-images              # optional: skip all image fetching/rendering
+  --brand-color "#990000"  # optional override
 ```
 
-### script/gdoc_master_latest_to_images.py (master → batch renderer)
+### scripts/gdoc_master_latest_to_images.py (master → batch renderer)
 
 - Reads a weekly master Google Doc that contains per‑school doc links.
-- Detects week blocks like `YYYY.MM.DD - MM.DD` (e.g., `2025.10.12 - 10.18`).
+- **Flexible Date Parsing**: Supports both `YYYY.MM.DD - MM.DD` and `YYYY.MM.DD - YYYY.MM.DD` formats.
 - Extracts links from paragraphs, tables, and TOC; supports Smart Chips and rich links inside inline objects.
 - Normalizes links by docId and de‑duplicates.
 - Chooses the latest week by default, or a specified week via `--week-title`.
@@ -80,7 +81,7 @@ python script/gdoc_to_wechat_images.py \
 Key options:
 
 ```bash
-python script/gdoc_master_latest_to_images.py \
+python scripts/gdoc_master_latest_to_images.py \
   --master-doc <master_docId_or_URL> \
   --out wechat_images \
   --page-width 540 \
@@ -99,23 +100,25 @@ All wrappers automatically:
 - activate `.venv` if present
 - export `PYTHONPATH` as repo root (so imports work)
 
-Make scripts executable (first time only). Alternatively, you can always run via `bash script/<name>.sh` without `chmod`.
+Make scripts executable (first time only). Alternatively, you can always run via `bash scripts/<name>.sh` without `chmod`.
 
 ```bash
-chmod +x script/*.sh
+chmod +x scripts/*.sh
 ```
 
-### script/render_single_doc.sh
+### scripts/render_single_doc.sh
 
-Render one weekly doc. If no argument is provided, the script will prompt for it. You may optionally pass a brand color as the second arg.
+Render one weekly doc. If no argument is provided, the scripts will prompt for it.
 
 ```bash
-# Usage
-script/render_single_doc.sh <docId_or_URL>
+# Basic Usage
+scripts/render_single_doc.sh <docId_or_URL>
 
-# Example
-script/render_single_doc.sh "https://docs.google.com/document/d/XXXX/edit"
+# Skip images (faster)
+scripts/render_single_doc.sh <docId_or_URL> no-images
 
+# Custom Brand Color
+scripts/render_single_doc.sh <docId_or_URL> "#990000"
 ```
 
 Environment overrides:
@@ -131,10 +134,10 @@ Render either the latest week or an exact week title from the master doc. If no 
 
 ```bash
 # Latest week
-script/render_week.sh latest
+scripts/render_week.sh latest
 
 # Exact week
-script/render_week.sh exact "2025.10.12 - 10.18"
+scripts/render_week.sh exact "2025.10.12 - 10.18"
 ```
 
 Defaults used inside:
@@ -142,16 +145,16 @@ Defaults used inside:
 - `OUT_DIR=wechat_images`, `PAGE_WIDTH=540`, `DEVICE_SCALE=4`, `TOP_N=10`
 
 To change the master doc URL, edit `MASTER_DOC` at the top of:
-- `script/render_week.sh`
-- `script/render_latest_week.sh`
+- `scripts/render_week.sh`
+- `scripts/render_latest_week.sh`
 
 
-### script/render_latest_week.sh
+### scripts/render_latest_week.sh
 
 Convenience wrapper to render the latest week from the configured master doc (same defaults as `render_week.sh latest`).
 
 ```bash
-script/render_latest_week.sh
+scripts/render_latest_week.sh
 ```
 
 ---
@@ -176,6 +179,8 @@ wechat_images/
 
 ## Tips 
 
-- Ensure each news item in the weekly doc begins with Heading 1; otherwise parsing will skip it.
-- If a cover image is missing in the doc and the source page has no usable meta image, the item is rendered without a cover.
-- If you update scopes or rotate credentials, delete `token.pickle` and re‑run.
+- **Heading 1**: Ensure each news item in the weekly doc begins with Heading 1; otherwise parsing will skip it.
+- **Images**: If a cover image is missing in the doc and the source page has no usable meta image, the item is rendered without a cover. Use `--no-images` to speed up rendering if images are not needed.
+- **Authentication**: The script now handles expired or revoked tokens automatically. It will prompt you to re-authorize in your browser if `token.pickle` is no longer valid.
+- **Date Matching**: When using `render_week.sh exact`, the script first tries an exact string match and then falls back to a logical date range comparison, allowing it to match `2025.11.16 - 11.22` even if you type `2025.11.16 - 2025.11.22`.
+- **Cleanup**: Temporary files used for the "Sources" page are automatically cleaned up from the system temp directory.

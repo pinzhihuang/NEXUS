@@ -14,7 +14,8 @@
     --page-width:  {{ page_width|default(540) }}px;   /* 画布宽（可被 Python 覆盖） */
     --page-height: {{ min_height|default(2200) }}px;  /* 最小高，导出后仍按内容裁底 */
     --pad: 30px;                                      /* 左右/上下固定留白 */
-    --title-size: {{ title_size|default(22.093076923) }}px;     /* 标题字号（可按需覆盖） */
+    --title-size: {{ title_size|default(22.5) }}px;     /* 标题字号（可按需覆盖） */
+    --body-size: {{ body_size|default(22.5) }}px;             /* 正文字号 */
     --column-width: calc(var(--page-width) - 2 * var(--pad));   /* 列宽 */
 
     /* 品牌色（由 Python 注入 brand_color；默认 NYU 紫） */
@@ -69,7 +70,7 @@
   .title-marker .label{
     font:10px/1 'Minion Pro','MinionPro-Regular','Times New Roman',serif;
     color: var(--brand-color);
-    letter-spacing:.2px;
+    letter-spacing:2.5px;
   }
 
   /* 标题 */
@@ -80,8 +81,9 @@
     font-variation-settings:'wght' 500;
     font-synthesis:none;
     font-size:var(--title-size);
-    line-height:1.10;
+    line-height:1.20;
     text-align:left;
+    letter-spacing:2.25px;  /* 标题字间距，可调整（如：0.5px, 1px, -0.5px） */
   }
 
   /* 首图（可选） */
@@ -102,11 +104,12 @@
     font-family:'SourceHanSerifSC', serif;
     font-weight:400;
     font-variation-settings:'wght' 400;
-    font-size:20px;
+    font-size: var(--body-size);
     line-height:1.4;
     text-indent:0;
     overflow-wrap:anywhere;
     word-break:break-word;
+    letter-spacing:2.25px;  /* 正文字间距，可调整（如：0.5px, 1px, -0.5px） */
   }
   .content p:last-child{ margin-bottom:0; }
 </style>

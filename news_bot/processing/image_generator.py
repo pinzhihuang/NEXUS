@@ -16,7 +16,6 @@ import markdown2
 from PIL import Image, ImageChops
 
 # ----------------- 路径与参数 -----------------
-# 这里的 parents[1] 指向 news_bot/ 目录；模板放在 news_bot/templates 下
 ROOT_DIR = Path(__file__).resolve().parents[1]
 TEMPLATE_DIR       = ROOT_DIR / "templates"
 TEMPLATE_ARTICLE   = TEMPLATE_DIR / "weixin_article_template.html"
@@ -39,9 +38,7 @@ def _ensure_article_template() -> Template:
     if not TEMPLATE_ARTICLE.exists():
         raise FileNotFoundError(
             f"[image_generator] 模板不存在: {TEMPLATE_ARTICLE}\n"
-            "需要: news_bot/templates/weixin_article_template.html（模板变量："
-            "font_src/page_width/min_height/title_size/body_size/brand_color/left_bar_color/"
-            "title/body/credits/marker_label/cover_image/cover_caption）"
+            "需要: news_bot/templates/weixin_article_template.html"
         )
     return Template(TEMPLATE_ARTICLE.read_text(encoding="utf-8"))
 
@@ -221,18 +218,17 @@ def _render_html(
     cover_caption: str = "",
     page_width: int = DEFAULT_PAGE_WIDTH,
     min_height: int = DEFAULT_MIN_HEIGHT,
-    title_size: float = 22.093076923,
-    body_size: float = 20.0,
+    title_size: float = 22.5,
+    body_size: float = 22.5,
     marker_label: str = "",
     brand_color: str = "#57068c",
-    left_bar_color: str | None = None,   # ★ 关键：把交替色也传到模板
+    left_bar_color: str | None = None,   # 交替色传入模板
 ) -> str:
     tpl = _ensure_article_template()
     body_html = _to_html(content)
     cover_src = _embed_image_as_data_uri(cover_image) if cover_image else ""
     font_src = _font_data_uri() or (FONTS_DIR / "SourceHanSerifSC-VF.otf").resolve().as_uri()
 
-    # 可选调试：设置环境变量 WXIMG_DEBUG=1 可打印颜色
     if os.environ.get("WXIMG_DEBUG"):
         print(f"[image_generator] brand_color={brand_color} left_bar_color={left_bar_color}")
 
@@ -249,7 +245,7 @@ def _render_html(
         cover_image=cover_src,
         cover_caption=cover_caption,
         brand_color=brand_color,
-        left_bar_color=left_bar_color,   # ★ 关键：传给模板（CSS 用 var(--left-bar-color)）
+        left_bar_color=left_bar_color,
     )
 
 # ================= HTML → PNG =================
@@ -424,14 +420,14 @@ def generate_image_from_article(
     page_width: int = DEFAULT_PAGE_WIDTH,
     min_height: int = DEFAULT_MIN_HEIGHT,
     device_scale: int = DEFAULT_DEVICE_SCALE,
-    title_size: float = 22.093076923,
-    body_size: float = 20.0,
+    title_size: float = 22.5,
+    body_size: float = 22.5,
     crop_bottom_keep: int = CROP_BOTTOM_KEEP,
     crop_keep_left: int = CROP_KEEP_LEFT,
     crop_keep_right: int = CROP_KEEP_RIGHT,
     crop_keep_top: int = CROP_KEEP_TOP,
     brand_color: str = "#57068c",
-    left_bar_color: str | None = None,   # ★ 关键：从上游接受交替色
+    left_bar_color: str | None = None,   # 从上游接受交替色
 ) -> str:
     """Generate a WeChat-style article image from text content."""
     import threading
@@ -455,7 +451,7 @@ def generate_image_from_article(
         body_size=body_size,
         marker_label=marker_label.strip(),
         brand_color=brand_color,
-        left_bar_color=left_bar_color,   # ★ 关键：继续传到模板
+        left_bar_color=left_bar_color,
     )
     
     print("[generate_image_from_article] HTML rendered, calling _run_async_thread_safe...")
@@ -471,32 +467,77 @@ def generate_image_from_article(
     print(f"[generate_image_from_article] ✅ Complete: {out}")
     return str(out)
 
-# =============== 对外函数：参考来源页 =================
+# ----------------- 多来源提取工具 -----------------
+_URL_RE = re.compile(r"https?://[^\s\)\]\}，。；、]+", re.IGNORECASE)
+
+def _extract_urls_from_report(r: dict) -> list[str]:
+    """从一篇 report 中抓取尽可能多的来源链接，顺序去重。"""
+    candidates: list[str] = []
+
+    # 结构化字段
+    if isinstance(r.get("source_urls"), list):
+        candidates.extend([u for u in r["source_urls"] if isinstance(u, str)])
+    if isinstance(r.get("source_url"), str):
+        candidates.append(r["source_url"])
+
+    v = r.get("verification_details") or {}
+    if isinstance(v.get("url"), str):
+        candidates.append(v["url"])
+    if isinstance(v.get("urls"), list):
+        candidates.extend([u for u in v["urls"] if isinstance(u, str)])
+
+    # 从常见文本字段扫描 http(s) 链接
+    for fld in [
+        "final_cn_report", "cn_report", "zh_report",
+        "en_summary", "summary", "body", "content",
+    ]:
+        txt = r.get(fld) or ""
+        if isinstance(txt, str) and txt:
+            candidates.extend(_URL_RE.findall(txt))
+
+    # 去重（保序）
+    cleaned: list[str] = []
+    seen: set[str] = set()
+    for u in candidates:
+        u = u.strip().strip("，。,.;:)]}>）】」』")
+        if u and u not in seen:
+            seen.add(u)
+            cleaned.append(u)
+    return cleaned
+
+# =============== 对外函数：参考来源页（修复版） =================
 def make_reference_image_from_reports(
     sorted_json_path: str,
     output_dir: str = "wechat_images",
     filename: str = "00_资料来源.png",
-    top_n: int = 5,
+    top_n: int = 5,                     # top_n=每周选取前N篇；<=0 表示不限量
     page_width: int = 540,
     device_scale: int = 4,
     template_path: str | None = None,
     min_height: int = DEFAULT_MIN_HEIGHT,
     brand_color: str = "#57068c",
 ) -> str:
+    """把选中的若干篇报告里的所有来源链接汇总成一张图片。
+       - 支持一篇报告多个来源
+       - top_n<=0 时包含全部报告
+       - 去重但保持出现顺序
+    """
     out_dir = Path(output_dir)
     out_dir.mkdir(parents=True, exist_ok=True)
     out_path = out_dir / filename
 
     with open(sorted_json_path, "r", encoding="utf-8") as f:
-        reports = json.load(f)
-    reports = (reports or [])[:top_n]
+        reports = json.load(f) or []
 
-    urls: List[str] = []
-    for r in reports:
-        url = (r.get("source_url") or "") or (r.get("verification_details", {}).get("url") or "")
-        url = (url or "").strip()
-        if url:
-            urls.append(url)
+    subset = reports if top_n <= 0 else reports[:top_n]
+
+    urls: list[str] = []
+    seen: set[str] = set()
+    for r in subset:
+        for u in _extract_urls_from_report(r):
+            if u and u not in seen:
+                seen.add(u)
+                urls.append(u)
 
     font_src = _font_data_uri() or (FONTS_DIR / "SourceHanSerifSC-VF.otf").resolve().as_uri()
     tpl = _ensure_reference_template(template_path)
