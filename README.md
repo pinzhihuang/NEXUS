@@ -7,6 +7,7 @@ Project NEXUS is an automated system for discovering, verifying, summarizing, an
 [2025-12-20]
 - **Enhanced Rendering & Image Logic**:
   - **Smart Image Discovery**: Automatically fetches cover images from source URLs (meta tags) if no inline image exists in the Google Doc.
+  - **Multi-Reference Support**: Now extracts and tracks all hyperlinks within a news item, ensuring multiple sources are credited on the reference page.
   - **`--no-images` Mode**: New flag to skip all image extraction/fetching for faster text-only rendering.
 - **Automation & Robustness**:
   - **Flexible Date Parsing**: Master Doc now supports multiple date formats (e.g., `YYYY.MM.DD - YYYY.MM.DD`) and performs logical date range matching.
