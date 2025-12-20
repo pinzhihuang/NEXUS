@@ -9,6 +9,84 @@ from bs4 import BeautifulSoup # For parsing category pages
 from urllib.parse import urljoin # For resolving relative URLs
 import re # For regular expressions
 
+
+def ucd_enterprise_news_pages_for_links() -> list[dict]:
+    start_date, end_date = config.get_news_date_range()
+    print(f"\n--- Scanning Enterprise News Pages for {start_date} to {end_date} ---")
+    found_articles = []
+    processed_urls = set()
+    
+    urls = [
+        "https://www.davisenterprise.com/news/crime_fire_courts/",
+        "https://www.davisenterprise.com/news/city_government/",
+        "https://www.davisenterprise.com/news/state_government/",
+    ]
+    for url in urls:
+        try:
+            headers = {
+                'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/91.0.4472.124 Safari/537.36'
+            }
+            response = requests.get(url, headers=headers, timeout=config.URL_FETCH_TIMEOUT)
+                
+            response.raise_for_status()
+            soup = BeautifulSoup(response.content, 'html.parser')
+
+            articles = soup.find_all('article')
+            for article in articles:
+                # 选取标题链接（尽量使用稳定类名，兜底任何 a[href]）
+                a = (article.select_one('a.tnt-asset-link[href]') or
+                     article.select_one('a.item__anchor[href]') or
+                     article.find('a', href=True))
+                if not a:
+                    continue
+                title = (a.get_text(strip=True) or a.get('aria-label') or a.get('title') or '').strip()
+                href = (a.get('href') or '').strip()
+                if not href:
+                    continue
+                abs_url = urljoin(response.url, href)
+                if abs_url in processed_urls:
+                    continue
+
+                # 提取日期：优先 <time datetime="...">，否则从 URL 兜底
+                article_date = None
+                url_date_str = None
+                time_tag = article.select_one('time[datetime]')
+                if time_tag and time_tag.has_attr('datetime'):
+                    try:
+                        dt = datetime.fromisoformat(time_tag['datetime'].replace('Z', '+00:00'))
+                        article_date = dt.date()
+                        url_date_str = article_date.strftime('%Y-%m-%d')
+                    except Exception:
+                        article_date = None
+                        url_date_str = None
+                if article_date is None:
+                    extracted = extract_date_from_url(abs_url)
+                    if extracted:
+                        url_date_str = extracted
+                        try:
+                            article_date = datetime.strptime(extracted, "%Y-%m-%d").date()
+                        except ValueError:
+                            article_date = None
+
+                # 按窗口过滤（仅当我们获得了 article_date 才过滤）
+                if article_date:
+                    if article_date < start_date or article_date > end_date:
+                        continue
+
+                found_articles.append({
+                    "title": title or "Untitled",
+                    "url": abs_url,
+                    "snippet": title or "Untitled",
+                    "url_date": url_date_str
+                })
+                processed_urls.add(abs_url)
+        except Exception as e:
+            print(f"Error fetching UC Davis Enterprise news page {url}: {e}")
+            continue
+        
+    return found_articles
+
+
 def ucd_scan_category_pages_for_links() -> list[dict[str, str]]:
     """
     Scans configured category pages for direct links to articles.
@@ -186,5 +264,6 @@ def ucd_scan_category_pages_for_links() -> list[dict[str, str]]:
     
     # Sort articles by date if available (newest first for consistency)
     found_articles.sort(key=lambda x: x.get('url_date', '9999-99-99'), reverse=True)
+    found_articles.extend(ucd_enterprise_news_pages_for_links()[:7])
     
     return found_articles
