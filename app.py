@@ -265,6 +265,8 @@ def run_news_bot_async(school_id, start_date_str, end_date_str, max_reports):
                 
                 final_news_reports.append({
                     "news_id": len(final_news_reports) + 1,
+                    "school_name": chosen_school['school_name'],
+                    "school_id": school_id,
                     "original_title": original_title,
                     "source_url": article_url,
                     "source_method": source_method,
@@ -589,6 +591,17 @@ def generate_wechat_images():
         # Import the direct JSON to images converter
         from scripts.json_to_wechat_images import json_to_wechat_images
         
+        # Try to get school from report data for explicit school parameter
+        school_name = None
+        if report_data and isinstance(report_data, list) and len(report_data) > 0:
+            school_name = report_data[0].get('school_name')
+        elif report_path.exists():
+            # Load from file to get school name
+            with open(report_path, 'r', encoding='utf-8') as f:
+                file_data = json.load(f)
+                if file_data and len(file_data) > 0:
+                    school_name = file_data[0].get('school_name')
+        
         # Generate images directly from JSON
         result = json_to_wechat_images(
             json_path=json_path,
@@ -598,6 +611,7 @@ def generate_wechat_images():
             title_size=22.093076923,
             body_size=20.0,
             top_n_sources=10,
+            school_override=school_name,  # Pass explicit school if available
         )
         
         # Clean up temp file if used

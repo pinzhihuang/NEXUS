@@ -832,13 +832,46 @@
                     return;
                 }
                 
+                // Validate report data before generating images
+                if (!currentReportData || !Array.isArray(currentReportData)) {
+                    alert('Invalid report data. Please try reloading the page.');
+                    return;
+                }
+                
+                if (currentReportData.length === 0) {
+                    alert('No articles to generate images for.');
+                    return;
+                }
+                
+                // Count valid articles (with Chinese content and no failure markers)
+                const validArticles = currentReportData.filter(article => {
+                    if (!article) return false;
+                    const title = (article.chinese_title || '').trim();
+                    const content = (article.refined_chinese_news_report || '').trim();
+                    
+                    // Check minimum content length and no failure markers
+                    return title.length > 2 && 
+                           content.length > 10 &&
+                           !title.includes('失败') &&
+                           !content.includes('失败') &&
+                           !title.toLowerCase().includes('failed') &&
+                           !content.toLowerCase().includes('failed');
+                });
+                
+                if (validArticles.length === 0) {
+                    alert(`Cannot generate images: No valid articles with Chinese translations found.\nTotal articles: ${currentReportData.length}\nValid articles: 0\n\nPlease ensure articles have been properly translated to Chinese.`);
+                    return;
+                }
+                
+                console.log(`Image generation: ${validArticles.length} valid articles out of ${currentReportData.length} total`);
+                
                 generateImagesBtn.disabled = true;
                 generateImagesBtn.textContent = '⏳ Generating Images...';
                 
                 const statusDiv = document.getElementById('image-generation-status');
                 statusDiv.style.display = 'block';
                 statusDiv.className = 'progress-status';
-                statusDiv.innerHTML = '<p>🎨 Generating WeChat-style images from JSON report...</p><p>⏱️ This may take 2-3 minutes...</p>';
+                statusDiv.innerHTML = `<p>🎨 Generating WeChat-style images from JSON report...</p><p>⏱️ This may take 2-3 minutes...</p><p>📊 Valid articles to process: ${validArticles.length}</p>`;
                 
                 // Update report data from editable fields before generating
                 if (currentReportData) {
