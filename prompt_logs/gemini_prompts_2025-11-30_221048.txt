@@ -1,0 +1,2259 @@
+================================================================================
+Gemini API Prompts Log
+Run started: 2025-11-30T22:10:48.666157
+================================================================================
+
+
+================================================================================
+Prompt #1 - verify_article_with_gemini
+Timestamp: 2025-11-30T22:10:57.527598
+
+Context:
+  article_url: https://nyunews.com/news/2025/11/24/trump-mamdani-meeting-border-czar-escalates-immigration-nyc-subway-wire-thief-delays-subways/
+  publication_date: 2025-11-24
+  school: New York University (NYU)
+  article_text_length: 4825
+
+Prompt:
+--------------------------------------------------------------------------------
+You are a news article analyst. Your task is to extract key metadata from the article text.
+
+## Requirements
+
+### Accuracy & Factuality (Highest Priority)
+- Extract dates ONLY from the article text or URL - do not infer or guess dates
+- Base article type classification strictly on the content structure and purpose
+- Do not add information not present in the article
+
+### Task
+Analyze the article and provide your analysis in EXACTLY three lines, each starting with the specified prefix:
+
+1. Publication Date: [Review the article text AND the Article URL (https://nyunews.com/news/2025/11/24/trump-mamdani-meeting-border-czar-escalates-immigration-nyc-subway-wire-thief-delays-subways/). Extract the most prominent date, ideally the publication date. Format YYYY-MM-DD or 'Date not found'. No other explanation.]
+2. Article Type: [Is this primarily a news article reporting on events/facts, or an opinion/blog/event listing/announcement? Answer ONLY 'News article', 'Opinion/Blog', 'Event/Announcement', or 'Type unclear'. No other explanation.]
+3. Analysis Notes: [Brief internal notes if needed, or 'N/A'. This line is for your process.]
+
+## Input Data
+
+--- Article Text (first 4825 characters) ---
+Mayor-elect Zohran Mamdani said he had a “productive meeting” with President Donald Trump in the Oval Office Friday afternoon, nearly three weeks after hishistoric victory.
+The two pledged to work together to address the city’s affordability and housing crises, consistent with Mamdani’s campaign platform, and Trump called it a “good sign” that Mamdani plans to keep police commissioner Jessica Tisch. The mayor-elect also vowed to maintain the city’s 35,000 police officers and hire additional social workers to respond to mental health calls, which are typically directed to the New York City Police Department.
+Mamdani said New Yorkers are growing “tired of seeing our tax dollars fund endless wars,” citing Israel’s ongoing siege in Gaza and that the country should “follow through” on international human rights promises. When reporters asked whether Trump would stop Mamdani from arresting Israeli Prime Minister Benjamin Netenyahu if he were to come to New York City, Trump skirted the question and said that although Mamdani’s views are a little “out there,” there is room for change.
+The meeting follows months of traded insults between Trump and Mamdani, with the president repeatedly calling the democratic socialist a “radical left lunatic” and a “communist.” When a reporter asked Mamdani if he still considers Trump a fascist,he upheldthe statement after Trump laughed and told him, “That’s okay, you can just say it.”
+Trump’sapparent fondnessfor Mamdani shocked officials, reporters and citizens across the political spectrum, and has become the subject ofwidespread internet jokes. Despite Trump previously threatening to withhold federal funds from New York City if Mamdani was elected, the Queens native said that he would live in a Mamdani-run city after the meeting.
+“The better he does, the happier I am,” Trump told reporters. “I feel very confident that he can do a very good job. I think he is going to surprise some conservative people, actually.”
+The White House’s border security and immigration advisor Tom Homan said in a Tuesday Fox News interview that federal immigration enforcement operationswill escalate in New York City, nearly a month afternine peopleof African descent were detained while selling counterfeit goods onCanal Street.
+Homan, who served in the position during the Obama administration and the first Trump administration, warned that he is targeting New York City because of its sanctuary policies. The policies, which the city has upheld for decades, are also adopted by 11 blue states to limit state and local governments from cooperating with federal immigration enforcement.
+“We’re going to do operations in New York City,” Homan said. “We will increase the enforcement presence in New York City — again, because they’re a sanctuary city and there are public safety threats hitting the streets every day.”
+While Mamdani and Trump didn’t address the issue during their Friday White House meeting, Trump said on Saturday that he won’t deploy the National Guard to New York City because other cities “need it more.” Last week, hundreds of National Guard troops werewithdrawn from Portland and Chicago, where they had been deployed to assist U.S. Immigration and Customs Enforcement operations for nearly two months.
+On Saturday,ICE agents reappeared at Canal Streetas NYPD officers were arresting a counterfeit goods vendor and seizing dozens of items. The vendor, who the Department of Homeland Security described as an undocumented immigrant from Senegal with an arrest history, was released from NYPD custody before ICE could detain him.
+MTA officials said in a Wednesday meeting that a thief who stole wires from various trains is responsible forover 700 subway delayslast month.
+Efrain Velez, the 55-year-old “serial copper thief,” allegedly stole wires on three separate days in the span of one week and was arrested on Oct. 14 on charges of trespassing and criminal mischief. The MTA said that he pulled wires off the tunnel tracks near the 149th Street-Grand Concourse station in the Bronx, causing the signals to switch from green to red and halt train service.
+Officials said the move delayed trains across the 1, 2, 3, 4, 5 and 6 lines due to track circuit failures during evening rush hours, lowering the MTA’s on-time performance for October.
+“That cable was responsible for powering the signal system,” transit executive vice president of subways Bill Amarosa told reporters. “It affected tens of thousands of riders. We’re angry that this happened.”
+Law enforcement officers have long sought to apprehend 63-year-old “copper thief”Prince Hayes, who has stolen wires from the MTA for nearly 40 years and is facing a lifetime ban from the subway. Copper wire is sold in scrapyards and recycling centers for $5 per pound.
+Contact Leena Ahmed at[email protected].
+--- End of Article Text ---
+
+Your response (exactly 3 lines as specified above):
+
+--------------------------------------------------------------------------------
+
+
+================================================================================
+Prompt #2 - generate_summary_with_gemini
+Timestamp: 2025-11-30T22:11:12.715380
+
+Context:
+  article_url: https://nyunews.com/news/2025/11/24/trump-mamdani-meeting-border-czar-escalates-immigration-nyc-subway-wire-thief-delays-subways/
+  article_title: City Scoop: Trump awed in meeting with Mamdani, and other top stories across NYC
+  school: New York University (NYU)
+  article_text_length: 4825
+
+Prompt:
+--------------------------------------------------------------------------------
+You are a professional English-language news writer. Your task is to create a detailed yet concise news summary based on the provided article text.
+
+## Role
+You are a professional English-language news writer specializing in accurate, factual reporting.
+
+## Task
+Create a detailed yet concise news summary (approximately 5-7 sentences, or 100-180 words) based on the provided article text.
+The summary is for Chinese international students at New York University (NYU).
+
+## Requirements
+
+### Accuracy & Factuality (Highest Priority)
+- Include ONLY information explicitly stated in the article text
+- Do NOT infer, guess, or add information not present in the article
+- Do NOT include personal opinions, interpretations, or conclusions not in the original text
+- Verify all dates, names, and numbers against the article text
+- If information is unclear or missing, do not fill in gaps with assumptions
+
+### Content Requirements
+Focus on key information most relevant to Chinese international students at New York University (NYU), especially concerning:
+- Their studies, work, daily life, or immigration/visa policies
+- Events or policies in New York or the U.S.
+
+Key points to cover, ensuring important details are retained:
+- What happened (core event/announcement)?
+- When and where did it happen (specific dates, locations)?
+- Who was involved (key individuals, groups, departments)?
+- Main consequences, implications, or direct impacts for Chinese international students at New York University (NYU)
+- Include crucial numbers, statistics, or significant outcomes
+
+### Style Requirements
+- Maintain a factual and objective tone
+- Use clear, professional language
+- Provide the summary directly, without introductory phrases like 'This article is about...'
+- Write in complete sentences with proper grammar
+
+### Format Requirements
+- Length: 5-7 sentences, or 100-180 words
+- Structure: Coherent narrative flow, not bullet points
+
+## Input Data
+
+The original article title is: 'City Scoop: Trump awed in meeting with Mamdani, and other top stories across NYC'. The article URL is: https://nyunews.com/news/2025/11/24/trump-mamdani-meeting-border-czar-escalates-immigration-nyc-subway-wire-thief-delays-subways/ (for your reference).
+
+--- Full Article Text (first 4825 characters) ---
+Mayor-elect Zohran Mamdani said he had a “productive meeting” with President Donald Trump in the Oval Office Friday afternoon, nearly three weeks after hishistoric victory.
+The two pledged to work together to address the city’s affordability and housing crises, consistent with Mamdani’s campaign platform, and Trump called it a “good sign” that Mamdani plans to keep police commissioner Jessica Tisch. The mayor-elect also vowed to maintain the city’s 35,000 police officers and hire additional social workers to respond to mental health calls, which are typically directed to the New York City Police Department.
+Mamdani said New Yorkers are growing “tired of seeing our tax dollars fund endless wars,” citing Israel’s ongoing siege in Gaza and that the country should “follow through” on international human rights promises. When reporters asked whether Trump would stop Mamdani from arresting Israeli Prime Minister Benjamin Netenyahu if he were to come to New York City, Trump skirted the question and said that although Mamdani’s views are a little “out there,” there is room for change.
+The meeting follows months of traded insults between Trump and Mamdani, with the president repeatedly calling the democratic socialist a “radical left lunatic” and a “communist.” When a reporter asked Mamdani if he still considers Trump a fascist,he upheldthe statement after Trump laughed and told him, “That’s okay, you can just say it.”
+Trump’sapparent fondnessfor Mamdani shocked officials, reporters and citizens across the political spectrum, and has become the subject ofwidespread internet jokes. Despite Trump previously threatening to withhold federal funds from New York City if Mamdani was elected, the Queens native said that he would live in a Mamdani-run city after the meeting.
+“The better he does, the happier I am,” Trump told reporters. “I feel very confident that he can do a very good job. I think he is going to surprise some conservative people, actually.”
+The White House’s border security and immigration advisor Tom Homan said in a Tuesday Fox News interview that federal immigration enforcement operationswill escalate in New York City, nearly a month afternine peopleof African descent were detained while selling counterfeit goods onCanal Street.
+Homan, who served in the position during the Obama administration and the first Trump administration, warned that he is targeting New York City because of its sanctuary policies. The policies, which the city has upheld for decades, are also adopted by 11 blue states to limit state and local governments from cooperating with federal immigration enforcement.
+“We’re going to do operations in New York City,” Homan said. “We will increase the enforcement presence in New York City — again, because they’re a sanctuary city and there are public safety threats hitting the streets every day.”
+While Mamdani and Trump didn’t address the issue during their Friday White House meeting, Trump said on Saturday that he won’t deploy the National Guard to New York City because other cities “need it more.” Last week, hundreds of National Guard troops werewithdrawn from Portland and Chicago, where they had been deployed to assist U.S. Immigration and Customs Enforcement operations for nearly two months.
+On Saturday,ICE agents reappeared at Canal Streetas NYPD officers were arresting a counterfeit goods vendor and seizing dozens of items. The vendor, who the Department of Homeland Security described as an undocumented immigrant from Senegal with an arrest history, was released from NYPD custody before ICE could detain him.
+MTA officials said in a Wednesday meeting that a thief who stole wires from various trains is responsible forover 700 subway delayslast month.
+Efrain Velez, the 55-year-old “serial copper thief,” allegedly stole wires on three separate days in the span of one week and was arrested on Oct. 14 on charges of trespassing and criminal mischief. The MTA said that he pulled wires off the tunnel tracks near the 149th Street-Grand Concourse station in the Bronx, causing the signals to switch from green to red and halt train service.
+Officials said the move delayed trains across the 1, 2, 3, 4, 5 and 6 lines due to track circuit failures during evening rush hours, lowering the MTA’s on-time performance for October.
+“That cable was responsible for powering the signal system,” transit executive vice president of subways Bill Amarosa told reporters. “It affected tens of thousands of riders. We’re angry that this happened.”
+Law enforcement officers have long sought to apprehend 63-year-old “copper thief”Prince Hayes, who has stolen wires from the MTA for nearly 40 years and is facing a lifetime ban from the subway. Copper wire is sold in scrapyards and recycling centers for $5 per pound.
+Contact Leena Ahmed at[email protected].
+--- End of Article Text ---
+
+## Output
+
+Detailed News Summary (5-7 sentences, 100-180 words, for Chinese international students at New York University (NYU)):
+
+--------------------------------------------------------------------------------
+
+
+================================================================================
+Prompt #3 - translate_and_restyle_to_chinese
+Timestamp: 2025-11-30T22:11:33.832568
+
+Context:
+  source_url: https://nyunews.com/news/2025/11/24/trump-mamdani-meeting-border-czar-escalates-immigration-nyc-subway-wire-thief-delays-subways/
+  publication_date: 2025-11-24
+  original_title: City Scoop: Trump awed in meeting with Mamdani, and other top stories across NYC
+  english_summary_length: 1001
+
+Prompt:
+--------------------------------------------------------------------------------
+你是一位专业的中文新闻写作者和翻译。你的任务是将英文新闻摘要翻译成一篇准确、精炼的中文新闻，并生成一个吸引人的标题。
+
+## 角色
+你是一位专业的中文新闻写作者，专门为中国留学生撰写准确、精炼的新闻。
+
+## 任务
+将英文新闻摘要翻译成简体中文，生成一个吸引人的标题，并在一步中完成翻译和精炼。
+
+## 要求
+
+### 准确性与事实性（最高优先级）
+- 仅翻译英文摘要中明确陈述的信息 - 不要添加、推断或猜测
+- 保留所有事实细节：日期、姓名、数字、地点、组织
+- 不要添加原文中没有的后果、影响或观点
+- 避免使用"可能"、"引发"、"导致"等暗示未陈述后果的词语
+- 对照原始英文文本验证所有翻译
+
+### 标题生成要求
+1. 创建简洁、相关且吸引人的简体中文新闻标题
+2. 将标题放在第一行，前缀为"Chinese Title:"
+3. 如果单行标题超过15个中文字符，将其分成2个逗号分隔的段落，每段≤12个字符，在自然语义断点处分割
+4. 每个段落必须形成一个完整的短语（例如：主谓或动宾），不能是孤立的名词
+5. 对于每条新闻，考虑三种标题风格：
+   a) 弱点击诱式
+   b) 口语化风格
+   c) 简洁直接
+   选择最适合新闻主题的风格
+6. 避免使用隐喻、成语、谚语、双关语、谐音或其他修辞手法
+7. 避免过于正式或文学化的措辞 - 使用直接、自然的用词。
+8. 避免单字缩写（例如：不要用"美"来代指"全美"）
+
+### 翻译与内容要求
+1. 将英文摘要翻译成简体中文新闻文章格式
+2. 如果英文摘要包含多个新闻主题，选择最重要的一个并专注于它 - 保持文章连贯
+3. 不要试图包含原始英文摘要中的所有信息 - 优先考虑关键事实
+4. 对于不太常见的英文人名、组织名或项目名，翻译成中文并在括号中保留英文：中文名 (English Name)
+5. 对于非常知名的实体或常见的英文名称，可以直接使用中文翻译
+
+### 风格与精炼要求
+1. 使用严肃、正式、客观的新闻写作风格，但是不要写得很生硬，要自然，不要有AI味。读者是留学生。
+2. 不要有冗余的表述， 例如，不要写“将致力于”，直接写“将”，避免"旨在"等这种没有用的词。
+2. 使用短句和准确的词汇 - 避免复杂的长句
+3. 保持语言自然专业 - 尽量减少形容词
+4. 保持句子之间的逻辑连贯有序
+5. 不要包含额外的评论或观点
+6. 不要写结论 - 如果提到，可以以最新更新结尾，例如："目前，学校对此事件还没有做出回应。"
+7. 需要稍微有一点粗糙感，但是保持专业性，不要有AI味
+8. 减少不常见的标点符号的使用。
+
+### 结构与格式要求
+1. 每个关键事实点必须包含至少2句话：
+   - 第一句：核心事实的主要描述
+   - 第二句：阐述背景，提供具体细节、解释、影响、后续事件、采访引语（如有）或背景信息
+2. 如果两个相似或相关的事实存在，将它们合并为一个段落，而不是分开的段落
+3. 控制每个段落为80-250个中文字符 - 超过此长度的段落必须在保持逻辑连贯性的情况下分割，段落之间要有明确的因果或时间关系
+4. 总长度：250-500个中文字符
+5. 特别注意最后一句话 - 确保它切题并具有价值
+6. 删除任何对核心新闻故事没有事实价值的句子或短语
+
+## 输入数据
+
+原始英文摘要（用于翻译）：
+'''
+Federal immigration enforcement operations will escalate in New York City, according to an announcement by White House immigration advisor Tom Homan. He stated the increase in enforcement is a direct response to the city's long-standing sanctuary policies, which limit local cooperation with federal immigration agents. This development follows recent Immigration and Customs Enforcement (ICE) activity on Canal Street, including the earlier detention of nine people. While President Trump stated he would not deploy the National Guard to the city, Homan confirmed "we will increase the enforcement presence."
+
+Separately, students and residents should be aware of significant subway disruptions. MTA officials reported that a "serial copper thief" was responsible for over 700 subway delays last month. The thefts, occurring near the 149th Street-Grand Concourse station in the Bronx, caused major track circuit failures during evening rush hours, impacting service on the 1, 2, 3, 4, 5, and 6 lines.
+'''
+原始文章标题（供参考）：City Scoop: Trump awed in meeting with Mamdani, and other top stories across NYC
+
+## 输出格式
+
+你的回复必须严格按照以下格式：
+- 第1行："Chinese Title: [你的中文标题]"
+- 第2行：（空行）
+- 第3行及以后：[精炼的中文新闻正文]
+
+"Chinese Title:"之后的内容应该只是精炼的中文新闻正文 - 不要添加任何评论。
+
+你的回复：
+
+--------------------------------------------------------------------------------
+
+
+================================================================================
+Prompt #4 - verify_article_with_gemini
+Timestamp: 2025-11-30T22:12:00.070403
+
+Context:
+  article_url: https://nyunews.com/news/2025/11/24/united-nations-human-rights-speaker-steinhardt/
+  publication_date: 2025-11-24
+  school: New York University (NYU)
+  article_text_length: 5104
+
+Prompt:
+--------------------------------------------------------------------------------
+You are a news article analyst. Your task is to extract key metadata from the article text.
+
+## Requirements
+
+### Accuracy & Factuality (Highest Priority)
+- Extract dates ONLY from the article text or URL - do not infer or guess dates
+- Base article type classification strictly on the content structure and purpose
+- Do not add information not present in the article
+
+### Task
+Analyze the article and provide your analysis in EXACTLY three lines, each starting with the specified prefix:
+
+1. Publication Date: [Review the article text AND the Article URL (https://nyunews.com/news/2025/11/24/united-nations-human-rights-speaker-steinhardt/). Extract the most prominent date, ideally the publication date. Format YYYY-MM-DD or 'Date not found'. No other explanation.]
+2. Article Type: [Is this primarily a news article reporting on events/facts, or an opinion/blog/event listing/announcement? Answer ONLY 'News article', 'Opinion/Blog', 'Event/Announcement', or 'Type unclear'. No other explanation.]
+3. Analysis Notes: [Brief internal notes if needed, or 'N/A'. This line is for your process.]
+
+## Input Data
+
+--- Article Text (first 5104 characters) ---
+Former leading diplomat at the United Nations in Geneva David Chikvaidze told students to focus on their goals and celebrate small victories during a visit to a Steinhardt human rights class on Thursday, where he discussed his work as a diplomat in regions with severe human rights violations and the importance of young voices in international policy.
+Students asked questions about how they could kickstart careers with the United Nations and what international diplomacy entails. Chikvaidze, who has worked at the United Nations for 36 years, said that the organization lacks a “docking point” for young people to get involved.
+The talk, held as part of the International Human Rights Activism and Education, was led by Heddy Lahmann, a Steinhardt professor and deputy director of the International Education master’s program. Each year, students explore an issue related to the UN’sUniversal Declaration of Human Rights — with this year’s theme being migration.
+In an interview with WSN, Chikvaidze spoke about how his upbringing shaped his career and what he wants students interested in international diplomacy to know.
+This interview has been edited for length and clarity.
+WSN:How did you get involved in foreign relations?
+Chikvaidze:It starts with your parents. Growing up as a foreign service brat because of my dad — living in Georgia when I was a kid, then in London — I was aware of the world around me and its failures and successes.
+Born in the Caucasus,Chikvaidze’sfatherwas known for helping Georgia establish its place in the United Nations after it declared independence from the Soviet Union in 1992.Chikvaidze followed his father’s footsteps andworkedas a Soviet diplomat and chief of communications to the UN High Commissioner for Human Rights of the United Nations Office at Geneva, before becoming chief of staff to five Directors-General.
+During his talk, Chikvaidze invited the audience to ask about his decadeslong career in international affairs and his outlook on the future. Multiple students asked how they could break into the United Nations, which only takes a small number of undergraduate interns each year.
+WSN:What brought you to visit NYU?
+Chikvaidze:I always thought that NYU was one of the more important universities, especially among urban campuses. When I lived in New York City, I often sat around in Washington Square Park to talk, so I wanted to do it as a former New Yorker. The other reason is that I enjoy speaking to student audiences. There were students who had done an internship in the UN, and they were asking very well founded questions based on existing knowledge, which is even more valuable.
+Several students asked Chikvaidze for guidance attaining work and internships in their areas of interest, specifically at the United Nations. One student asked how she could develop a skillset that would help her provide relief for humanitarian crises, such as ongoing famine in Sudan.
+In response, Chikvaidze urged students to first understand the type of position they want to pursue, then learn how to emphasize what makes them a strong candidate. He advised them to work based on their strengths and interests and not waste time on things that deter them from their end goal.In addition to personal determination, he also emphasized the importance of celebrating small victories alongside the large ones.
+WSN:What was a memorable moment in your career that changed how you approached humanitarian work?
+Chikvaidze:Achievements don’t have to be resounding and grotesquely loud, there are quiet achievements as well. I was a desk officer for Asia, and I had a humanitarian appeal in Tajikistan and that led a delegation for needs assessment for the endemic malaria area. I even have a photograph where I’m surrounded by six middle aged Tajik women in national dress who were saying thank you, but not me personally, but thanking the UN through me for bringing them food supplies like rice, wheat and cooking oil. They said, ‘We survive because of what you send us.’
+Chikvaidze also detailed his experiences working with children across the globe, including his time working with the Secretary General for Children and Armed Conflict. He aided civilians subjected to human rights abuses during a rebel war inUganda, where many children faced severe physical violence. He told students that this work made him confront with the realities of how certain environments perpetuate a continuous cycle of violence — having watched kids robbed of education because of military force in the area.
+This experience was what led him to advocate for protecting children from crime and eventually to focus his work on unleashing the unrealized potential of youth.
+WSN:What is your hope for the youth?
+Chikvaidze:Youth is our great asset — a reservoir of talent, energy and enthusiasm which hasn’t been dampened yet. The objective of humanity is to maximize the positive potential of youth.
+Update, 11/24: A previous version of this story incorrectly stated that David Chikvaidze was head of the United Nations at Geneva.
+Contact Natalie Deoragh at[email protected].
+--- End of Article Text ---
+
+Your response (exactly 3 lines as specified above):
+
+--------------------------------------------------------------------------------
+
+
+================================================================================
+Prompt #5 - generate_summary_with_gemini
+Timestamp: 2025-11-30T22:12:13.448215
+
+Context:
+  article_url: https://nyunews.com/news/2025/11/24/united-nations-human-rights-speaker-steinhardt/
+  article_title: Ex-UN diplomat talks human rights careers with Steinhardt class
+  school: New York University (NYU)
+  article_text_length: 5104
+
+Prompt:
+--------------------------------------------------------------------------------
+You are a professional English-language news writer. Your task is to create a detailed yet concise news summary based on the provided article text.
+
+## Role
+You are a professional English-language news writer specializing in accurate, factual reporting.
+
+## Task
+Create a detailed yet concise news summary (approximately 5-7 sentences, or 100-180 words) based on the provided article text.
+The summary is for Chinese international students at New York University (NYU).
+
+## Requirements
+
+### Accuracy & Factuality (Highest Priority)
+- Include ONLY information explicitly stated in the article text
+- Do NOT infer, guess, or add information not present in the article
+- Do NOT include personal opinions, interpretations, or conclusions not in the original text
+- Verify all dates, names, and numbers against the article text
+- If information is unclear or missing, do not fill in gaps with assumptions
+
+### Content Requirements
+Focus on key information most relevant to Chinese international students at New York University (NYU), especially concerning:
+- Their studies, work, daily life, or immigration/visa policies
+- Events or policies in New York or the U.S.
+
+Key points to cover, ensuring important details are retained:
+- What happened (core event/announcement)?
+- When and where did it happen (specific dates, locations)?
+- Who was involved (key individuals, groups, departments)?
+- Main consequences, implications, or direct impacts for Chinese international students at New York University (NYU)
+- Include crucial numbers, statistics, or significant outcomes
+
+### Style Requirements
+- Maintain a factual and objective tone
+- Use clear, professional language
+- Provide the summary directly, without introductory phrases like 'This article is about...'
+- Write in complete sentences with proper grammar
+
+### Format Requirements
+- Length: 5-7 sentences, or 100-180 words
+- Structure: Coherent narrative flow, not bullet points
+
+## Input Data
+
+The original article title is: 'Ex-UN diplomat talks human rights careers with Steinhardt class'. The article URL is: https://nyunews.com/news/2025/11/24/united-nations-human-rights-speaker-steinhardt/ (for your reference).
+
+--- Full Article Text (first 5104 characters) ---
+Former leading diplomat at the United Nations in Geneva David Chikvaidze told students to focus on their goals and celebrate small victories during a visit to a Steinhardt human rights class on Thursday, where he discussed his work as a diplomat in regions with severe human rights violations and the importance of young voices in international policy.
+Students asked questions about how they could kickstart careers with the United Nations and what international diplomacy entails. Chikvaidze, who has worked at the United Nations for 36 years, said that the organization lacks a “docking point” for young people to get involved.
+The talk, held as part of the International Human Rights Activism and Education, was led by Heddy Lahmann, a Steinhardt professor and deputy director of the International Education master’s program. Each year, students explore an issue related to the UN’sUniversal Declaration of Human Rights — with this year’s theme being migration.
+In an interview with WSN, Chikvaidze spoke about how his upbringing shaped his career and what he wants students interested in international diplomacy to know.
+This interview has been edited for length and clarity.
+WSN:How did you get involved in foreign relations?
+Chikvaidze:It starts with your parents. Growing up as a foreign service brat because of my dad — living in Georgia when I was a kid, then in London — I was aware of the world around me and its failures and successes.
+Born in the Caucasus,Chikvaidze’sfatherwas known for helping Georgia establish its place in the United Nations after it declared independence from the Soviet Union in 1992.Chikvaidze followed his father’s footsteps andworkedas a Soviet diplomat and chief of communications to the UN High Commissioner for Human Rights of the United Nations Office at Geneva, before becoming chief of staff to five Directors-General.
+During his talk, Chikvaidze invited the audience to ask about his decadeslong career in international affairs and his outlook on the future. Multiple students asked how they could break into the United Nations, which only takes a small number of undergraduate interns each year.
+WSN:What brought you to visit NYU?
+Chikvaidze:I always thought that NYU was one of the more important universities, especially among urban campuses. When I lived in New York City, I often sat around in Washington Square Park to talk, so I wanted to do it as a former New Yorker. The other reason is that I enjoy speaking to student audiences. There were students who had done an internship in the UN, and they were asking very well founded questions based on existing knowledge, which is even more valuable.
+Several students asked Chikvaidze for guidance attaining work and internships in their areas of interest, specifically at the United Nations. One student asked how she could develop a skillset that would help her provide relief for humanitarian crises, such as ongoing famine in Sudan.
+In response, Chikvaidze urged students to first understand the type of position they want to pursue, then learn how to emphasize what makes them a strong candidate. He advised them to work based on their strengths and interests and not waste time on things that deter them from their end goal.In addition to personal determination, he also emphasized the importance of celebrating small victories alongside the large ones.
+WSN:What was a memorable moment in your career that changed how you approached humanitarian work?
+Chikvaidze:Achievements don’t have to be resounding and grotesquely loud, there are quiet achievements as well. I was a desk officer for Asia, and I had a humanitarian appeal in Tajikistan and that led a delegation for needs assessment for the endemic malaria area. I even have a photograph where I’m surrounded by six middle aged Tajik women in national dress who were saying thank you, but not me personally, but thanking the UN through me for bringing them food supplies like rice, wheat and cooking oil. They said, ‘We survive because of what you send us.’
+Chikvaidze also detailed his experiences working with children across the globe, including his time working with the Secretary General for Children and Armed Conflict. He aided civilians subjected to human rights abuses during a rebel war inUganda, where many children faced severe physical violence. He told students that this work made him confront with the realities of how certain environments perpetuate a continuous cycle of violence — having watched kids robbed of education because of military force in the area.
+This experience was what led him to advocate for protecting children from crime and eventually to focus his work on unleashing the unrealized potential of youth.
+WSN:What is your hope for the youth?
+Chikvaidze:Youth is our great asset — a reservoir of talent, energy and enthusiasm which hasn’t been dampened yet. The objective of humanity is to maximize the positive potential of youth.
+Update, 11/24: A previous version of this story incorrectly stated that David Chikvaidze was head of the United Nations at Geneva.
+Contact Natalie Deoragh at[email protected].
+--- End of Article Text ---
+
+## Output
+
+Detailed News Summary (5-7 sentences, 100-180 words, for Chinese international students at New York University (NYU)):
+
+--------------------------------------------------------------------------------
+
+
+================================================================================
+Prompt #6 - translate_and_restyle_to_chinese
+Timestamp: 2025-11-30T22:12:30.710463
+
+Context:
+  source_url: https://nyunews.com/news/2025/11/24/united-nations-human-rights-speaker-steinhardt/
+  publication_date: 2025-11-24
+  original_title: Ex-UN diplomat talks human rights careers with Steinhardt class
+  english_summary_length: 824
+
+Prompt:
+--------------------------------------------------------------------------------
+你是一位专业的中文新闻写作者和翻译。你的任务是将英文新闻摘要翻译成一篇准确、精炼的中文新闻，并生成一个吸引人的标题。
+
+## 角色
+你是一位专业的中文新闻写作者，专门为中国留学生撰写准确、精炼的新闻。
+
+## 任务
+将英文新闻摘要翻译成简体中文，生成一个吸引人的标题，并在一步中完成翻译和精炼。
+
+## 要求
+
+### 准确性与事实性（最高优先级）
+- 仅翻译英文摘要中明确陈述的信息 - 不要添加、推断或猜测
+- 保留所有事实细节：日期、姓名、数字、地点、组织
+- 不要添加原文中没有的后果、影响或观点
+- 避免使用"可能"、"引发"、"导致"等暗示未陈述后果的词语
+- 对照原始英文文本验证所有翻译
+
+### 标题生成要求
+1. 创建简洁、相关且吸引人的简体中文新闻标题
+2. 将标题放在第一行，前缀为"Chinese Title:"
+3. 如果单行标题超过15个中文字符，将其分成2个逗号分隔的段落，每段≤12个字符，在自然语义断点处分割
+4. 每个段落必须形成一个完整的短语（例如：主谓或动宾），不能是孤立的名词
+5. 对于每条新闻，考虑三种标题风格：
+   a) 弱点击诱式
+   b) 口语化风格
+   c) 简洁直接
+   选择最适合新闻主题的风格
+6. 避免使用隐喻、成语、谚语、双关语、谐音或其他修辞手法
+7. 避免过于正式或文学化的措辞 - 使用直接、自然的用词。
+8. 避免单字缩写（例如：不要用"美"来代指"全美"）
+
+### 翻译与内容要求
+1. 将英文摘要翻译成简体中文新闻文章格式
+2. 如果英文摘要包含多个新闻主题，选择最重要的一个并专注于它 - 保持文章连贯
+3. 不要试图包含原始英文摘要中的所有信息 - 优先考虑关键事实
+4. 对于不太常见的英文人名、组织名或项目名，翻译成中文并在括号中保留英文：中文名 (English Name)
+5. 对于非常知名的实体或常见的英文名称，可以直接使用中文翻译
+
+### 风格与精炼要求
+1. 使用严肃、正式、客观的新闻写作风格，但是不要写得很生硬，要自然，不要有AI味。读者是留学生。
+2. 不要有冗余的表述， 例如，不要写“将致力于”，直接写“将”，避免"旨在"等这种没有用的词。
+2. 使用短句和准确的词汇 - 避免复杂的长句
+3. 保持语言自然专业 - 尽量减少形容词
+4. 保持句子之间的逻辑连贯有序
+5. 不要包含额外的评论或观点
+6. 不要写结论 - 如果提到，可以以最新更新结尾，例如："目前，学校对此事件还没有做出回应。"
+7. 需要稍微有一点粗糙感，但是保持专业性，不要有AI味
+8. 减少不常见的标点符号的使用。
+
+### 结构与格式要求
+1. 每个关键事实点必须包含至少2句话：
+   - 第一句：核心事实的主要描述
+   - 第二句：阐述背景，提供具体细节、解释、影响、后续事件、采访引语（如有）或背景信息
+2. 如果两个相似或相关的事实存在，将它们合并为一个段落，而不是分开的段落
+3. 控制每个段落为80-250个中文字符 - 超过此长度的段落必须在保持逻辑连贯性的情况下分割，段落之间要有明确的因果或时间关系
+4. 总长度：250-500个中文字符
+5. 特别注意最后一句话 - 确保它切题并具有价值
+6. 删除任何对核心新闻故事没有事实价值的句子或短语
+
+## 输入数据
+
+原始英文摘要（用于翻译）：
+'''
+On Thursday, former senior United Nations diplomat David Chikvaidze spoke to an NYU Steinhardt human rights class about careers in international policy. During the session, students asked how to secure work and internships at the UN. Chikvaidze, a diplomat for 36 years, acknowledged that the organization lacks a clear entry point for young people and only accepts a small number of undergraduate interns each year. He advised students to first understand the specific position they want, then focus on emphasizing their unique strengths and interests to stand out as a candidate. Chikvaidze also encouraged students to remain focused on their goals and celebrate small victories alongside major achievements. The talk was part of a class led by Professor Heddy Lahmann, which is exploring the theme of migration this year.
+'''
+原始文章标题（供参考）：Ex-UN diplomat talks human rights careers with Steinhardt class
+
+## 输出格式
+
+你的回复必须严格按照以下格式：
+- 第1行："Chinese Title: [你的中文标题]"
+- 第2行：（空行）
+- 第3行及以后：[精炼的中文新闻正文]
+
+"Chinese Title:"之后的内容应该只是精炼的中文新闻正文 - 不要添加任何评论。
+
+你的回复：
+
+--------------------------------------------------------------------------------
+
+
+================================================================================
+Prompt #7 - verify_article_with_gemini
+Timestamp: 2025-11-30T22:13:04.189955
+
+Context:
+  article_url: https://nyunews.com/news/2025/11/24/langone-hospitals-awarded-grade-eleventh-consecutive-time/
+  publication_date: 2025-11-24
+  school: New York University (NYU)
+  article_text_length: 2897
+
+Prompt:
+--------------------------------------------------------------------------------
+You are a news article analyst. Your task is to extract key metadata from the article text.
+
+## Requirements
+
+### Accuracy & Factuality (Highest Priority)
+- Extract dates ONLY from the article text or URL - do not infer or guess dates
+- Base article type classification strictly on the content structure and purpose
+- Do not add information not present in the article
+
+### Task
+Analyze the article and provide your analysis in EXACTLY three lines, each starting with the specified prefix:
+
+1. Publication Date: [Review the article text AND the Article URL (https://nyunews.com/news/2025/11/24/langone-hospitals-awarded-grade-eleventh-consecutive-time/). Extract the most prominent date, ideally the publication date. Format YYYY-MM-DD or 'Date not found'. No other explanation.]
+2. Article Type: [Is this primarily a news article reporting on events/facts, or an opinion/blog/event listing/announcement? Answer ONLY 'News article', 'Opinion/Blog', 'Event/Announcement', or 'Type unclear'. No other explanation.]
+3. Analysis Notes: [Brief internal notes if needed, or 'N/A'. This line is for your process.]
+
+## Input Data
+
+--- Article Text (first 2897 characters) ---
+NYU Langone Healthretainedits “A” grade for patient safety in a national hospital ranking for the 11th consecutive time across sites in Manhattan, Brooklyn and Long Island.
+The Leapfrog Group is a widely cited nonprofit that awards biannual safety grades to nearly 3,000 U.S. hospitals. NYU Langone’s Tisch Hospital, Kimmel Pavilion, Brooklyn Langone Hospital and Long Island Langone Hospital all earned the “A” rating, and NYU Langone Hospital in Suffolk advanced from a “C” to a “B.” NYU Langone Orthopedic Hospital and the Hassenfeld Children’s Hospital did not participate in the safety ratings program.
+“NYU Langone’s reputation in the communities we serve is built on a foundation of safe, top quality care, thanks to our teams who put their patients first every day,” NYU Langone dean and CEO Alec Kimmelman said in apress release. “We are proud of these ratings. This includes NYU Langone Hospital—Suffolk, where the pace of improvements has been extraordinary, because of the incredible work of our teams there.”
+The safety grades rate hospitals based on 30 measures of patient safety, including prevention of medical errors, injuries, infections and other possible harms, as well as patient outcomes and experiences. In its fall 2025 survey, just over 32% of hospitals nationwide and 23% of hospitals in New York state received a rating of “A,” which is the highest grade that can be awarded.
+In September, NYU Langone alsorankedNo. 1 in patient care for the fourth year in a row for its comprehensive academic medical care, including complication rates, length of stay and patient experience scores.
+The Suffolk hospital, formerly known as Long Island Community Hospital,completed its mergerwith NYU Langone in March after years of affiliation. In September, the American College of Surgeonsverifiedit as a Level 2 Adult Trauma Center capable of treating all adult trauma patients regardless of the severity of their injuries.
+These achievements came after the hospital faced backlash for patient care accessibility. Earlier this year, NYU Langone facedcriticismfor canceling two patients’ gender affirming care appointments following a Trump administration executive order that threatened to withhold federal funding from hospitals that provide such care to patients under 19. The hospital has also faced multiple lawsuits from employees allegingdisability-based discrimination, includingfiring a nursewho was battling cancer.
+NYU Langone also announced many expansions over the past year. The medical centeropened six medical centersin Suffolk County this year. In September, it also launched aGastrointestinal Cancer Center, along with a$83 millionproposal to expand the emergency department in Kips Bay.
+Update, 11/24: A previous version of this article incorrectly stated that NYU Langone Health has received the article 11 years in a row.
+Contact Zachary Karp at[email protected].
+--- End of Article Text ---
+
+Your response (exactly 3 lines as specified above):
+
+--------------------------------------------------------------------------------
+
+
+================================================================================
+Prompt #8 - generate_summary_with_gemini
+Timestamp: 2025-11-30T22:13:16.911597
+
+Context:
+  article_url: https://nyunews.com/news/2025/11/24/langone-hospitals-awarded-grade-eleventh-consecutive-time/
+  article_title: NYU Langone awarded ‘A’ in safety for 11th time
+  school: New York University (NYU)
+  article_text_length: 2897
+
+Prompt:
+--------------------------------------------------------------------------------
+You are a professional English-language news writer. Your task is to create a detailed yet concise news summary based on the provided article text.
+
+## Role
+You are a professional English-language news writer specializing in accurate, factual reporting.
+
+## Task
+Create a detailed yet concise news summary (approximately 5-7 sentences, or 100-180 words) based on the provided article text.
+The summary is for Chinese international students at New York University (NYU).
+
+## Requirements
+
+### Accuracy & Factuality (Highest Priority)
+- Include ONLY information explicitly stated in the article text
+- Do NOT infer, guess, or add information not present in the article
+- Do NOT include personal opinions, interpretations, or conclusions not in the original text
+- Verify all dates, names, and numbers against the article text
+- If information is unclear or missing, do not fill in gaps with assumptions
+
+### Content Requirements
+Focus on key information most relevant to Chinese international students at New York University (NYU), especially concerning:
+- Their studies, work, daily life, or immigration/visa policies
+- Events or policies in New York or the U.S.
+
+Key points to cover, ensuring important details are retained:
+- What happened (core event/announcement)?
+- When and where did it happen (specific dates, locations)?
+- Who was involved (key individuals, groups, departments)?
+- Main consequences, implications, or direct impacts for Chinese international students at New York University (NYU)
+- Include crucial numbers, statistics, or significant outcomes
+
+### Style Requirements
+- Maintain a factual and objective tone
+- Use clear, professional language
+- Provide the summary directly, without introductory phrases like 'This article is about...'
+- Write in complete sentences with proper grammar
+
+### Format Requirements
+- Length: 5-7 sentences, or 100-180 words
+- Structure: Coherent narrative flow, not bullet points
+
+## Input Data
+
+The original article title is: 'NYU Langone awarded ‘A’ in safety for 11th time'. The article URL is: https://nyunews.com/news/2025/11/24/langone-hospitals-awarded-grade-eleventh-consecutive-time/ (for your reference).
+
+--- Full Article Text (first 2897 characters) ---
+NYU Langone Healthretainedits “A” grade for patient safety in a national hospital ranking for the 11th consecutive time across sites in Manhattan, Brooklyn and Long Island.
+The Leapfrog Group is a widely cited nonprofit that awards biannual safety grades to nearly 3,000 U.S. hospitals. NYU Langone’s Tisch Hospital, Kimmel Pavilion, Brooklyn Langone Hospital and Long Island Langone Hospital all earned the “A” rating, and NYU Langone Hospital in Suffolk advanced from a “C” to a “B.” NYU Langone Orthopedic Hospital and the Hassenfeld Children’s Hospital did not participate in the safety ratings program.
+“NYU Langone’s reputation in the communities we serve is built on a foundation of safe, top quality care, thanks to our teams who put their patients first every day,” NYU Langone dean and CEO Alec Kimmelman said in apress release. “We are proud of these ratings. This includes NYU Langone Hospital—Suffolk, where the pace of improvements has been extraordinary, because of the incredible work of our teams there.”
+The safety grades rate hospitals based on 30 measures of patient safety, including prevention of medical errors, injuries, infections and other possible harms, as well as patient outcomes and experiences. In its fall 2025 survey, just over 32% of hospitals nationwide and 23% of hospitals in New York state received a rating of “A,” which is the highest grade that can be awarded.
+In September, NYU Langone alsorankedNo. 1 in patient care for the fourth year in a row for its comprehensive academic medical care, including complication rates, length of stay and patient experience scores.
+The Suffolk hospital, formerly known as Long Island Community Hospital,completed its mergerwith NYU Langone in March after years of affiliation. In September, the American College of Surgeonsverifiedit as a Level 2 Adult Trauma Center capable of treating all adult trauma patients regardless of the severity of their injuries.
+These achievements came after the hospital faced backlash for patient care accessibility. Earlier this year, NYU Langone facedcriticismfor canceling two patients’ gender affirming care appointments following a Trump administration executive order that threatened to withhold federal funding from hospitals that provide such care to patients under 19. The hospital has also faced multiple lawsuits from employees allegingdisability-based discrimination, includingfiring a nursewho was battling cancer.
+NYU Langone also announced many expansions over the past year. The medical centeropened six medical centersin Suffolk County this year. In September, it also launched aGastrointestinal Cancer Center, along with a$83 millionproposal to expand the emergency department in Kips Bay.
+Update, 11/24: A previous version of this article incorrectly stated that NYU Langone Health has received the article 11 years in a row.
+Contact Zachary Karp at[email protected].
+--- End of Article Text ---
+
+## Output
+
+Detailed News Summary (5-7 sentences, 100-180 words, for Chinese international students at New York University (NYU)):
+
+--------------------------------------------------------------------------------
+
+
+================================================================================
+Prompt #9 - translate_and_restyle_to_chinese
+Timestamp: 2025-11-30T22:13:33.851516
+
+Context:
+  source_url: https://nyunews.com/news/2025/11/24/langone-hospitals-awarded-grade-eleventh-consecutive-time/
+  publication_date: 2025-11-24
+  original_title: NYU Langone awarded ‘A’ in safety for 11th time
+  english_summary_length: 860
+
+Prompt:
+--------------------------------------------------------------------------------
+你是一位专业的中文新闻写作者和翻译。你的任务是将英文新闻摘要翻译成一篇准确、精炼的中文新闻，并生成一个吸引人的标题。
+
+## 角色
+你是一位专业的中文新闻写作者，专门为中国留学生撰写准确、精炼的新闻。
+
+## 任务
+将英文新闻摘要翻译成简体中文，生成一个吸引人的标题，并在一步中完成翻译和精炼。
+
+## 要求
+
+### 准确性与事实性（最高优先级）
+- 仅翻译英文摘要中明确陈述的信息 - 不要添加、推断或猜测
+- 保留所有事实细节：日期、姓名、数字、地点、组织
+- 不要添加原文中没有的后果、影响或观点
+- 避免使用"可能"、"引发"、"导致"等暗示未陈述后果的词语
+- 对照原始英文文本验证所有翻译
+
+### 标题生成要求
+1. 创建简洁、相关且吸引人的简体中文新闻标题
+2. 将标题放在第一行，前缀为"Chinese Title:"
+3. 如果单行标题超过15个中文字符，将其分成2个逗号分隔的段落，每段≤12个字符，在自然语义断点处分割
+4. 每个段落必须形成一个完整的短语（例如：主谓或动宾），不能是孤立的名词
+5. 对于每条新闻，考虑三种标题风格：
+   a) 弱点击诱式
+   b) 口语化风格
+   c) 简洁直接
+   选择最适合新闻主题的风格
+6. 避免使用隐喻、成语、谚语、双关语、谐音或其他修辞手法
+7. 避免过于正式或文学化的措辞 - 使用直接、自然的用词。
+8. 避免单字缩写（例如：不要用"美"来代指"全美"）
+
+### 翻译与内容要求
+1. 将英文摘要翻译成简体中文新闻文章格式
+2. 如果英文摘要包含多个新闻主题，选择最重要的一个并专注于它 - 保持文章连贯
+3. 不要试图包含原始英文摘要中的所有信息 - 优先考虑关键事实
+4. 对于不太常见的英文人名、组织名或项目名，翻译成中文并在括号中保留英文：中文名 (English Name)
+5. 对于非常知名的实体或常见的英文名称，可以直接使用中文翻译
+
+### 风格与精炼要求
+1. 使用严肃、正式、客观的新闻写作风格，但是不要写得很生硬，要自然，不要有AI味。读者是留学生。
+2. 不要有冗余的表述， 例如，不要写“将致力于”，直接写“将”，避免"旨在"等这种没有用的词。
+2. 使用短句和准确的词汇 - 避免复杂的长句
+3. 保持语言自然专业 - 尽量减少形容词
+4. 保持句子之间的逻辑连贯有序
+5. 不要包含额外的评论或观点
+6. 不要写结论 - 如果提到，可以以最新更新结尾，例如："目前，学校对此事件还没有做出回应。"
+7. 需要稍微有一点粗糙感，但是保持专业性，不要有AI味
+8. 减少不常见的标点符号的使用。
+
+### 结构与格式要求
+1. 每个关键事实点必须包含至少2句话：
+   - 第一句：核心事实的主要描述
+   - 第二句：阐述背景，提供具体细节、解释、影响、后续事件、采访引语（如有）或背景信息
+2. 如果两个相似或相关的事实存在，将它们合并为一个段落，而不是分开的段落
+3. 控制每个段落为80-250个中文字符 - 超过此长度的段落必须在保持逻辑连贯性的情况下分割，段落之间要有明确的因果或时间关系
+4. 总长度：250-500个中文字符
+5. 特别注意最后一句话 - 确保它切题并具有价值
+6. 删除任何对核心新闻故事没有事实价值的句子或短语
+
+## 输入数据
+
+原始英文摘要（用于翻译）：
+'''
+NYU Langone Health has received an "A" grade for patient safety for the 11th consecutive time from The Leapfrog Group, a national nonprofit organization. In the fall 2025 survey, this top rating was awarded to NYU Langone’s Tisch Hospital, Kimmel Pavilion, and its hospitals in Brooklyn and Long Island. The grade places these facilities among the top 23% of hospitals in New York state for safety, based on 30 measures including the prevention of medical errors and infections. Additionally, the health system was ranked No. 1 in patient care in September for the fourth consecutive year. NYU Langone has also announced expansions, including a proposed $83 million upgrade to its emergency department in Kips Bay. The article notes, however, that the health system has faced criticism regarding patient care accessibility and employee discrimination lawsuits.
+'''
+原始文章标题（供参考）：NYU Langone awarded ‘A’ in safety for 11th time
+
+## 输出格式
+
+你的回复必须严格按照以下格式：
+- 第1行："Chinese Title: [你的中文标题]"
+- 第2行：（空行）
+- 第3行及以后：[精炼的中文新闻正文]
+
+"Chinese Title:"之后的内容应该只是精炼的中文新闻正文 - 不要添加任何评论。
+
+你的回复：
+
+--------------------------------------------------------------------------------
+
+
+================================================================================
+Prompt #10 - verify_article_with_gemini
+Timestamp: 2025-11-30T22:14:00.296411
+
+Context:
+  article_url: https://nyunews.com/news/2025/11/24/nyu-study-predicts-risk-of-chronic-traumatic-encephalopathy/
+  publication_date: 2025-11-24
+  school: New York University (NYU)
+  article_text_length: 2691
+
+Prompt:
+--------------------------------------------------------------------------------
+You are a news article analyst. Your task is to extract key metadata from the article text.
+
+## Requirements
+
+### Accuracy & Factuality (Highest Priority)
+- Extract dates ONLY from the article text or URL - do not infer or guess dates
+- Base article type classification strictly on the content structure and purpose
+- Do not add information not present in the article
+
+### Task
+Analyze the article and provide your analysis in EXACTLY three lines, each starting with the specified prefix:
+
+1. Publication Date: [Review the article text AND the Article URL (https://nyunews.com/news/2025/11/24/nyu-study-predicts-risk-of-chronic-traumatic-encephalopathy/). Extract the most prominent date, ideally the publication date. Format YYYY-MM-DD or 'Date not found'. No other explanation.]
+2. Article Type: [Is this primarily a news article reporting on events/facts, or an opinion/blog/event listing/announcement? Answer ONLY 'News article', 'Opinion/Blog', 'Event/Announcement', or 'Type unclear'. No other explanation.]
+3. Analysis Notes: [Brief internal notes if needed, or 'N/A'. This line is for your process.]
+
+## Input Data
+
+--- Article Text (first 2691 characters) ---
+AnNYU Langone studyfound ways that could help clinicians predict who is at risk of a nerve-killing disease caused by repeated head injuries that can only be diagnosed after death.
+The disease, chronic traumatic encephalopathy, is common among football players whose nerve cells in the brain die over time after experiencing repetitive head trauma. In routine medical practice, the only way to confirm that someone has CTE is through an after-death autopsy, because regular brain scans can not detect the disease. However, the September study’s findings of subtle differences between the brain scans of the average person and those who experience brain trauma provided further insight into the detection of early signs of nerve damage.
+“A comprehensive CTE risk assessment would be a major shift in patient care,” lead author and NYU Grossman professor Hector Arciniega told WSN. “Right now, people with a history of repetitive head impacts often live with uncertainty, as physicians can only treat symptoms, and we can’t tell them whether they truly have CTE until after death.”
+Researchers at NYU Grossman, a medical school under NYU Langone, collaborated with theLangone Concussion Centerto use advanced computer analysis for the study. They compared the brain scans previously taken from 169 male living former football players ages 45 to 74 years old against 54 similarly aged males without a history of traumatic brain injury. Arciniega said the study aims to identify a reliable biomarker that could inform a comprehensive risk assessment to aid physicians in intervening before the disease worsens.
+Brain scans of deceased CTE patients reveal two common areas of the brain where the grooves, called sulci, are deformed. Researchers found that former football players had sulci that were wider and shallower due to head trauma than the healthy non-players did. The differences were more pronounced the longer a player had been in the sport.
+Arciniega and his co-author, Brian Im, said future research would focus on tackling social factors that could affect the diagnosis and treatment of CTE, including race, socioeconomic status and access to healthcare. Arciniega said he aims to collect data that could address how these factors could affect an individual’s long-term well-being.
+“We’re interested in looking at those disparities and preparing the type of care people get depending on where they are and how that would affect the kind of care they get and the outcomes,” Im said. “Research is hard when you don’t have the clinical and the research perspective. Bringing those two together has made it a fruitful and productive relationship.”
+Contact Justin Liu at[email protected].
+--- End of Article Text ---
+
+Your response (exactly 3 lines as specified above):
+
+--------------------------------------------------------------------------------
+
+
+================================================================================
+Prompt #11 - generate_summary_with_gemini
+Timestamp: 2025-11-30T22:14:11.494407
+
+Context:
+  article_url: https://nyunews.com/news/2025/11/24/nyu-study-predicts-risk-of-chronic-traumatic-encephalopathy/
+  article_title: Langone researchers find new way to detect nerve-killing head trauma
+  school: New York University (NYU)
+  article_text_length: 2691
+
+Prompt:
+--------------------------------------------------------------------------------
+You are a professional English-language news writer. Your task is to create a detailed yet concise news summary based on the provided article text.
+
+## Role
+You are a professional English-language news writer specializing in accurate, factual reporting.
+
+## Task
+Create a detailed yet concise news summary (approximately 5-7 sentences, or 100-180 words) based on the provided article text.
+The summary is for Chinese international students at New York University (NYU).
+
+## Requirements
+
+### Accuracy & Factuality (Highest Priority)
+- Include ONLY information explicitly stated in the article text
+- Do NOT infer, guess, or add information not present in the article
+- Do NOT include personal opinions, interpretations, or conclusions not in the original text
+- Verify all dates, names, and numbers against the article text
+- If information is unclear or missing, do not fill in gaps with assumptions
+
+### Content Requirements
+Focus on key information most relevant to Chinese international students at New York University (NYU), especially concerning:
+- Their studies, work, daily life, or immigration/visa policies
+- Events or policies in New York or the U.S.
+
+Key points to cover, ensuring important details are retained:
+- What happened (core event/announcement)?
+- When and where did it happen (specific dates, locations)?
+- Who was involved (key individuals, groups, departments)?
+- Main consequences, implications, or direct impacts for Chinese international students at New York University (NYU)
+- Include crucial numbers, statistics, or significant outcomes
+
+### Style Requirements
+- Maintain a factual and objective tone
+- Use clear, professional language
+- Provide the summary directly, without introductory phrases like 'This article is about...'
+- Write in complete sentences with proper grammar
+
+### Format Requirements
+- Length: 5-7 sentences, or 100-180 words
+- Structure: Coherent narrative flow, not bullet points
+
+## Input Data
+
+The original article title is: 'Langone researchers find new way to detect nerve-killing head trauma'. The article URL is: https://nyunews.com/news/2025/11/24/nyu-study-predicts-risk-of-chronic-traumatic-encephalopathy/ (for your reference).
+
+--- Full Article Text (first 2691 characters) ---
+AnNYU Langone studyfound ways that could help clinicians predict who is at risk of a nerve-killing disease caused by repeated head injuries that can only be diagnosed after death.
+The disease, chronic traumatic encephalopathy, is common among football players whose nerve cells in the brain die over time after experiencing repetitive head trauma. In routine medical practice, the only way to confirm that someone has CTE is through an after-death autopsy, because regular brain scans can not detect the disease. However, the September study’s findings of subtle differences between the brain scans of the average person and those who experience brain trauma provided further insight into the detection of early signs of nerve damage.
+“A comprehensive CTE risk assessment would be a major shift in patient care,” lead author and NYU Grossman professor Hector Arciniega told WSN. “Right now, people with a history of repetitive head impacts often live with uncertainty, as physicians can only treat symptoms, and we can’t tell them whether they truly have CTE until after death.”
+Researchers at NYU Grossman, a medical school under NYU Langone, collaborated with theLangone Concussion Centerto use advanced computer analysis for the study. They compared the brain scans previously taken from 169 male living former football players ages 45 to 74 years old against 54 similarly aged males without a history of traumatic brain injury. Arciniega said the study aims to identify a reliable biomarker that could inform a comprehensive risk assessment to aid physicians in intervening before the disease worsens.
+Brain scans of deceased CTE patients reveal two common areas of the brain where the grooves, called sulci, are deformed. Researchers found that former football players had sulci that were wider and shallower due to head trauma than the healthy non-players did. The differences were more pronounced the longer a player had been in the sport.
+Arciniega and his co-author, Brian Im, said future research would focus on tackling social factors that could affect the diagnosis and treatment of CTE, including race, socioeconomic status and access to healthcare. Arciniega said he aims to collect data that could address how these factors could affect an individual’s long-term well-being.
+“We’re interested in looking at those disparities and preparing the type of care people get depending on where they are and how that would affect the kind of care they get and the outcomes,” Im said. “Research is hard when you don’t have the clinical and the research perspective. Bringing those two together has made it a fruitful and productive relationship.”
+Contact Justin Liu at[email protected].
+--- End of Article Text ---
+
+## Output
+
+Detailed News Summary (5-7 sentences, 100-180 words, for Chinese international students at New York University (NYU)):
+
+--------------------------------------------------------------------------------
+
+
+================================================================================
+Prompt #12 - translate_and_restyle_to_chinese
+Timestamp: 2025-11-30T22:14:27.042315
+
+Context:
+  source_url: https://nyunews.com/news/2025/11/24/nyu-study-predicts-risk-of-chronic-traumatic-encephalopathy/
+  publication_date: 2025-11-24
+  original_title: Langone researchers find new way to detect nerve-killing head trauma
+  english_summary_length: 968
+
+Prompt:
+--------------------------------------------------------------------------------
+你是一位专业的中文新闻写作者和翻译。你的任务是将英文新闻摘要翻译成一篇准确、精炼的中文新闻，并生成一个吸引人的标题。
+
+## 角色
+你是一位专业的中文新闻写作者，专门为中国留学生撰写准确、精炼的新闻。
+
+## 任务
+将英文新闻摘要翻译成简体中文，生成一个吸引人的标题，并在一步中完成翻译和精炼。
+
+## 要求
+
+### 准确性与事实性（最高优先级）
+- 仅翻译英文摘要中明确陈述的信息 - 不要添加、推断或猜测
+- 保留所有事实细节：日期、姓名、数字、地点、组织
+- 不要添加原文中没有的后果、影响或观点
+- 避免使用"可能"、"引发"、"导致"等暗示未陈述后果的词语
+- 对照原始英文文本验证所有翻译
+
+### 标题生成要求
+1. 创建简洁、相关且吸引人的简体中文新闻标题
+2. 将标题放在第一行，前缀为"Chinese Title:"
+3. 如果单行标题超过15个中文字符，将其分成2个逗号分隔的段落，每段≤12个字符，在自然语义断点处分割
+4. 每个段落必须形成一个完整的短语（例如：主谓或动宾），不能是孤立的名词
+5. 对于每条新闻，考虑三种标题风格：
+   a) 弱点击诱式
+   b) 口语化风格
+   c) 简洁直接
+   选择最适合新闻主题的风格
+6. 避免使用隐喻、成语、谚语、双关语、谐音或其他修辞手法
+7. 避免过于正式或文学化的措辞 - 使用直接、自然的用词。
+8. 避免单字缩写（例如：不要用"美"来代指"全美"）
+
+### 翻译与内容要求
+1. 将英文摘要翻译成简体中文新闻文章格式
+2. 如果英文摘要包含多个新闻主题，选择最重要的一个并专注于它 - 保持文章连贯
+3. 不要试图包含原始英文摘要中的所有信息 - 优先考虑关键事实
+4. 对于不太常见的英文人名、组织名或项目名，翻译成中文并在括号中保留英文：中文名 (English Name)
+5. 对于非常知名的实体或常见的英文名称，可以直接使用中文翻译
+
+### 风格与精炼要求
+1. 使用严肃、正式、客观的新闻写作风格，但是不要写得很生硬，要自然，不要有AI味。读者是留学生。
+2. 不要有冗余的表述， 例如，不要写“将致力于”，直接写“将”，避免"旨在"等这种没有用的词。
+2. 使用短句和准确的词汇 - 避免复杂的长句
+3. 保持语言自然专业 - 尽量减少形容词
+4. 保持句子之间的逻辑连贯有序
+5. 不要包含额外的评论或观点
+6. 不要写结论 - 如果提到，可以以最新更新结尾，例如："目前，学校对此事件还没有做出回应。"
+7. 需要稍微有一点粗糙感，但是保持专业性，不要有AI味
+8. 减少不常见的标点符号的使用。
+
+### 结构与格式要求
+1. 每个关键事实点必须包含至少2句话：
+   - 第一句：核心事实的主要描述
+   - 第二句：阐述背景，提供具体细节、解释、影响、后续事件、采访引语（如有）或背景信息
+2. 如果两个相似或相关的事实存在，将它们合并为一个段落，而不是分开的段落
+3. 控制每个段落为80-250个中文字符 - 超过此长度的段落必须在保持逻辑连贯性的情况下分割，段落之间要有明确的因果或时间关系
+4. 总长度：250-500个中文字符
+5. 特别注意最后一句话 - 确保它切题并具有价值
+6. 删除任何对核心新闻故事没有事实价值的句子或短语
+
+## 输入数据
+
+原始英文摘要（用于翻译）：
+'''
+Researchers at NYU Langone have developed a new method that could help predict the risk of chronic traumatic encephalopathy (CTE), a neurodegenerative disease caused by repeated head injuries. A study published in September from the NYU Grossman School of Medicine addresses the major challenge that CTE can currently only be diagnosed through an autopsy after death. The research team, led by Professor Hector Arciniega, used advanced computer analysis to compare brain scans from 169 former male football players against 54 males without a history of brain trauma. They found that former players had wider and shallower brain grooves, called sulci, which became more pronounced with longer athletic careers. According to Arciniega, this finding could enable a comprehensive risk assessment, marking a "major shift in patient care" by allowing for earlier intervention. Future research aims to explore how social factors might also affect CTE diagnosis and treatment.
+'''
+原始文章标题（供参考）：Langone researchers find new way to detect nerve-killing head trauma
+
+## 输出格式
+
+你的回复必须严格按照以下格式：
+- 第1行："Chinese Title: [你的中文标题]"
+- 第2行：（空行）
+- 第3行及以后：[精炼的中文新闻正文]
+
+"Chinese Title:"之后的内容应该只是精炼的中文新闻正文 - 不要添加任何评论。
+
+你的回复：
+
+--------------------------------------------------------------------------------
+
+
+================================================================================
+Prompt #13 - verify_article_with_gemini
+Timestamp: 2025-11-30T22:14:59.183697
+
+Context:
+  article_url: https://nyunews.com/news/2025/11/25/nyu-langone-covid-smell-loss-study/
+  publication_date: 2025-11-25
+  school: New York University (NYU)
+  article_text_length: 3102
+
+Prompt:
+--------------------------------------------------------------------------------
+You are a news article analyst. Your task is to extract key metadata from the article text.
+
+## Requirements
+
+### Accuracy & Factuality (Highest Priority)
+- Extract dates ONLY from the article text or URL - do not infer or guess dates
+- Base article type classification strictly on the content structure and purpose
+- Do not add information not present in the article
+
+### Task
+Analyze the article and provide your analysis in EXACTLY three lines, each starting with the specified prefix:
+
+1. Publication Date: [Review the article text AND the Article URL (https://nyunews.com/news/2025/11/25/nyu-langone-covid-smell-loss-study/). Extract the most prominent date, ideally the publication date. Format YYYY-MM-DD or 'Date not found'. No other explanation.]
+2. Article Type: [Is this primarily a news article reporting on events/facts, or an opinion/blog/event listing/announcement? Answer ONLY 'News article', 'Opinion/Blog', 'Event/Announcement', or 'Type unclear'. No other explanation.]
+3. Analysis Notes: [Brief internal notes if needed, or 'N/A'. This line is for your process.]
+
+## Input Data
+
+--- Article Text (first 3102 characters) ---
+Langone researchersfound that people may unknowingly retain a reduced sense of smell years after having COVID-19, according to a report that measured perception of odors, or olfactory functions.
+Researchers surveyed over 3,500 participants — with and without a history of COVID-19 — using a scratch-and-sniff test that asked them to correctly identify 40 scents with multiple-choice questions. They monitored participants’ symptoms every three months for nearly four years and found that 80% of people who suspected that their sense of smell worsened after COVID-19 showed signs of impairment. Those who believed their sense of smell was unaffected, however, had “abnormally low” test scores.
+“One of the most common things that people noticed right away when the pandemic started is that people would lose their sense of smell,”co-lead author and Grossman professor Leora Horwitz told WSN. “We were curious to understand how long that would last and what that looked like in people.”
+The study was funded by NYU Langone Health’s Clinical Science Core — a branch of the National Institutes of Health’s RECOVER initiative, which supports research on long-term effects of COVID-19. It reported that of the 83% of participants who previously contracted the disease, only 47% reported a smelling deficiency, also known as hyposmia, despite nearly all of them experiencing one.
+Out of the patients that reported challenges smelling, nearly 80% experienced hyposmia, 23% of which had a severe or complete loss of scent. Of the patients that didn’t report any issues, 66% had hyposmia, 8% of which were severely affected. Horwitz said that the ability to smell was lost across the board, and that there wasn’t any area particularly affected.
+“Many people who told us they were smelling just fine also had abnormal scores on the smell test — that was interesting to us,” Horwitz said. “We may be missing a bunch of people if we’re not formally testing because they can’t always recognize it.”
+Horwitz noted that loss of smell can cause people to lose interest in eating, often leading to malnourishment. Although there are no concrete treatments, she said smell training — in which patients repeatedly expose themselves to familiar scents to re-train the brain’s recognition patterns — is “better than nothing.” Other alternatives, including sprays that reduce inflammation in nasal passages and vitamin A, also had mixed rates of success, according to the study.
+Researchers recommended that doctors screen long-term COVID-19 patients with scratch-and-sniff tests — even if they doubt experiencing any damage— because loss of sense of smell is often difficult to detect. Horwitz added that while some scientists have theorized that using nasal sprays immediately after infection could help prevent smell loss, the idea remains uncertain due to limited research on the subject.
+“If you can’t smell, then you can’t smell spoiled food. You can’t smell a gas leak. You can’t smell smoke from a fire,” Horwitz said. “There’s all sorts of consequences to loss of smell.”
+ContactSelin Kemiktarak at[email protected].
+--- End of Article Text ---
+
+Your response (exactly 3 lines as specified above):
+
+--------------------------------------------------------------------------------
+
+
+================================================================================
+Prompt #14 - generate_summary_with_gemini
+Timestamp: 2025-11-30T22:15:10.976329
+
+Context:
+  article_url: https://nyunews.com/news/2025/11/25/nyu-langone-covid-smell-loss-study/
+  article_title: COVID-19 may affect sense of smell for years, Langone study finds
+  school: New York University (NYU)
+  article_text_length: 3102
+
+Prompt:
+--------------------------------------------------------------------------------
+You are a professional English-language news writer. Your task is to create a detailed yet concise news summary based on the provided article text.
+
+## Role
+You are a professional English-language news writer specializing in accurate, factual reporting.
+
+## Task
+Create a detailed yet concise news summary (approximately 5-7 sentences, or 100-180 words) based on the provided article text.
+The summary is for Chinese international students at New York University (NYU).
+
+## Requirements
+
+### Accuracy & Factuality (Highest Priority)
+- Include ONLY information explicitly stated in the article text
+- Do NOT infer, guess, or add information not present in the article
+- Do NOT include personal opinions, interpretations, or conclusions not in the original text
+- Verify all dates, names, and numbers against the article text
+- If information is unclear or missing, do not fill in gaps with assumptions
+
+### Content Requirements
+Focus on key information most relevant to Chinese international students at New York University (NYU), especially concerning:
+- Their studies, work, daily life, or immigration/visa policies
+- Events or policies in New York or the U.S.
+
+Key points to cover, ensuring important details are retained:
+- What happened (core event/announcement)?
+- When and where did it happen (specific dates, locations)?
+- Who was involved (key individuals, groups, departments)?
+- Main consequences, implications, or direct impacts for Chinese international students at New York University (NYU)
+- Include crucial numbers, statistics, or significant outcomes
+
+### Style Requirements
+- Maintain a factual and objective tone
+- Use clear, professional language
+- Provide the summary directly, without introductory phrases like 'This article is about...'
+- Write in complete sentences with proper grammar
+
+### Format Requirements
+- Length: 5-7 sentences, or 100-180 words
+- Structure: Coherent narrative flow, not bullet points
+
+## Input Data
+
+The original article title is: 'COVID-19 may affect sense of smell for years, Langone study finds'. The article URL is: https://nyunews.com/news/2025/11/25/nyu-langone-covid-smell-loss-study/ (for your reference).
+
+--- Full Article Text (first 3102 characters) ---
+Langone researchersfound that people may unknowingly retain a reduced sense of smell years after having COVID-19, according to a report that measured perception of odors, or olfactory functions.
+Researchers surveyed over 3,500 participants — with and without a history of COVID-19 — using a scratch-and-sniff test that asked them to correctly identify 40 scents with multiple-choice questions. They monitored participants’ symptoms every three months for nearly four years and found that 80% of people who suspected that their sense of smell worsened after COVID-19 showed signs of impairment. Those who believed their sense of smell was unaffected, however, had “abnormally low” test scores.
+“One of the most common things that people noticed right away when the pandemic started is that people would lose their sense of smell,”co-lead author and Grossman professor Leora Horwitz told WSN. “We were curious to understand how long that would last and what that looked like in people.”
+The study was funded by NYU Langone Health’s Clinical Science Core — a branch of the National Institutes of Health’s RECOVER initiative, which supports research on long-term effects of COVID-19. It reported that of the 83% of participants who previously contracted the disease, only 47% reported a smelling deficiency, also known as hyposmia, despite nearly all of them experiencing one.
+Out of the patients that reported challenges smelling, nearly 80% experienced hyposmia, 23% of which had a severe or complete loss of scent. Of the patients that didn’t report any issues, 66% had hyposmia, 8% of which were severely affected. Horwitz said that the ability to smell was lost across the board, and that there wasn’t any area particularly affected.
+“Many people who told us they were smelling just fine also had abnormal scores on the smell test — that was interesting to us,” Horwitz said. “We may be missing a bunch of people if we’re not formally testing because they can’t always recognize it.”
+Horwitz noted that loss of smell can cause people to lose interest in eating, often leading to malnourishment. Although there are no concrete treatments, she said smell training — in which patients repeatedly expose themselves to familiar scents to re-train the brain’s recognition patterns — is “better than nothing.” Other alternatives, including sprays that reduce inflammation in nasal passages and vitamin A, also had mixed rates of success, according to the study.
+Researchers recommended that doctors screen long-term COVID-19 patients with scratch-and-sniff tests — even if they doubt experiencing any damage— because loss of sense of smell is often difficult to detect. Horwitz added that while some scientists have theorized that using nasal sprays immediately after infection could help prevent smell loss, the idea remains uncertain due to limited research on the subject.
+“If you can’t smell, then you can’t smell spoiled food. You can’t smell a gas leak. You can’t smell smoke from a fire,” Horwitz said. “There’s all sorts of consequences to loss of smell.”
+ContactSelin Kemiktarak at[email protected].
+--- End of Article Text ---
+
+## Output
+
+Detailed News Summary (5-7 sentences, 100-180 words, for Chinese international students at New York University (NYU)):
+
+--------------------------------------------------------------------------------
+
+
+================================================================================
+Prompt #15 - translate_and_restyle_to_chinese
+Timestamp: 2025-11-30T22:15:37.746805
+
+Context:
+  source_url: https://nyunews.com/news/2025/11/25/nyu-langone-covid-smell-loss-study/
+  publication_date: 2025-11-25
+  original_title: COVID-19 may affect sense of smell for years, Langone study finds
+  english_summary_length: 831
+
+Prompt:
+--------------------------------------------------------------------------------
+你是一位专业的中文新闻写作者和翻译。你的任务是将英文新闻摘要翻译成一篇准确、精炼的中文新闻，并生成一个吸引人的标题。
+
+## 角色
+你是一位专业的中文新闻写作者，专门为中国留学生撰写准确、精炼的新闻。
+
+## 任务
+将英文新闻摘要翻译成简体中文，生成一个吸引人的标题，并在一步中完成翻译和精炼。
+
+## 要求
+
+### 准确性与事实性（最高优先级）
+- 仅翻译英文摘要中明确陈述的信息 - 不要添加、推断或猜测
+- 保留所有事实细节：日期、姓名、数字、地点、组织
+- 不要添加原文中没有的后果、影响或观点
+- 避免使用"可能"、"引发"、"导致"等暗示未陈述后果的词语
+- 对照原始英文文本验证所有翻译
+
+### 标题生成要求
+1. 创建简洁、相关且吸引人的简体中文新闻标题
+2. 将标题放在第一行，前缀为"Chinese Title:"
+3. 如果单行标题超过15个中文字符，将其分成2个逗号分隔的段落，每段≤12个字符，在自然语义断点处分割
+4. 每个段落必须形成一个完整的短语（例如：主谓或动宾），不能是孤立的名词
+5. 对于每条新闻，考虑三种标题风格：
+   a) 弱点击诱式
+   b) 口语化风格
+   c) 简洁直接
+   选择最适合新闻主题的风格
+6. 避免使用隐喻、成语、谚语、双关语、谐音或其他修辞手法
+7. 避免过于正式或文学化的措辞 - 使用直接、自然的用词。
+8. 避免单字缩写（例如：不要用"美"来代指"全美"）
+
+### 翻译与内容要求
+1. 将英文摘要翻译成简体中文新闻文章格式
+2. 如果英文摘要包含多个新闻主题，选择最重要的一个并专注于它 - 保持文章连贯
+3. 不要试图包含原始英文摘要中的所有信息 - 优先考虑关键事实
+4. 对于不太常见的英文人名、组织名或项目名，翻译成中文并在括号中保留英文：中文名 (English Name)
+5. 对于非常知名的实体或常见的英文名称，可以直接使用中文翻译
+
+### 风格与精炼要求
+1. 使用严肃、正式、客观的新闻写作风格，但是不要写得很生硬，要自然，不要有AI味。读者是留学生。
+2. 不要有冗余的表述， 例如，不要写“将致力于”，直接写“将”，避免"旨在"等这种没有用的词。
+2. 使用短句和准确的词汇 - 避免复杂的长句
+3. 保持语言自然专业 - 尽量减少形容词
+4. 保持句子之间的逻辑连贯有序
+5. 不要包含额外的评论或观点
+6. 不要写结论 - 如果提到，可以以最新更新结尾，例如："目前，学校对此事件还没有做出回应。"
+7. 需要稍微有一点粗糙感，但是保持专业性，不要有AI味
+8. 减少不常见的标点符号的使用。
+
+### 结构与格式要求
+1. 每个关键事实点必须包含至少2句话：
+   - 第一句：核心事实的主要描述
+   - 第二句：阐述背景，提供具体细节、解释、影响、后续事件、采访引语（如有）或背景信息
+2. 如果两个相似或相关的事实存在，将它们合并为一个段落，而不是分开的段落
+3. 控制每个段落为80-250个中文字符 - 超过此长度的段落必须在保持逻辑连贯性的情况下分割，段落之间要有明确的因果或时间关系
+4. 总长度：250-500个中文字符
+5. 特别注意最后一句话 - 确保它切题并具有价值
+6. 删除任何对核心新闻故事没有事实价值的句子或短语
+
+## 输入数据
+
+原始英文摘要（用于翻译）：
+'''
+A study by NYU Langone Health researchers reveals that many people may unknowingly suffer from a reduced sense of smell for years after a COVID-19 infection. Led by Grossman professor Leora Horwitz, the research team surveyed over 3,500 participants using a scratch-and-sniff test. The results showed that 66% of participants who believed their sense of smell was unaffected post-COVID actually had abnormally low test scores, a condition known as hyposmia. Professor Horwitz noted that this impairment can lead to a loss of interest in eating and potential malnourishment. Crucially, it also poses safety risks, as individuals may fail to detect gas leaks, smoke from a fire, or spoiled food. The researchers recommend that doctors formally screen long-term COVID-19 patients with olfactory tests, even if they report no symptoms.
+'''
+原始文章标题（供参考）：COVID-19 may affect sense of smell for years, Langone study finds
+
+## 输出格式
+
+你的回复必须严格按照以下格式：
+- 第1行："Chinese Title: [你的中文标题]"
+- 第2行：（空行）
+- 第3行及以后：[精炼的中文新闻正文]
+
+"Chinese Title:"之后的内容应该只是精炼的中文新闻正文 - 不要添加任何评论。
+
+你的回复：
+
+--------------------------------------------------------------------------------
+
+
+================================================================================
+Prompt #16 - verify_article_with_gemini
+Timestamp: 2025-11-30T22:16:02.056424
+
+Context:
+  article_url: https://nyunews.com/news/2025/11/25/virtual-reality-train-workers-silver/
+  publication_date: 2025-11-25
+  school: New York University (NYU)
+  article_text_length: 3350
+
+Prompt:
+--------------------------------------------------------------------------------
+You are a news article analyst. Your task is to extract key metadata from the article text.
+
+## Requirements
+
+### Accuracy & Factuality (Highest Priority)
+- Extract dates ONLY from the article text or URL - do not infer or guess dates
+- Base article type classification strictly on the content structure and purpose
+- Do not add information not present in the article
+
+### Task
+Analyze the article and provide your analysis in EXACTLY three lines, each starting with the specified prefix:
+
+1. Publication Date: [Review the article text AND the Article URL (https://nyunews.com/news/2025/11/25/virtual-reality-train-workers-silver/). Extract the most prominent date, ideally the publication date. Format YYYY-MM-DD or 'Date not found'. No other explanation.]
+2. Article Type: [Is this primarily a news article reporting on events/facts, or an opinion/blog/event listing/announcement? Answer ONLY 'News article', 'Opinion/Blog', 'Event/Announcement', or 'Type unclear'. No other explanation.]
+3. Analysis Notes: [Brief internal notes if needed, or 'N/A'. This line is for your process.]
+
+## Input Data
+
+--- Article Text (first 3350 characters) ---
+An NYU Silver study found that hybrid models integratingvirtual simulationswith in-person training may help address a citywide shortage of qualified mental health professionals in New York City.
+Thepilot initiativekicked off in 2023, as part of a two-semester class at the Silver School of Social Work, where students mimicked real-life interactions with school children using virtual technology and actor-based models. Citing a 15.6% vacancy rate of mental health provider roles in the city, the study found that simulation training helped students build practical clinical skills. However, the technology-driven simulation has yet to replace instructors’ feedback, as many students found the automated analysis intimidating.
+“What we’re doing is breaking down and targeting the direct practices we want students to learn,” Anne Dempsey, researcher and associate clinical professor at Silver, said. “They get to practice in a low-stakes, non-harmful environment, which reduces harm to actual clients. Because if your social worker is more anxious than you are, that could be very unsettling.”
+As a part of the project, students worked through two actor-based simulations and interviewed three subjects about serious subjects such as suicide risk assessments and gender-affirming care.
+Instructors told the researchers that the simulations allowed them to provide critical, live feedback that enhanced the learning, while also cutting cost and time barriers. Nicholas Lanzieri, a researcher on the study and clinical professor at Silver, told WSN that during the simulations, students experience what it feels like to treat patients in real life — where practitioners themselves often have to regulate their anxieties.
+“We are aiming to make it as authentic as possible,” Lanzieri said. “The same feelings might arise in the student in the practice, so we can help the student process those.”
+The study revealed that many students felt anxious during the mock clinical practices, particularly in the simulations with overwhelming electronic feedback. Instructors also said they struggled to interpret the data-driven performance analysis provided by the program, emphasizing that virtual simulation technologies are still in the infancy stage and require further research to assess their effectiveness.
+Both Dempsey and Lanzieri are currently collaborating with the Tandon School of Engineering and Steinhardt School of Culture, Education and Human Development to launch an entirely AI-powered virtual reality simulation this spring. The simulation would similarly allow students to verbally engage with virtual “avatar” patients, and respond with direct feedback on their performance.
+Dempsey also noted that students interning with NYU’s community organization partners may not receive live feedback due to patient confidentiality policies — a challenge that can be mitigated through integrating simulation training that helps students strengthen interpersonal skills before entering real-world clinical environments.
+“A lot of students start in their practicum settings, working with live people at the same time as they start their classes,” she said. “Social work has not done that because we have relied more heavily on student internships. We want to take some of that work back into the school.”
+Contact Rebecca O’ Reilly at[email protected].
+--- End of Article Text ---
+
+Your response (exactly 3 lines as specified above):
+
+--------------------------------------------------------------------------------
+
+
+================================================================================
+Prompt #17 - generate_summary_with_gemini
+Timestamp: 2025-11-30T22:16:12.860179
+
+Context:
+  article_url: https://nyunews.com/news/2025/11/25/virtual-reality-train-workers-silver/
+  article_title: Silver trains social work students with virtual simulations
+  school: New York University (NYU)
+  article_text_length: 3350
+
+Prompt:
+--------------------------------------------------------------------------------
+You are a professional English-language news writer. Your task is to create a detailed yet concise news summary based on the provided article text.
+
+## Role
+You are a professional English-language news writer specializing in accurate, factual reporting.
+
+## Task
+Create a detailed yet concise news summary (approximately 5-7 sentences, or 100-180 words) based on the provided article text.
+The summary is for Chinese international students at New York University (NYU).
+
+## Requirements
+
+### Accuracy & Factuality (Highest Priority)
+- Include ONLY information explicitly stated in the article text
+- Do NOT infer, guess, or add information not present in the article
+- Do NOT include personal opinions, interpretations, or conclusions not in the original text
+- Verify all dates, names, and numbers against the article text
+- If information is unclear or missing, do not fill in gaps with assumptions
+
+### Content Requirements
+Focus on key information most relevant to Chinese international students at New York University (NYU), especially concerning:
+- Their studies, work, daily life, or immigration/visa policies
+- Events or policies in New York or the U.S.
+
+Key points to cover, ensuring important details are retained:
+- What happened (core event/announcement)?
+- When and where did it happen (specific dates, locations)?
+- Who was involved (key individuals, groups, departments)?
+- Main consequences, implications, or direct impacts for Chinese international students at New York University (NYU)
+- Include crucial numbers, statistics, or significant outcomes
+
+### Style Requirements
+- Maintain a factual and objective tone
+- Use clear, professional language
+- Provide the summary directly, without introductory phrases like 'This article is about...'
+- Write in complete sentences with proper grammar
+
+### Format Requirements
+- Length: 5-7 sentences, or 100-180 words
+- Structure: Coherent narrative flow, not bullet points
+
+## Input Data
+
+The original article title is: 'Silver trains social work students with virtual simulations'. The article URL is: https://nyunews.com/news/2025/11/25/virtual-reality-train-workers-silver/ (for your reference).
+
+--- Full Article Text (first 3350 characters) ---
+An NYU Silver study found that hybrid models integratingvirtual simulationswith in-person training may help address a citywide shortage of qualified mental health professionals in New York City.
+Thepilot initiativekicked off in 2023, as part of a two-semester class at the Silver School of Social Work, where students mimicked real-life interactions with school children using virtual technology and actor-based models. Citing a 15.6% vacancy rate of mental health provider roles in the city, the study found that simulation training helped students build practical clinical skills. However, the technology-driven simulation has yet to replace instructors’ feedback, as many students found the automated analysis intimidating.
+“What we’re doing is breaking down and targeting the direct practices we want students to learn,” Anne Dempsey, researcher and associate clinical professor at Silver, said. “They get to practice in a low-stakes, non-harmful environment, which reduces harm to actual clients. Because if your social worker is more anxious than you are, that could be very unsettling.”
+As a part of the project, students worked through two actor-based simulations and interviewed three subjects about serious subjects such as suicide risk assessments and gender-affirming care.
+Instructors told the researchers that the simulations allowed them to provide critical, live feedback that enhanced the learning, while also cutting cost and time barriers. Nicholas Lanzieri, a researcher on the study and clinical professor at Silver, told WSN that during the simulations, students experience what it feels like to treat patients in real life — where practitioners themselves often have to regulate their anxieties.
+“We are aiming to make it as authentic as possible,” Lanzieri said. “The same feelings might arise in the student in the practice, so we can help the student process those.”
+The study revealed that many students felt anxious during the mock clinical practices, particularly in the simulations with overwhelming electronic feedback. Instructors also said they struggled to interpret the data-driven performance analysis provided by the program, emphasizing that virtual simulation technologies are still in the infancy stage and require further research to assess their effectiveness.
+Both Dempsey and Lanzieri are currently collaborating with the Tandon School of Engineering and Steinhardt School of Culture, Education and Human Development to launch an entirely AI-powered virtual reality simulation this spring. The simulation would similarly allow students to verbally engage with virtual “avatar” patients, and respond with direct feedback on their performance.
+Dempsey also noted that students interning with NYU’s community organization partners may not receive live feedback due to patient confidentiality policies — a challenge that can be mitigated through integrating simulation training that helps students strengthen interpersonal skills before entering real-world clinical environments.
+“A lot of students start in their practicum settings, working with live people at the same time as they start their classes,” she said. “Social work has not done that because we have relied more heavily on student internships. We want to take some of that work back into the school.”
+Contact Rebecca O’ Reilly at[email protected].
+--- End of Article Text ---
+
+## Output
+
+Detailed News Summary (5-7 sentences, 100-180 words, for Chinese international students at New York University (NYU)):
+
+--------------------------------------------------------------------------------
+
+
+================================================================================
+Prompt #18 - translate_and_restyle_to_chinese
+Timestamp: 2025-11-30T22:16:31.559635
+
+Context:
+  source_url: https://nyunews.com/news/2025/11/25/virtual-reality-train-workers-silver/
+  publication_date: 2025-11-25
+  original_title: Silver trains social work students with virtual simulations
+  english_summary_length: 953
+
+Prompt:
+--------------------------------------------------------------------------------
+你是一位专业的中文新闻写作者和翻译。你的任务是将英文新闻摘要翻译成一篇准确、精炼的中文新闻，并生成一个吸引人的标题。
+
+## 角色
+你是一位专业的中文新闻写作者，专门为中国留学生撰写准确、精炼的新闻。
+
+## 任务
+将英文新闻摘要翻译成简体中文，生成一个吸引人的标题，并在一步中完成翻译和精炼。
+
+## 要求
+
+### 准确性与事实性（最高优先级）
+- 仅翻译英文摘要中明确陈述的信息 - 不要添加、推断或猜测
+- 保留所有事实细节：日期、姓名、数字、地点、组织
+- 不要添加原文中没有的后果、影响或观点
+- 避免使用"可能"、"引发"、"导致"等暗示未陈述后果的词语
+- 对照原始英文文本验证所有翻译
+
+### 标题生成要求
+1. 创建简洁、相关且吸引人的简体中文新闻标题
+2. 将标题放在第一行，前缀为"Chinese Title:"
+3. 如果单行标题超过15个中文字符，将其分成2个逗号分隔的段落，每段≤12个字符，在自然语义断点处分割
+4. 每个段落必须形成一个完整的短语（例如：主谓或动宾），不能是孤立的名词
+5. 对于每条新闻，考虑三种标题风格：
+   a) 弱点击诱式
+   b) 口语化风格
+   c) 简洁直接
+   选择最适合新闻主题的风格
+6. 避免使用隐喻、成语、谚语、双关语、谐音或其他修辞手法
+7. 避免过于正式或文学化的措辞 - 使用直接、自然的用词。
+8. 避免单字缩写（例如：不要用"美"来代指"全美"）
+
+### 翻译与内容要求
+1. 将英文摘要翻译成简体中文新闻文章格式
+2. 如果英文摘要包含多个新闻主题，选择最重要的一个并专注于它 - 保持文章连贯
+3. 不要试图包含原始英文摘要中的所有信息 - 优先考虑关键事实
+4. 对于不太常见的英文人名、组织名或项目名，翻译成中文并在括号中保留英文：中文名 (English Name)
+5. 对于非常知名的实体或常见的英文名称，可以直接使用中文翻译
+
+### 风格与精炼要求
+1. 使用严肃、正式、客观的新闻写作风格，但是不要写得很生硬，要自然，不要有AI味。读者是留学生。
+2. 不要有冗余的表述， 例如，不要写“将致力于”，直接写“将”，避免"旨在"等这种没有用的词。
+2. 使用短句和准确的词汇 - 避免复杂的长句
+3. 保持语言自然专业 - 尽量减少形容词
+4. 保持句子之间的逻辑连贯有序
+5. 不要包含额外的评论或观点
+6. 不要写结论 - 如果提到，可以以最新更新结尾，例如："目前，学校对此事件还没有做出回应。"
+7. 需要稍微有一点粗糙感，但是保持专业性，不要有AI味
+8. 减少不常见的标点符号的使用。
+
+### 结构与格式要求
+1. 每个关键事实点必须包含至少2句话：
+   - 第一句：核心事实的主要描述
+   - 第二句：阐述背景，提供具体细节、解释、影响、后续事件、采访引语（如有）或背景信息
+2. 如果两个相似或相关的事实存在，将它们合并为一个段落，而不是分开的段落
+3. 控制每个段落为80-250个中文字符 - 超过此长度的段落必须在保持逻辑连贯性的情况下分割，段落之间要有明确的因果或时间关系
+4. 总长度：250-500个中文字符
+5. 特别注意最后一句话 - 确保它切题并具有价值
+6. 删除任何对核心新闻故事没有事实价值的句子或短语
+
+## 输入数据
+
+原始英文摘要（用于翻译）：
+'''
+A 2023 pilot study at NYU's Silver School of Social Work is using virtual simulations to enhance student training and address a citywide shortage of mental health professionals. The initiative aims to help fill New York City's 15.6% vacancy rate for mental health roles by allowing students to build practical clinical skills in a low-stakes environment. In the program, students practice complex scenarios, including suicide risk assessments, through interactions with virtual technology and actor-based models. Researchers Anne Dempsey and Nicholas Lanzieri noted that this method allows for critical live feedback, which is often difficult to provide during internships due to patient confidentiality rules. While some students found the automated feedback intimidating, the study affirmed the training's benefits. Silver is now collaborating with the Tandon and Steinhardt schools to launch a fully AI-powered virtual reality simulation this spring.
+'''
+原始文章标题（供参考）：Silver trains social work students with virtual simulations
+
+## 输出格式
+
+你的回复必须严格按照以下格式：
+- 第1行："Chinese Title: [你的中文标题]"
+- 第2行：（空行）
+- 第3行及以后：[精炼的中文新闻正文]
+
+"Chinese Title:"之后的内容应该只是精炼的中文新闻正文 - 不要添加任何评论。
+
+你的回复：
+
+--------------------------------------------------------------------------------
+
+
+================================================================================
+Prompt #19 - verify_article_with_gemini
+Timestamp: 2025-11-30T22:16:55.092169
+
+Context:
+  article_url: https://nyunews.com/news/2025/11/26/tandon-urban-healthcare-disparities-study/
+  publication_date: 2025-11-26
+  school: New York University (NYU)
+  article_text_length: 2806
+
+Prompt:
+--------------------------------------------------------------------------------
+You are a news article analyst. Your task is to extract key metadata from the article text.
+
+## Requirements
+
+### Accuracy & Factuality (Highest Priority)
+- Extract dates ONLY from the article text or URL - do not infer or guess dates
+- Base article type classification strictly on the content structure and purpose
+- Do not add information not present in the article
+
+### Task
+Analyze the article and provide your analysis in EXACTLY three lines, each starting with the specified prefix:
+
+1. Publication Date: [Review the article text AND the Article URL (https://nyunews.com/news/2025/11/26/tandon-urban-healthcare-disparities-study/). Extract the most prominent date, ideally the publication date. Format YYYY-MM-DD or 'Date not found'. No other explanation.]
+2. Article Type: [Is this primarily a news article reporting on events/facts, or an opinion/blog/event listing/announcement? Answer ONLY 'News article', 'Opinion/Blog', 'Event/Announcement', or 'Type unclear'. No other explanation.]
+3. Analysis Notes: [Brief internal notes if needed, or 'N/A'. This line is for your process.]
+
+## Input Data
+
+--- Article Text (first 2806 characters) ---
+Tandon researchersfound thatmedical specialists can’t keep up with rapidly growing populations in larger cities, resulting in longer wait-times and bounced referrals that most prominently affect elderly patients.
+Researchers used the urban scaling theory — a formula that analyzes how urban indicators, such as economic activity, crime and infrastructure, change along population size— to examine whether specialists grow faster or slower than the population in their cities. TheSeptember studyexamined 75 medical specialties across nearly 900 cities, and collected data from more than 1.4 million health-care providers nationwide, finding that large metropolitan areas are unprepared to sustain their growing populations’ medical needs due to limited specialists.
+New York City in particular, offers access to 74 out of the 75 specialty providers tracked in the study but has only 4.7 specialists per 1,000 residents, which researchers say undermines care for conditions common among older adults. Patients in larger cities may also face challenges such as bounced referrals and an overreliance on primary care doctors to manage chronic illnesses.
+“We observed that providers related to geriatric care — like urology or gerontology specialists — don’t scale up as quickly as city populations grow,” lead author and Tandon Ph.D candidate Tian Gan told WSN. “Older adults, who often need continuous and specialized care, may face longer wait times and more difficulty accessing the right specialist.”
+Researchers also used the data to identify the most underrepresented and overrepresented specialties in metropolitan cities, with the former being addiction and preventive medicine and the latter being Anesthesiology and Internal Medicine. Gan said that the results emphasize the need for cooperation between urban planning and health policy to address the limited access to providers that urban residents face.
+Researchers focused on challenges within cities, rather than drawing comparisons between rural and urban environments, which vary by population. Gan noted that future implications include “medical tourism,” which means patients must resort to traveling to specialized centers outside of their neighborhoods to receive faster care. She said future research on travel patterns could clarify how urban residents adapt to shortages in health care.
+“Most studies on health care access focus on a simple rural-urban division. This misses the nuances of how specialty care is distributed across cities of different sizes,” Gan said. “Urban scaling theory offers a powerful framework — applying it to health-care specialists allowed us to quantify not just how many providers cities have but also how diversity and per-capita provision change with city size.”
+Contact Angel Dilawar at[email protected].
+--- End of Article Text ---
+
+Your response (exactly 3 lines as specified above):
+
+--------------------------------------------------------------------------------
+
+
+================================================================================
+Prompt #20 - generate_summary_with_gemini
+Timestamp: 2025-11-30T22:17:06.875653
+
+Context:
+  article_url: https://nyunews.com/news/2025/11/26/tandon-urban-healthcare-disparities-study/
+  article_title: Urban health care can’t keep up, Tandon study finds
+  school: New York University (NYU)
+  article_text_length: 2806
+
+Prompt:
+--------------------------------------------------------------------------------
+You are a professional English-language news writer. Your task is to create a detailed yet concise news summary based on the provided article text.
+
+## Role
+You are a professional English-language news writer specializing in accurate, factual reporting.
+
+## Task
+Create a detailed yet concise news summary (approximately 5-7 sentences, or 100-180 words) based on the provided article text.
+The summary is for Chinese international students at New York University (NYU).
+
+## Requirements
+
+### Accuracy & Factuality (Highest Priority)
+- Include ONLY information explicitly stated in the article text
+- Do NOT infer, guess, or add information not present in the article
+- Do NOT include personal opinions, interpretations, or conclusions not in the original text
+- Verify all dates, names, and numbers against the article text
+- If information is unclear or missing, do not fill in gaps with assumptions
+
+### Content Requirements
+Focus on key information most relevant to Chinese international students at New York University (NYU), especially concerning:
+- Their studies, work, daily life, or immigration/visa policies
+- Events or policies in New York or the U.S.
+
+Key points to cover, ensuring important details are retained:
+- What happened (core event/announcement)?
+- When and where did it happen (specific dates, locations)?
+- Who was involved (key individuals, groups, departments)?
+- Main consequences, implications, or direct impacts for Chinese international students at New York University (NYU)
+- Include crucial numbers, statistics, or significant outcomes
+
+### Style Requirements
+- Maintain a factual and objective tone
+- Use clear, professional language
+- Provide the summary directly, without introductory phrases like 'This article is about...'
+- Write in complete sentences with proper grammar
+
+### Format Requirements
+- Length: 5-7 sentences, or 100-180 words
+- Structure: Coherent narrative flow, not bullet points
+
+## Input Data
+
+The original article title is: 'Urban health care can’t keep up, Tandon study finds'. The article URL is: https://nyunews.com/news/2025/11/26/tandon-urban-healthcare-disparities-study/ (for your reference).
+
+--- Full Article Text (first 2806 characters) ---
+Tandon researchersfound thatmedical specialists can’t keep up with rapidly growing populations in larger cities, resulting in longer wait-times and bounced referrals that most prominently affect elderly patients.
+Researchers used the urban scaling theory — a formula that analyzes how urban indicators, such as economic activity, crime and infrastructure, change along population size— to examine whether specialists grow faster or slower than the population in their cities. TheSeptember studyexamined 75 medical specialties across nearly 900 cities, and collected data from more than 1.4 million health-care providers nationwide, finding that large metropolitan areas are unprepared to sustain their growing populations’ medical needs due to limited specialists.
+New York City in particular, offers access to 74 out of the 75 specialty providers tracked in the study but has only 4.7 specialists per 1,000 residents, which researchers say undermines care for conditions common among older adults. Patients in larger cities may also face challenges such as bounced referrals and an overreliance on primary care doctors to manage chronic illnesses.
+“We observed that providers related to geriatric care — like urology or gerontology specialists — don’t scale up as quickly as city populations grow,” lead author and Tandon Ph.D candidate Tian Gan told WSN. “Older adults, who often need continuous and specialized care, may face longer wait times and more difficulty accessing the right specialist.”
+Researchers also used the data to identify the most underrepresented and overrepresented specialties in metropolitan cities, with the former being addiction and preventive medicine and the latter being Anesthesiology and Internal Medicine. Gan said that the results emphasize the need for cooperation between urban planning and health policy to address the limited access to providers that urban residents face.
+Researchers focused on challenges within cities, rather than drawing comparisons between rural and urban environments, which vary by population. Gan noted that future implications include “medical tourism,” which means patients must resort to traveling to specialized centers outside of their neighborhoods to receive faster care. She said future research on travel patterns could clarify how urban residents adapt to shortages in health care.
+“Most studies on health care access focus on a simple rural-urban division. This misses the nuances of how specialty care is distributed across cities of different sizes,” Gan said. “Urban scaling theory offers a powerful framework — applying it to health-care specialists allowed us to quantify not just how many providers cities have but also how diversity and per-capita provision change with city size.”
+Contact Angel Dilawar at[email protected].
+--- End of Article Text ---
+
+## Output
+
+Detailed News Summary (5-7 sentences, 100-180 words, for Chinese international students at New York University (NYU)):
+
+--------------------------------------------------------------------------------
+
+
+================================================================================
+Prompt #21 - translate_and_restyle_to_chinese
+Timestamp: 2025-11-30T22:17:25.019373
+
+Context:
+  source_url: https://nyunews.com/news/2025/11/26/tandon-urban-healthcare-disparities-study/
+  publication_date: 2025-11-26
+  original_title: Urban health care can’t keep up, Tandon study finds
+  english_summary_length: 983
+
+Prompt:
+--------------------------------------------------------------------------------
+你是一位专业的中文新闻写作者和翻译。你的任务是将英文新闻摘要翻译成一篇准确、精炼的中文新闻，并生成一个吸引人的标题。
+
+## 角色
+你是一位专业的中文新闻写作者，专门为中国留学生撰写准确、精炼的新闻。
+
+## 任务
+将英文新闻摘要翻译成简体中文，生成一个吸引人的标题，并在一步中完成翻译和精炼。
+
+## 要求
+
+### 准确性与事实性（最高优先级）
+- 仅翻译英文摘要中明确陈述的信息 - 不要添加、推断或猜测
+- 保留所有事实细节：日期、姓名、数字、地点、组织
+- 不要添加原文中没有的后果、影响或观点
+- 避免使用"可能"、"引发"、"导致"等暗示未陈述后果的词语
+- 对照原始英文文本验证所有翻译
+
+### 标题生成要求
+1. 创建简洁、相关且吸引人的简体中文新闻标题
+2. 将标题放在第一行，前缀为"Chinese Title:"
+3. 如果单行标题超过15个中文字符，将其分成2个逗号分隔的段落，每段≤12个字符，在自然语义断点处分割
+4. 每个段落必须形成一个完整的短语（例如：主谓或动宾），不能是孤立的名词
+5. 对于每条新闻，考虑三种标题风格：
+   a) 弱点击诱式
+   b) 口语化风格
+   c) 简洁直接
+   选择最适合新闻主题的风格
+6. 避免使用隐喻、成语、谚语、双关语、谐音或其他修辞手法
+7. 避免过于正式或文学化的措辞 - 使用直接、自然的用词。
+8. 避免单字缩写（例如：不要用"美"来代指"全美"）
+
+### 翻译与内容要求
+1. 将英文摘要翻译成简体中文新闻文章格式
+2. 如果英文摘要包含多个新闻主题，选择最重要的一个并专注于它 - 保持文章连贯
+3. 不要试图包含原始英文摘要中的所有信息 - 优先考虑关键事实
+4. 对于不太常见的英文人名、组织名或项目名，翻译成中文并在括号中保留英文：中文名 (English Name)
+5. 对于非常知名的实体或常见的英文名称，可以直接使用中文翻译
+
+### 风格与精炼要求
+1. 使用严肃、正式、客观的新闻写作风格，但是不要写得很生硬，要自然，不要有AI味。读者是留学生。
+2. 不要有冗余的表述， 例如，不要写“将致力于”，直接写“将”，避免"旨在"等这种没有用的词。
+2. 使用短句和准确的词汇 - 避免复杂的长句
+3. 保持语言自然专业 - 尽量减少形容词
+4. 保持句子之间的逻辑连贯有序
+5. 不要包含额外的评论或观点
+6. 不要写结论 - 如果提到，可以以最新更新结尾，例如："目前，学校对此事件还没有做出回应。"
+7. 需要稍微有一点粗糙感，但是保持专业性，不要有AI味
+8. 减少不常见的标点符号的使用。
+
+### 结构与格式要求
+1. 每个关键事实点必须包含至少2句话：
+   - 第一句：核心事实的主要描述
+   - 第二句：阐述背景，提供具体细节、解释、影响、后续事件、采访引语（如有）或背景信息
+2. 如果两个相似或相关的事实存在，将它们合并为一个段落，而不是分开的段落
+3. 控制每个段落为80-250个中文字符 - 超过此长度的段落必须在保持逻辑连贯性的情况下分割，段落之间要有明确的因果或时间关系
+4. 总长度：250-500个中文字符
+5. 特别注意最后一句话 - 确保它切题并具有价值
+6. 删除任何对核心新闻故事没有事实价值的句子或短语
+
+## 输入数据
+
+原始英文摘要（用于翻译）：
+'''
+A recent study by researchers at NYU's Tandon School of Engineering has found that medical specialist availability in large cities is failing to keep pace with population growth, leading to significant healthcare access issues. Published in September, the study analyzed data from over 1.4 million healthcare providers across 75 specialties in nearly 900 U.S. cities. The research highlights that New York City, despite offering access to 74 of the specialties, has only 4.7 specialists per 1,000 residents. This shortage can result in longer wait times, bounced referrals, and an overreliance on primary care doctors for all residents, including students. The study identified addiction and preventive medicine as among the most underrepresented specialties in large metropolitan areas. According to the researchers, these provider shortages may force patients to engage in "medical tourism," meaning they must travel outside their neighborhoods to receive faster, specialized care.
+'''
+原始文章标题（供参考）：Urban health care can’t keep up, Tandon study finds
+
+## 输出格式
+
+你的回复必须严格按照以下格式：
+- 第1行："Chinese Title: [你的中文标题]"
+- 第2行：（空行）
+- 第3行及以后：[精炼的中文新闻正文]
+
+"Chinese Title:"之后的内容应该只是精炼的中文新闻正文 - 不要添加任何评论。
+
+你的回复：
+
+--------------------------------------------------------------------------------
+
+
+================================================================================
+Prompt #22 - verify_article_with_gemini
+Timestamp: 2025-11-30T22:17:49.786453
+
+Context:
+  article_url: https://nyunews.com/news/2025/11/26/trump-administration-disaggregated-data/
+  publication_date: 2025-11-26
+  school: New York University (NYU)
+  article_text_length: 4032
+
+Prompt:
+--------------------------------------------------------------------------------
+You are a news article analyst. Your task is to extract key metadata from the article text.
+
+## Requirements
+
+### Accuracy & Factuality (Highest Priority)
+- Extract dates ONLY from the article text or URL - do not infer or guess dates
+- Base article type classification strictly on the content structure and purpose
+- Do not add information not present in the article
+
+### Task
+Analyze the article and provide your analysis in EXACTLY three lines, each starting with the specified prefix:
+
+1. Publication Date: [Review the article text AND the Article URL (https://nyunews.com/news/2025/11/26/trump-administration-disaggregated-data/). Extract the most prominent date, ideally the publication date. Format YYYY-MM-DD or 'Date not found'. No other explanation.]
+2. Article Type: [Is this primarily a news article reporting on events/facts, or an opinion/blog/event listing/announcement? Answer ONLY 'News article', 'Opinion/Blog', 'Event/Announcement', or 'Type unclear'. No other explanation.]
+3. Analysis Notes: [Brief internal notes if needed, or 'N/A'. This line is for your process.]
+
+## Input Data
+
+--- Article Text (first 4032 characters) ---
+NYU is “awaiting further guidance” from the federal government to share detailed applicant data with the Department of Education, as universities face mounting pressure from the Trump administration to prove that they do not adhere to race-based admissions.
+Starting Dec. 3, the department will require four-year universities to submit data on the race and sex of applicants and admitted students to ensure they are not “passing over the most qualified students in favor of others based on their race.” The submission will be part of an annual series of surveys mandated for all higher education institutions that receive federal student aid or other funding.
+“NYU — like all universities — is awaiting further guidance from the federal government regarding revised reporting requirements,” NYU spokesperson Joseph Tirella said.
+Under the new requirement, the National Center for Education Statistics will collectsix yearsof application and admissions data overthree separate reporting seasonsthrough the Integrated Postsecondary Education Data System survey, which collects data including students’ race, sex, standardized test scores and GPAs. Refusal to fill out the survey puts schools at risk of losing their federal funding — which for NYU would mean up to $1.5 billion in research grants and student aid.
+The initiative comes amid the Trump administration’s ongoing push for universities to prove that they do not use race-based admissions, citing the Supreme Court’s ban on affirmative action. Following the 2023 decision, NYU saw Black student enrollment drop from7% to 4%and Latino student enrollment fell from 15% to 10% — while Asian student enrollment rose from 22% to 27% and white student enrollment increased from 21% to 23%.
+“It’s creating a system where the existence of people of color can be seen as a red flag,” NYU Black Student Union president Christian Howze told WSN. “I’m very concerned about the metrics they’re going to use to determine if a school is still using race-based admissions.”
+He added that releasing data to the federal government may exacerbate existing frustration within the student body, particularly following aracially motivated data breachin spring. Over 3 million applicants’ data — including names, test scores and zip codes dating back over 30 years — were broadcast on NYU’s home page. Posting charts with test scores, the hacker claimed that admitted Black students’ average SAT score in 2024 was lower than all other admitted demographics, framing it as evidence that the university is illegally using race-based admissions.
+Following the breach, BSU released a statement condemning the “inflammatory and racist language” that the hacker posted online and criticizing administrators for not addressing the attack’s racial targeting. The group made similar comments earlier this semester, after administrators did not acknowledge that a hoax manifesto specifically threatened to open fire on Black students and faculty until hours after it had circulated within the university community.
+“Students already don’t feel a sense of belonging,” Howze said. “I would hate for this to allow the federal government to attack the Black and brown population we have on campus just for being here.”
+In aNov. 17 internal memoobtained by The Guardian, the State Department recommended terminating 38 universities from a federal research partnership program due to their engagement in diversity, equity and inclusion practices. Though it is unclear whether NYU is included in the memo, the university has lost at least $6 million in grants since President Donald Trump suspended trillions of dollars in federal aid.
+“I see why NYU has to do the things they do to protect their federal funding, but I think oftentimes, it leaves people of color feeling left out or not cared about,” Howze said. “As a Black student, that makes me scared for what future classes could experience, and what the future of NYU looks like.”
+Amanda Chen contributed reporting.
+Contact Zachary Karp at[email protected].
+--- End of Article Text ---
+
+Your response (exactly 3 lines as specified above):
+
+--------------------------------------------------------------------------------
+
+
+================================================================================
+Prompt #23 - generate_summary_with_gemini
+Timestamp: 2025-11-30T22:18:01.245913
+
+Context:
+  article_url: https://nyunews.com/news/2025/11/26/trump-administration-disaggregated-data/
+  article_title: NYU awaits guidance on admissions data release
+  school: New York University (NYU)
+  article_text_length: 4032
+
+Prompt:
+--------------------------------------------------------------------------------
+You are a professional English-language news writer. Your task is to create a detailed yet concise news summary based on the provided article text.
+
+## Role
+You are a professional English-language news writer specializing in accurate, factual reporting.
+
+## Task
+Create a detailed yet concise news summary (approximately 5-7 sentences, or 100-180 words) based on the provided article text.
+The summary is for Chinese international students at New York University (NYU).
+
+## Requirements
+
+### Accuracy & Factuality (Highest Priority)
+- Include ONLY information explicitly stated in the article text
+- Do NOT infer, guess, or add information not present in the article
+- Do NOT include personal opinions, interpretations, or conclusions not in the original text
+- Verify all dates, names, and numbers against the article text
+- If information is unclear or missing, do not fill in gaps with assumptions
+
+### Content Requirements
+Focus on key information most relevant to Chinese international students at New York University (NYU), especially concerning:
+- Their studies, work, daily life, or immigration/visa policies
+- Events or policies in New York or the U.S.
+
+Key points to cover, ensuring important details are retained:
+- What happened (core event/announcement)?
+- When and where did it happen (specific dates, locations)?
+- Who was involved (key individuals, groups, departments)?
+- Main consequences, implications, or direct impacts for Chinese international students at New York University (NYU)
+- Include crucial numbers, statistics, or significant outcomes
+
+### Style Requirements
+- Maintain a factual and objective tone
+- Use clear, professional language
+- Provide the summary directly, without introductory phrases like 'This article is about...'
+- Write in complete sentences with proper grammar
+
+### Format Requirements
+- Length: 5-7 sentences, or 100-180 words
+- Structure: Coherent narrative flow, not bullet points
+
+## Input Data
+
+The original article title is: 'NYU awaits guidance on admissions data release'. The article URL is: https://nyunews.com/news/2025/11/26/trump-administration-disaggregated-data/ (for your reference).
+
+--- Full Article Text (first 4032 characters) ---
+NYU is “awaiting further guidance” from the federal government to share detailed applicant data with the Department of Education, as universities face mounting pressure from the Trump administration to prove that they do not adhere to race-based admissions.
+Starting Dec. 3, the department will require four-year universities to submit data on the race and sex of applicants and admitted students to ensure they are not “passing over the most qualified students in favor of others based on their race.” The submission will be part of an annual series of surveys mandated for all higher education institutions that receive federal student aid or other funding.
+“NYU — like all universities — is awaiting further guidance from the federal government regarding revised reporting requirements,” NYU spokesperson Joseph Tirella said.
+Under the new requirement, the National Center for Education Statistics will collectsix yearsof application and admissions data overthree separate reporting seasonsthrough the Integrated Postsecondary Education Data System survey, which collects data including students’ race, sex, standardized test scores and GPAs. Refusal to fill out the survey puts schools at risk of losing their federal funding — which for NYU would mean up to $1.5 billion in research grants and student aid.
+The initiative comes amid the Trump administration’s ongoing push for universities to prove that they do not use race-based admissions, citing the Supreme Court’s ban on affirmative action. Following the 2023 decision, NYU saw Black student enrollment drop from7% to 4%and Latino student enrollment fell from 15% to 10% — while Asian student enrollment rose from 22% to 27% and white student enrollment increased from 21% to 23%.
+“It’s creating a system where the existence of people of color can be seen as a red flag,” NYU Black Student Union president Christian Howze told WSN. “I’m very concerned about the metrics they’re going to use to determine if a school is still using race-based admissions.”
+He added that releasing data to the federal government may exacerbate existing frustration within the student body, particularly following aracially motivated data breachin spring. Over 3 million applicants’ data — including names, test scores and zip codes dating back over 30 years — were broadcast on NYU’s home page. Posting charts with test scores, the hacker claimed that admitted Black students’ average SAT score in 2024 was lower than all other admitted demographics, framing it as evidence that the university is illegally using race-based admissions.
+Following the breach, BSU released a statement condemning the “inflammatory and racist language” that the hacker posted online and criticizing administrators for not addressing the attack’s racial targeting. The group made similar comments earlier this semester, after administrators did not acknowledge that a hoax manifesto specifically threatened to open fire on Black students and faculty until hours after it had circulated within the university community.
+“Students already don’t feel a sense of belonging,” Howze said. “I would hate for this to allow the federal government to attack the Black and brown population we have on campus just for being here.”
+In aNov. 17 internal memoobtained by The Guardian, the State Department recommended terminating 38 universities from a federal research partnership program due to their engagement in diversity, equity and inclusion practices. Though it is unclear whether NYU is included in the memo, the university has lost at least $6 million in grants since President Donald Trump suspended trillions of dollars in federal aid.
+“I see why NYU has to do the things they do to protect their federal funding, but I think oftentimes, it leaves people of color feeling left out or not cared about,” Howze said. “As a Black student, that makes me scared for what future classes could experience, and what the future of NYU looks like.”
+Amanda Chen contributed reporting.
+Contact Zachary Karp at[email protected].
+--- End of Article Text ---
+
+## Output
+
+Detailed News Summary (5-7 sentences, 100-180 words, for Chinese international students at New York University (NYU)):
+
+--------------------------------------------------------------------------------
+
+
+================================================================================
+Prompt #24 - translate_and_restyle_to_chinese
+Timestamp: 2025-11-30T22:18:23.042217
+
+Context:
+  source_url: https://nyunews.com/news/2025/11/26/trump-administration-disaggregated-data/
+  publication_date: 2025-11-26
+  original_title: NYU awaits guidance on admissions data release
+  english_summary_length: 867
+
+Prompt:
+--------------------------------------------------------------------------------
+你是一位专业的中文新闻写作者和翻译。你的任务是将英文新闻摘要翻译成一篇准确、精炼的中文新闻，并生成一个吸引人的标题。
+
+## 角色
+你是一位专业的中文新闻写作者，专门为中国留学生撰写准确、精炼的新闻。
+
+## 任务
+将英文新闻摘要翻译成简体中文，生成一个吸引人的标题，并在一步中完成翻译和精炼。
+
+## 要求
+
+### 准确性与事实性（最高优先级）
+- 仅翻译英文摘要中明确陈述的信息 - 不要添加、推断或猜测
+- 保留所有事实细节：日期、姓名、数字、地点、组织
+- 不要添加原文中没有的后果、影响或观点
+- 避免使用"可能"、"引发"、"导致"等暗示未陈述后果的词语
+- 对照原始英文文本验证所有翻译
+
+### 标题生成要求
+1. 创建简洁、相关且吸引人的简体中文新闻标题
+2. 将标题放在第一行，前缀为"Chinese Title:"
+3. 如果单行标题超过15个中文字符，将其分成2个逗号分隔的段落，每段≤12个字符，在自然语义断点处分割
+4. 每个段落必须形成一个完整的短语（例如：主谓或动宾），不能是孤立的名词
+5. 对于每条新闻，考虑三种标题风格：
+   a) 弱点击诱式
+   b) 口语化风格
+   c) 简洁直接
+   选择最适合新闻主题的风格
+6. 避免使用隐喻、成语、谚语、双关语、谐音或其他修辞手法
+7. 避免过于正式或文学化的措辞 - 使用直接、自然的用词。
+8. 避免单字缩写（例如：不要用"美"来代指"全美"）
+
+### 翻译与内容要求
+1. 将英文摘要翻译成简体中文新闻文章格式
+2. 如果英文摘要包含多个新闻主题，选择最重要的一个并专注于它 - 保持文章连贯
+3. 不要试图包含原始英文摘要中的所有信息 - 优先考虑关键事实
+4. 对于不太常见的英文人名、组织名或项目名，翻译成中文并在括号中保留英文：中文名 (English Name)
+5. 对于非常知名的实体或常见的英文名称，可以直接使用中文翻译
+
+### 风格与精炼要求
+1. 使用严肃、正式、客观的新闻写作风格，但是不要写得很生硬，要自然，不要有AI味。读者是留学生。
+2. 不要有冗余的表述， 例如，不要写“将致力于”，直接写“将”，避免"旨在"等这种没有用的词。
+2. 使用短句和准确的词汇 - 避免复杂的长句
+3. 保持语言自然专业 - 尽量减少形容词
+4. 保持句子之间的逻辑连贯有序
+5. 不要包含额外的评论或观点
+6. 不要写结论 - 如果提到，可以以最新更新结尾，例如："目前，学校对此事件还没有做出回应。"
+7. 需要稍微有一点粗糙感，但是保持专业性，不要有AI味
+8. 减少不常见的标点符号的使用。
+
+### 结构与格式要求
+1. 每个关键事实点必须包含至少2句话：
+   - 第一句：核心事实的主要描述
+   - 第二句：阐述背景，提供具体细节、解释、影响、后续事件、采访引语（如有）或背景信息
+2. 如果两个相似或相关的事实存在，将它们合并为一个段落，而不是分开的段落
+3. 控制每个段落为80-250个中文字符 - 超过此长度的段落必须在保持逻辑连贯性的情况下分割，段落之间要有明确的因果或时间关系
+4. 总长度：250-500个中文字符
+5. 特别注意最后一句话 - 确保它切题并具有价值
+6. 删除任何对核心新闻故事没有事实价值的句子或短语
+
+## 输入数据
+
+原始英文摘要（用于翻译）：
+'''
+Beginning December 3, New York University must comply with a new Trump administration requirement to submit six years of detailed applicant and admissions data to the federal government. The Department of Education will use the data—including race, sex, test scores, and GPAs—to ensure the university is not using race-based admissions, following the Supreme Court’s 2023 ban on affirmative action. NYU risks losing up to $1.5 billion in federal research and student aid funding if it fails to comply. This federal pressure comes after NYU's student demographics shifted following the 2023 ruling. Specifically, Asian student enrollment rose from 22% to 27%, while Black and Latino student enrollment decreased. An NYU spokesperson confirmed the university is currently "awaiting further guidance" from the federal government regarding the new reporting requirements.
+'''
+原始文章标题（供参考）：NYU awaits guidance on admissions data release
+
+## 输出格式
+
+你的回复必须严格按照以下格式：
+- 第1行："Chinese Title: [你的中文标题]"
+- 第2行：（空行）
+- 第3行及以后：[精炼的中文新闻正文]
+
+"Chinese Title:"之后的内容应该只是精炼的中文新闻正文 - 不要添加任何评论。
+
+你的回复：
+
+--------------------------------------------------------------------------------
+
+
+================================================================================
+Run completed: 2025-11-30T22:18:59.714638
+Date Range: 2025-11-24 to 2025-11-30
+Total Reports: 8
+================================================================================
+
+================================================================================
+Prompt #25 - verify_article_with_gemini
+Timestamp: 2025-11-30T22:22:50.330009
+
+Context:
+  article_url: https://nyunews.com/news/2025/11/24/trump-mamdani-meeting-border-czar-escalates-immigration-nyc-subway-wire-thief-delays-subways/
+  publication_date: 2025-11-24
+  school: New York University (NYU)
+  article_text_length: 4825
+
+Prompt:
+--------------------------------------------------------------------------------
+You are a news article analyst. Your task is to extract key metadata from the article text.
+
+## Requirements
+
+### Accuracy & Factuality (Highest Priority)
+- Extract dates ONLY from the article text or URL - do not infer or guess dates
+- Base article type classification strictly on the content structure and purpose
+- Do not add information not present in the article
+
+### Task
+Analyze the article and provide your analysis in EXACTLY three lines, each starting with the specified prefix:
+
+1. Publication Date: [Review the article text AND the Article URL (https://nyunews.com/news/2025/11/24/trump-mamdani-meeting-border-czar-escalates-immigration-nyc-subway-wire-thief-delays-subways/). Extract the most prominent date, ideally the publication date. Format YYYY-MM-DD or 'Date not found'. No other explanation.]
+2. Article Type: [Is this primarily a news article reporting on events/facts, or an opinion/blog/event listing/announcement? Answer ONLY 'News article', 'Opinion/Blog', 'Event/Announcement', or 'Type unclear'. No other explanation.]
+3. Analysis Notes: [Brief internal notes if needed, or 'N/A'. This line is for your process.]
+
+## Input Data
+
+--- Article Text (first 4825 characters) ---
+Mayor-elect Zohran Mamdani said he had a “productive meeting” with President Donald Trump in the Oval Office Friday afternoon, nearly three weeks after hishistoric victory.
+The two pledged to work together to address the city’s affordability and housing crises, consistent with Mamdani’s campaign platform, and Trump called it a “good sign” that Mamdani plans to keep police commissioner Jessica Tisch. The mayor-elect also vowed to maintain the city’s 35,000 police officers and hire additional social workers to respond to mental health calls, which are typically directed to the New York City Police Department.
+Mamdani said New Yorkers are growing “tired of seeing our tax dollars fund endless wars,” citing Israel’s ongoing siege in Gaza and that the country should “follow through” on international human rights promises. When reporters asked whether Trump would stop Mamdani from arresting Israeli Prime Minister Benjamin Netenyahu if he were to come to New York City, Trump skirted the question and said that although Mamdani’s views are a little “out there,” there is room for change.
+The meeting follows months of traded insults between Trump and Mamdani, with the president repeatedly calling the democratic socialist a “radical left lunatic” and a “communist.” When a reporter asked Mamdani if he still considers Trump a fascist,he upheldthe statement after Trump laughed and told him, “That’s okay, you can just say it.”
+Trump’sapparent fondnessfor Mamdani shocked officials, reporters and citizens across the political spectrum, and has become the subject ofwidespread internet jokes. Despite Trump previously threatening to withhold federal funds from New York City if Mamdani was elected, the Queens native said that he would live in a Mamdani-run city after the meeting.
+“The better he does, the happier I am,” Trump told reporters. “I feel very confident that he can do a very good job. I think he is going to surprise some conservative people, actually.”
+The White House’s border security and immigration advisor Tom Homan said in a Tuesday Fox News interview that federal immigration enforcement operationswill escalate in New York City, nearly a month afternine peopleof African descent were detained while selling counterfeit goods onCanal Street.
+Homan, who served in the position during the Obama administration and the first Trump administration, warned that he is targeting New York City because of its sanctuary policies. The policies, which the city has upheld for decades, are also adopted by 11 blue states to limit state and local governments from cooperating with federal immigration enforcement.
+“We’re going to do operations in New York City,” Homan said. “We will increase the enforcement presence in New York City — again, because they’re a sanctuary city and there are public safety threats hitting the streets every day.”
+While Mamdani and Trump didn’t address the issue during their Friday White House meeting, Trump said on Saturday that he won’t deploy the National Guard to New York City because other cities “need it more.” Last week, hundreds of National Guard troops werewithdrawn from Portland and Chicago, where they had been deployed to assist U.S. Immigration and Customs Enforcement operations for nearly two months.
+On Saturday,ICE agents reappeared at Canal Streetas NYPD officers were arresting a counterfeit goods vendor and seizing dozens of items. The vendor, who the Department of Homeland Security described as an undocumented immigrant from Senegal with an arrest history, was released from NYPD custody before ICE could detain him.
+MTA officials said in a Wednesday meeting that a thief who stole wires from various trains is responsible forover 700 subway delayslast month.
+Efrain Velez, the 55-year-old “serial copper thief,” allegedly stole wires on three separate days in the span of one week and was arrested on Oct. 14 on charges of trespassing and criminal mischief. The MTA said that he pulled wires off the tunnel tracks near the 149th Street-Grand Concourse station in the Bronx, causing the signals to switch from green to red and halt train service.
+Officials said the move delayed trains across the 1, 2, 3, 4, 5 and 6 lines due to track circuit failures during evening rush hours, lowering the MTA’s on-time performance for October.
+“That cable was responsible for powering the signal system,” transit executive vice president of subways Bill Amarosa told reporters. “It affected tens of thousands of riders. We’re angry that this happened.”
+Law enforcement officers have long sought to apprehend 63-year-old “copper thief”Prince Hayes, who has stolen wires from the MTA for nearly 40 years and is facing a lifetime ban from the subway. Copper wire is sold in scrapyards and recycling centers for $5 per pound.
+Contact Leena Ahmed at[email protected].
+--- End of Article Text ---
+
+Your response (exactly 3 lines as specified above):
+
+--------------------------------------------------------------------------------
+
+
+================================================================================
+Prompt #26 - generate_summary_with_gemini
+Timestamp: 2025-11-30T22:23:03.746632
+
+Context:
+  article_url: https://nyunews.com/news/2025/11/24/trump-mamdani-meeting-border-czar-escalates-immigration-nyc-subway-wire-thief-delays-subways/
+  article_title: City Scoop: Trump awed in meeting with Mamdani, and other top stories across NYC
+  school: New York University (NYU)
+  article_text_length: 4825
+
+Prompt:
+--------------------------------------------------------------------------------
+You are a professional English-language news writer. Your task is to create a detailed yet concise news summary based on the provided article text.
+
+## Role
+You are a professional English-language news writer specializing in accurate, factual reporting.
+
+## Task
+Create a detailed yet concise news summary (approximately 5-7 sentences, or 100-180 words) based on the provided article text.
+The summary is for Chinese international students at New York University (NYU).
+
+## Requirements
+
+### Accuracy & Factuality (Highest Priority)
+- Include ONLY information explicitly stated in the article text
+- Do NOT infer, guess, or add information not present in the article
+- Do NOT include personal opinions, interpretations, or conclusions not in the original text
+- Verify all dates, names, and numbers against the article text
+- If information is unclear or missing, do not fill in gaps with assumptions
+
+### Content Requirements
+Focus on key information most relevant to Chinese international students at New York University (NYU), especially concerning:
+- Their studies, work, daily life, or immigration/visa policies
+- Events or policies in New York or the U.S.
+
+Key points to cover, ensuring important details are retained:
+- What happened (core event/announcement)?
+- When and where did it happen (specific dates, locations)?
+- Who was involved (key individuals, groups, departments)?
+- Main consequences, implications, or direct impacts for Chinese international students at New York University (NYU)
+- Include crucial numbers, statistics, or significant outcomes
+
+### Style Requirements
+- Maintain a factual and objective tone
+- Use clear, professional language
+- Provide the summary directly, without introductory phrases like 'This article is about...'
+- Write in complete sentences with proper grammar
+
+### Format Requirements
+- Length: 5-7 sentences, or 100-180 words
+- Structure: Coherent narrative flow, not bullet points
+
+## Input Data
+
+The original article title is: 'City Scoop: Trump awed in meeting with Mamdani, and other top stories across NYC'. The article URL is: https://nyunews.com/news/2025/11/24/trump-mamdani-meeting-border-czar-escalates-immigration-nyc-subway-wire-thief-delays-subways/ (for your reference).
+
+--- Full Article Text (first 4825 characters) ---
+Mayor-elect Zohran Mamdani said he had a “productive meeting” with President Donald Trump in the Oval Office Friday afternoon, nearly three weeks after hishistoric victory.
+The two pledged to work together to address the city’s affordability and housing crises, consistent with Mamdani’s campaign platform, and Trump called it a “good sign” that Mamdani plans to keep police commissioner Jessica Tisch. The mayor-elect also vowed to maintain the city’s 35,000 police officers and hire additional social workers to respond to mental health calls, which are typically directed to the New York City Police Department.
+Mamdani said New Yorkers are growing “tired of seeing our tax dollars fund endless wars,” citing Israel’s ongoing siege in Gaza and that the country should “follow through” on international human rights promises. When reporters asked whether Trump would stop Mamdani from arresting Israeli Prime Minister Benjamin Netenyahu if he were to come to New York City, Trump skirted the question and said that although Mamdani’s views are a little “out there,” there is room for change.
+The meeting follows months of traded insults between Trump and Mamdani, with the president repeatedly calling the democratic socialist a “radical left lunatic” and a “communist.” When a reporter asked Mamdani if he still considers Trump a fascist,he upheldthe statement after Trump laughed and told him, “That’s okay, you can just say it.”
+Trump’sapparent fondnessfor Mamdani shocked officials, reporters and citizens across the political spectrum, and has become the subject ofwidespread internet jokes. Despite Trump previously threatening to withhold federal funds from New York City if Mamdani was elected, the Queens native said that he would live in a Mamdani-run city after the meeting.
+“The better he does, the happier I am,” Trump told reporters. “I feel very confident that he can do a very good job. I think he is going to surprise some conservative people, actually.”
+The White House’s border security and immigration advisor Tom Homan said in a Tuesday Fox News interview that federal immigration enforcement operationswill escalate in New York City, nearly a month afternine peopleof African descent were detained while selling counterfeit goods onCanal Street.
+Homan, who served in the position during the Obama administration and the first Trump administration, warned that he is targeting New York City because of its sanctuary policies. The policies, which the city has upheld for decades, are also adopted by 11 blue states to limit state and local governments from cooperating with federal immigration enforcement.
+“We’re going to do operations in New York City,” Homan said. “We will increase the enforcement presence in New York City — again, because they’re a sanctuary city and there are public safety threats hitting the streets every day.”
+While Mamdani and Trump didn’t address the issue during their Friday White House meeting, Trump said on Saturday that he won’t deploy the National Guard to New York City because other cities “need it more.” Last week, hundreds of National Guard troops werewithdrawn from Portland and Chicago, where they had been deployed to assist U.S. Immigration and Customs Enforcement operations for nearly two months.
+On Saturday,ICE agents reappeared at Canal Streetas NYPD officers were arresting a counterfeit goods vendor and seizing dozens of items. The vendor, who the Department of Homeland Security described as an undocumented immigrant from Senegal with an arrest history, was released from NYPD custody before ICE could detain him.
+MTA officials said in a Wednesday meeting that a thief who stole wires from various trains is responsible forover 700 subway delayslast month.
+Efrain Velez, the 55-year-old “serial copper thief,” allegedly stole wires on three separate days in the span of one week and was arrested on Oct. 14 on charges of trespassing and criminal mischief. The MTA said that he pulled wires off the tunnel tracks near the 149th Street-Grand Concourse station in the Bronx, causing the signals to switch from green to red and halt train service.
+Officials said the move delayed trains across the 1, 2, 3, 4, 5 and 6 lines due to track circuit failures during evening rush hours, lowering the MTA’s on-time performance for October.
+“That cable was responsible for powering the signal system,” transit executive vice president of subways Bill Amarosa told reporters. “It affected tens of thousands of riders. We’re angry that this happened.”
+Law enforcement officers have long sought to apprehend 63-year-old “copper thief”Prince Hayes, who has stolen wires from the MTA for nearly 40 years and is facing a lifetime ban from the subway. Copper wire is sold in scrapyards and recycling centers for $5 per pound.
+Contact Leena Ahmed at[email protected].
+--- End of Article Text ---
+
+## Output
+
+Detailed News Summary (5-7 sentences, 100-180 words, for Chinese international students at New York University (NYU)):
+
+--------------------------------------------------------------------------------
+
+
+================================================================================
+Prompt #27 - translate_and_restyle_to_chinese
+Timestamp: 2025-11-30T22:23:26.455909
+
+Context:
+  source_url: https://nyunews.com/news/2025/11/24/trump-mamdani-meeting-border-czar-escalates-immigration-nyc-subway-wire-thief-delays-subways/
+  publication_date: 2025-11-24
+  original_title: City Scoop: Trump awed in meeting with Mamdani, and other top stories across NYC
+  english_summary_length: 804
+
+Prompt:
+--------------------------------------------------------------------------------
+你是一位专业的中文新闻写作者和翻译。你的任务是将英文新闻摘要翻译成一篇准确、精炼的中文新闻，并生成一个吸引人的标题。
+
+## 角色
+你是一位专业的中文新闻写作者，专门为中国留学生撰写准确、精炼的新闻。
+
+## 任务
+将英文新闻摘要翻译成简体中文，生成一个吸引人的标题，并在一步中完成翻译和精炼。
+
+## 要求
+
+### 准确性与事实性（最高优先级）
+- 仅翻译英文摘要中明确陈述的信息 - 不要添加、推断或猜测
+- 保留所有事实细节：日期、姓名、数字、地点、组织
+- 不要添加原文中没有的后果、影响或观点
+- 避免使用"可能"、"引发"、"导致"等暗示未陈述后果的词语
+- 对照原始英文文本验证所有翻译
+
+### 标题生成要求
+1. 创建简洁、相关且吸引人的简体中文新闻标题
+2. 将标题放在第一行，前缀为"Chinese Title:"
+3. 如果单行标题超过15个中文字符，将其分成2个逗号分隔的段落，每段≤12个字符，在自然语义断点处分割
+4. 每个段落必须形成一个完整的短语（例如：主谓或动宾），不能是孤立的名词
+5. 对于每条新闻，考虑三种标题风格：
+   a) 弱点击诱式
+   b) 口语化风格
+   c) 简洁直接
+   选择最适合新闻主题的风格
+6. 避免使用隐喻、成语、谚语、双关语、谐音或其他修辞手法
+7. 避免过于正式或文学化的措辞 - 使用直接、自然的用词。
+8. 避免单字缩写（例如：不要用"美"来代指"全美"）
+
+### 翻译与内容要求
+1. 将英文摘要翻译成简体中文新闻文章格式
+2. 如果英文摘要包含多个新闻主题，选择最重要的一个并专注于它 - 保持文章连贯
+3. 不要试图包含原始英文摘要中的所有信息 - 优先考虑关键事实
+4. 对于不太常见的英文人名、组织名或项目名，翻译成中文并在括号中保留英文：中文名 (English Name)
+5. 对于非常知名的实体或常见的英文名称，可以直接使用中文翻译
+
+### 风格与精炼要求
+1. 使用严肃、正式、客观的新闻写作风格，但是不要写得很生硬，要自然，不要有AI味。读者是留学生。
+2. 不要有冗余的表述， 例如，不要写“将致力于”，直接写“将”，避免"旨在"等这种没有用的词。
+2. 使用短句和准确的词汇 - 避免复杂的长句
+3. 保持语言自然专业 - 尽量减少形容词
+4. 保持句子之间的逻辑连贯有序
+5. 不要包含额外的评论或观点
+6. 不要写结论 - 如果提到，可以以最新更新结尾，例如："目前，学校对此事件还没有做出回应。"
+7. 需要稍微有一点粗糙感，但是保持专业性，不要有AI味
+8. 减少不常见的标点符号的使用。
+
+### 结构与格式要求
+1. 每个关键事实点必须包含至少2句话：
+   - 第一句：核心事实的主要描述
+   - 第二句：阐述背景，提供具体细节、解释、影响、后续事件、采访引语（如有）或背景信息
+2. 如果两个相似或相关的事实存在，将它们合并为一个段落，而不是分开的段落
+3. 控制每个段落为80-250个中文字符 - 超过此长度的段落必须在保持逻辑连贯性的情况下分割，段落之间要有明确的因果或时间关系
+4. 总长度：250-500个中文字符
+5. 特别注意最后一句话 - 确保它切题并具有价值
+6. 删除任何对核心新闻故事没有事实价值的句子或短语
+
+## 输入数据
+
+原始英文摘要（用于翻译）：
+'''
+Federal immigration enforcement operations will escalate in New York City due to its sanctuary policies, according to White House immigration advisor Tom Homan. This announcement follows a recent incident on Canal Street where nine people were detained, and on Saturday, U.S. Immigration and Customs Enforcement (ICE) agents reappeared there during a vendor's arrest. The vendor, described by the Department of Homeland Security as an undocumented immigrant, was released from NYPD custody before ICE could detain him. In separate news affecting daily commutes, MTA officials reported a thief stealing copper wires caused over 700 subway delays last month. The thefts, which occurred near a station in the Bronx, caused significant disruptions on the 1, 2, 3, 4, 5, and 6 lines during evening rush hours.
+'''
+原始文章标题（供参考）：City Scoop: Trump awed in meeting with Mamdani, and other top stories across NYC
+
+## 输出格式
+
+你的回复必须严格按照以下格式：
+- 第1行："Chinese Title: [你的中文标题]"
+- 第2行：（空行）
+- 第3行及以后：[精炼的中文新闻正文]
+
+"Chinese Title:"之后的内容应该只是精炼的中文新闻正文 - 不要添加任何评论。
+
+你的回复：
+
+--------------------------------------------------------------------------------
+
+
+================================================================================
+Run completed: 2025-11-30T22:23:48.786348
+Date Range: 2025-11-24 to 2025-11-30
+Total Reports: 1
+================================================================================
+
+================================================================================
+Prompt #28 - verify_article_with_gemini
+Timestamp: 2025-11-30T22:24:12.528628
+
+Context:
+  article_url: https://nyunews.com/news/2025/11/24/trump-mamdani-meeting-border-czar-escalates-immigration-nyc-subway-wire-thief-delays-subways/
+  publication_date: 2025-11-24
+  school: New York University (NYU)
+  article_text_length: 4825
+
+Prompt:
+--------------------------------------------------------------------------------
+You are a news article analyst. Your task is to extract key metadata from the article text.
+
+## Requirements
+
+### Accuracy & Factuality (Highest Priority)
+- Extract dates ONLY from the article text or URL - do not infer or guess dates
+- Base article type classification strictly on the content structure and purpose
+- Do not add information not present in the article
+
+### Task
+Analyze the article and provide your analysis in EXACTLY three lines, each starting with the specified prefix:
+
+1. Publication Date: [Review the article text AND the Article URL (https://nyunews.com/news/2025/11/24/trump-mamdani-meeting-border-czar-escalates-immigration-nyc-subway-wire-thief-delays-subways/). Extract the most prominent date, ideally the publication date. Format YYYY-MM-DD or 'Date not found'. No other explanation.]
+2. Article Type: [Is this primarily a news article reporting on events/facts, or an opinion/blog/event listing/announcement? Answer ONLY 'News article', 'Opinion/Blog', 'Event/Announcement', or 'Type unclear'. No other explanation.]
+3. Analysis Notes: [Brief internal notes if needed, or 'N/A'. This line is for your process.]
+
+## Input Data
+
+--- Article Text (first 4825 characters) ---
+Mayor-elect Zohran Mamdani said he had a “productive meeting” with President Donald Trump in the Oval Office Friday afternoon, nearly three weeks after hishistoric victory.
+The two pledged to work together to address the city’s affordability and housing crises, consistent with Mamdani’s campaign platform, and Trump called it a “good sign” that Mamdani plans to keep police commissioner Jessica Tisch. The mayor-elect also vowed to maintain the city’s 35,000 police officers and hire additional social workers to respond to mental health calls, which are typically directed to the New York City Police Department.
+Mamdani said New Yorkers are growing “tired of seeing our tax dollars fund endless wars,” citing Israel’s ongoing siege in Gaza and that the country should “follow through” on international human rights promises. When reporters asked whether Trump would stop Mamdani from arresting Israeli Prime Minister Benjamin Netenyahu if he were to come to New York City, Trump skirted the question and said that although Mamdani’s views are a little “out there,” there is room for change.
+The meeting follows months of traded insults between Trump and Mamdani, with the president repeatedly calling the democratic socialist a “radical left lunatic” and a “communist.” When a reporter asked Mamdani if he still considers Trump a fascist,he upheldthe statement after Trump laughed and told him, “That’s okay, you can just say it.”
+Trump’sapparent fondnessfor Mamdani shocked officials, reporters and citizens across the political spectrum, and has become the subject ofwidespread internet jokes. Despite Trump previously threatening to withhold federal funds from New York City if Mamdani was elected, the Queens native said that he would live in a Mamdani-run city after the meeting.
+“The better he does, the happier I am,” Trump told reporters. “I feel very confident that he can do a very good job. I think he is going to surprise some conservative people, actually.”
+The White House’s border security and immigration advisor Tom Homan said in a Tuesday Fox News interview that federal immigration enforcement operationswill escalate in New York City, nearly a month afternine peopleof African descent were detained while selling counterfeit goods onCanal Street.
+Homan, who served in the position during the Obama administration and the first Trump administration, warned that he is targeting New York City because of its sanctuary policies. The policies, which the city has upheld for decades, are also adopted by 11 blue states to limit state and local governments from cooperating with federal immigration enforcement.
+“We’re going to do operations in New York City,” Homan said. “We will increase the enforcement presence in New York City — again, because they’re a sanctuary city and there are public safety threats hitting the streets every day.”
+While Mamdani and Trump didn’t address the issue during their Friday White House meeting, Trump said on Saturday that he won’t deploy the National Guard to New York City because other cities “need it more.” Last week, hundreds of National Guard troops werewithdrawn from Portland and Chicago, where they had been deployed to assist U.S. Immigration and Customs Enforcement operations for nearly two months.
+On Saturday,ICE agents reappeared at Canal Streetas NYPD officers were arresting a counterfeit goods vendor and seizing dozens of items. The vendor, who the Department of Homeland Security described as an undocumented immigrant from Senegal with an arrest history, was released from NYPD custody before ICE could detain him.
+MTA officials said in a Wednesday meeting that a thief who stole wires from various trains is responsible forover 700 subway delayslast month.
+Efrain Velez, the 55-year-old “serial copper thief,” allegedly stole wires on three separate days in the span of one week and was arrested on Oct. 14 on charges of trespassing and criminal mischief. The MTA said that he pulled wires off the tunnel tracks near the 149th Street-Grand Concourse station in the Bronx, causing the signals to switch from green to red and halt train service.
+Officials said the move delayed trains across the 1, 2, 3, 4, 5 and 6 lines due to track circuit failures during evening rush hours, lowering the MTA’s on-time performance for October.
+“That cable was responsible for powering the signal system,” transit executive vice president of subways Bill Amarosa told reporters. “It affected tens of thousands of riders. We’re angry that this happened.”
+Law enforcement officers have long sought to apprehend 63-year-old “copper thief”Prince Hayes, who has stolen wires from the MTA for nearly 40 years and is facing a lifetime ban from the subway. Copper wire is sold in scrapyards and recycling centers for $5 per pound.
+Contact Leena Ahmed at[email protected].
+--- End of Article Text ---
+
+Your response (exactly 3 lines as specified above):
+
+--------------------------------------------------------------------------------
+
+
+================================================================================
+Prompt #29 - generate_summary_with_gemini
+Timestamp: 2025-11-30T22:24:28.604447
+
+Context:
+  article_url: https://nyunews.com/news/2025/11/24/trump-mamdani-meeting-border-czar-escalates-immigration-nyc-subway-wire-thief-delays-subways/
+  article_title: City Scoop: Trump awed in meeting with Mamdani, and other top stories across NYC
+  school: New York University (NYU)
+  article_text_length: 4825
+
+Prompt:
+--------------------------------------------------------------------------------
+You are a professional English-language news writer. Your task is to create a detailed yet concise news summary based on the provided article text.
+
+## Role
+You are a professional English-language news writer specializing in accurate, factual reporting.
+
+## Task
+Create a detailed yet concise news summary (approximately 5-7 sentences, or 100-180 words) based on the provided article text.
+The summary is for Chinese international students at New York University (NYU).
+
+## Requirements
+
+### Accuracy & Factuality (Highest Priority)
+- Include ONLY information explicitly stated in the article text
+- Do NOT infer, guess, or add information not present in the article
+- Do NOT include personal opinions, interpretations, or conclusions not in the original text
+- Verify all dates, names, and numbers against the article text
+- If information is unclear or missing, do not fill in gaps with assumptions
+
+### Content Requirements
+Focus on key information most relevant to Chinese international students at New York University (NYU), especially concerning:
+- Their studies, work, daily life, or immigration/visa policies
+- Events or policies in New York or the U.S.
+
+Key points to cover, ensuring important details are retained:
+- What happened (core event/announcement)?
+- When and where did it happen (specific dates, locations)?
+- Who was involved (key individuals, groups, departments)?
+- Main consequences, implications, or direct impacts for Chinese international students at New York University (NYU)
+- Include crucial numbers, statistics, or significant outcomes
+
+### Style Requirements
+- Maintain a factual and objective tone
+- Use clear, professional language
+- Provide the summary directly, without introductory phrases like 'This article is about...'
+- Write in complete sentences with proper grammar
+
+### Format Requirements
+- Length: 5-7 sentences, or 100-180 words
+- Structure: Coherent narrative flow, not bullet points
+
+## Input Data
+
+The original article title is: 'City Scoop: Trump awed in meeting with Mamdani, and other top stories across NYC'. The article URL is: https://nyunews.com/news/2025/11/24/trump-mamdani-meeting-border-czar-escalates-immigration-nyc-subway-wire-thief-delays-subways/ (for your reference).
+
+--- Full Article Text (first 4825 characters) ---
+Mayor-elect Zohran Mamdani said he had a “productive meeting” with President Donald Trump in the Oval Office Friday afternoon, nearly three weeks after hishistoric victory.
+The two pledged to work together to address the city’s affordability and housing crises, consistent with Mamdani’s campaign platform, and Trump called it a “good sign” that Mamdani plans to keep police commissioner Jessica Tisch. The mayor-elect also vowed to maintain the city’s 35,000 police officers and hire additional social workers to respond to mental health calls, which are typically directed to the New York City Police Department.
+Mamdani said New Yorkers are growing “tired of seeing our tax dollars fund endless wars,” citing Israel’s ongoing siege in Gaza and that the country should “follow through” on international human rights promises. When reporters asked whether Trump would stop Mamdani from arresting Israeli Prime Minister Benjamin Netenyahu if he were to come to New York City, Trump skirted the question and said that although Mamdani’s views are a little “out there,” there is room for change.
+The meeting follows months of traded insults between Trump and Mamdani, with the president repeatedly calling the democratic socialist a “radical left lunatic” and a “communist.” When a reporter asked Mamdani if he still considers Trump a fascist,he upheldthe statement after Trump laughed and told him, “That’s okay, you can just say it.”
+Trump’sapparent fondnessfor Mamdani shocked officials, reporters and citizens across the political spectrum, and has become the subject ofwidespread internet jokes. Despite Trump previously threatening to withhold federal funds from New York City if Mamdani was elected, the Queens native said that he would live in a Mamdani-run city after the meeting.
+“The better he does, the happier I am,” Trump told reporters. “I feel very confident that he can do a very good job. I think he is going to surprise some conservative people, actually.”
+The White House’s border security and immigration advisor Tom Homan said in a Tuesday Fox News interview that federal immigration enforcement operationswill escalate in New York City, nearly a month afternine peopleof African descent were detained while selling counterfeit goods onCanal Street.
+Homan, who served in the position during the Obama administration and the first Trump administration, warned that he is targeting New York City because of its sanctuary policies. The policies, which the city has upheld for decades, are also adopted by 11 blue states to limit state and local governments from cooperating with federal immigration enforcement.
+“We’re going to do operations in New York City,” Homan said. “We will increase the enforcement presence in New York City — again, because they’re a sanctuary city and there are public safety threats hitting the streets every day.”
+While Mamdani and Trump didn’t address the issue during their Friday White House meeting, Trump said on Saturday that he won’t deploy the National Guard to New York City because other cities “need it more.” Last week, hundreds of National Guard troops werewithdrawn from Portland and Chicago, where they had been deployed to assist U.S. Immigration and Customs Enforcement operations for nearly two months.
+On Saturday,ICE agents reappeared at Canal Streetas NYPD officers were arresting a counterfeit goods vendor and seizing dozens of items. The vendor, who the Department of Homeland Security described as an undocumented immigrant from Senegal with an arrest history, was released from NYPD custody before ICE could detain him.
+MTA officials said in a Wednesday meeting that a thief who stole wires from various trains is responsible forover 700 subway delayslast month.
+Efrain Velez, the 55-year-old “serial copper thief,” allegedly stole wires on three separate days in the span of one week and was arrested on Oct. 14 on charges of trespassing and criminal mischief. The MTA said that he pulled wires off the tunnel tracks near the 149th Street-Grand Concourse station in the Bronx, causing the signals to switch from green to red and halt train service.
+Officials said the move delayed trains across the 1, 2, 3, 4, 5 and 6 lines due to track circuit failures during evening rush hours, lowering the MTA’s on-time performance for October.
+“That cable was responsible for powering the signal system,” transit executive vice president of subways Bill Amarosa told reporters. “It affected tens of thousands of riders. We’re angry that this happened.”
+Law enforcement officers have long sought to apprehend 63-year-old “copper thief”Prince Hayes, who has stolen wires from the MTA for nearly 40 years and is facing a lifetime ban from the subway. Copper wire is sold in scrapyards and recycling centers for $5 per pound.
+Contact Leena Ahmed at[email protected].
+--- End of Article Text ---
+
+## Output
+
+Detailed News Summary (5-7 sentences, 100-180 words, for Chinese international students at New York University (NYU)):
+
+--------------------------------------------------------------------------------
+
+
+================================================================================
+Prompt #30 - translate_and_restyle_to_chinese
+Timestamp: 2025-11-30T22:24:47.945897
+
+Context:
+  source_url: https://nyunews.com/news/2025/11/24/trump-mamdani-meeting-border-czar-escalates-immigration-nyc-subway-wire-thief-delays-subways/
+  publication_date: 2025-11-24
+  original_title: City Scoop: Trump awed in meeting with Mamdani, and other top stories across NYC
+  english_summary_length: 942
+
+Prompt:
+--------------------------------------------------------------------------------
+你是一位专业的中文新闻写作者和翻译。你的任务是将英文新闻摘要翻译成一篇准确、精炼的中文新闻，并生成一个吸引人的标题。
+
+## 角色
+你是一位专业的中文新闻写作者，专门为中国留学生撰写准确、精炼的新闻。
+
+## 任务
+将英文新闻摘要翻译成简体中文，生成一个吸引人的标题，并在一步中完成翻译和精炼。
+
+## 要求
+
+### 准确性与事实性（最高优先级）
+- 仅翻译英文摘要中明确陈述的信息 - 不要添加、推断或猜测
+- 保留所有事实细节：日期、姓名、数字、地点、组织
+- 不要添加原文中没有的后果、影响或观点
+- 避免使用"可能"、"引发"、"导致"等暗示未陈述后果的词语
+- 对照原始英文文本验证所有翻译
+
+### 标题生成要求
+1. 创建简洁、相关且吸引人的简体中文新闻标题
+2. 将标题放在第一行，前缀为"Chinese Title:"
+3. 如果单行标题超过15个中文字符，将其分成2个逗号分隔的段落，每段≤12个字符，在自然语义断点处分割
+4. 每个段落必须形成一个完整的短语（例如：主谓或动宾），不能是孤立的名词
+5. 对于每条新闻，考虑三种标题风格：
+   a) 弱点击诱式
+   b) 口语化风格
+   c) 简洁直接
+   选择最适合新闻主题的风格
+6. 避免使用隐喻、成语、谚语、双关语、谐音或其他修辞手法
+7. 避免过于正式或文学化的措辞 - 使用直接、自然的用词。
+8. 避免单字缩写（例如：不要用"美"来代指"全美"）
+
+### 翻译与内容要求
+1. 将英文摘要翻译成简体中文新闻文章格式
+2. 如果英文摘要包含多个新闻主题，选择最重要的一个并专注于它 - 保持文章连贯
+3. 不要试图包含原始英文摘要中的所有信息 - 优先考虑关键事实
+4. 对于不太常见的英文人名、组织名或项目名，翻译成中文并在括号中保留英文：中文名 (English Name)
+5. 对于非常知名的实体或常见的英文名称，可以直接使用中文翻译
+
+### 风格与精炼要求
+1. 使用严肃、正式、客观的新闻写作风格，但是不要写得很生硬，要自然，不要有AI味。读者是留学生。
+2. 不要有冗余的表述， 例如，不要写“将致力于”，直接写“将”，避免"旨在"等这种没有用的词。
+2. 使用短句和准确的词汇 - 避免复杂的长句
+3. 保持语言自然专业 - 尽量减少形容词
+4. 保持句子之间的逻辑连贯有序
+5. 不要包含额外的评论或观点
+6. 不要写结论 - 如果提到，可以以最新更新结尾，例如："目前，学校对此事件还没有做出回应。"
+7. 需要稍微有一点粗糙感，但是保持专业性，不要有AI味
+8. 减少不常见的标点符号的使用。
+
+### 结构与格式要求
+1. 每个关键事实点必须包含至少2句话：
+   - 第一句：核心事实的主要描述
+   - 第二句：阐述背景，提供具体细节、解释、影响、后续事件、采访引语（如有）或背景信息
+2. 如果两个相似或相关的事实存在，将它们合并为一个段落，而不是分开的段落
+3. 控制每个段落为80-250个中文字符 - 超过此长度的段落必须在保持逻辑连贯性的情况下分割，段落之间要有明确的因果或时间关系
+4. 总长度：250-500个中文字符
+5. 特别注意最后一句话 - 确保它切题并具有价值
+6. 删除任何对核心新闻故事没有事实价值的句子或短语
+
+## 输入数据
+
+原始英文摘要（用于翻译）：
+'''
+The White House’s immigration advisor, Tom Homan, has announced that federal immigration enforcement operations will escalate in New York City due to its sanctuary city policies. This declaration follows a recent incident where U.S. Immigration and Customs Enforcement (ICE) agents appeared on Canal Street during the arrest of a counterfeit goods vendor. Although President Donald Trump stated he will not deploy the National Guard to the city, the increased enforcement presence was explicitly confirmed by Homan. This development comes after a surprisingly productive meeting between President Trump and the city’s new Mayor-elect, Zohran Mamdani, where they pledged to cooperate on city issues. On a separate note affecting daily life, MTA officials reported that a copper wire thief caused over 700 subway delays last month. These thefts led to significant service disruptions on the 1, 2, 3, 4, 5, and 6 lines during evening rush hours.
+'''
+原始文章标题（供参考）：City Scoop: Trump awed in meeting with Mamdani, and other top stories across NYC
+
+## 输出格式
+
+你的回复必须严格按照以下格式：
+- 第1行："Chinese Title: [你的中文标题]"
+- 第2行：（空行）
+- 第3行及以后：[精炼的中文新闻正文]
+
+"Chinese Title:"之后的内容应该只是精炼的中文新闻正文 - 不要添加任何评论。
+
+你的回复：
+
+--------------------------------------------------------------------------------
+
+
+================================================================================
+Run completed: 2025-11-30T22:25:19.595704
+Date Range: 2025-11-24 to 2025-11-30
+Total Reports: 1
+================================================================================

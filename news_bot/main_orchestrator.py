@@ -8,7 +8,6 @@ from .processing import article_handler
 from .generation import summarizer
 from .utils import file_manager, prompt_logger
 from .localization import translator
-from .reporting import google_docs_exporter
 
 def run_news_bot():
     """
@@ -17,7 +16,7 @@ def run_news_bot():
     2. For each article: fetch, verify.
     3. If verified, generate detailed English summary.
     4. Translate to Chinese (title, report) and then refine Chinese report.
-    5. Save compiled reports to JSON and attempt to export to Google Doc.
+    5. Save compiled reports to JSON.
     """
     run_start_time = datetime.now()
     print("===========================================")
@@ -188,21 +187,6 @@ def run_news_bot():
             print("Error: Failed to save the news reports.")
     else:
         print("Info: No news reports were generated to save.")
-
-    # --- Step 6: Export to Google Doc ---
-    if final_news_reports and saved_filepath:
-        print("\n--- Step 6: Exporting News Reports to Google Doc ---")
-        
-        gdoc_title = f"Project NEXUS: Weekly Chinese News ({start_date.strftime('%Y-%m-%d')} to {end_date.strftime('%Y-%m-%d')})"
-        
-        gdoc_url = google_docs_exporter.update_or_create_news_document(choosen_school, final_news_reports, start_date, end_date)
-        if gdoc_url:
-            print(f"Successfully operated on Google Doc: {gdoc_url}")
-        else:
-            print("Error: Failed to operate on Google Doc.")
-            print("Ensure Google Docs API is enabled, OAuth credentials correct, and app authorized.")
-    elif not final_news_reports:
-        print("Info: No reports to export to Google Doc.")
 
     run_end_time = datetime.now()
     print("=====================================")

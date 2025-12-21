@@ -1,0 +1,1022 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Project NEXUS - News Bot Dashboard</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            padding: 20px;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+
+        .header {
+            text-align: center;
+            color: white;
+            margin-bottom: 30px;
+        }
+
+        .header h1 {
+            font-size: 2.5rem;
+            margin-bottom: 10px;
+            text-shadow: 2px 2px 4px rgba(0,0,0,0.2);
+        }
+
+        .header p {
+            font-size: 1.1rem;
+            opacity: 0.9;
+        }
+
+        .card {
+            background: white;
+            border-radius: 16px;
+            padding: 30px;
+            margin-bottom: 20px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.2);
+        }
+
+        .card h2 {
+            color: #667eea;
+            margin-bottom: 20px;
+            font-size: 1.5rem;
+            border-bottom: 2px solid #f0f0f0;
+            padding-bottom: 10px;
+        }
+
+        .form-group {
+            margin-bottom: 20px;
+        }
+
+        .form-group label {
+            display: block;
+            margin-bottom: 8px;
+            font-weight: 600;
+            color: #333;
+        }
+
+        .form-group select,
+        .form-group input {
+            width: 100%;
+            padding: 12px;
+            border: 2px solid #e0e0e0;
+            border-radius: 8px;
+            font-size: 1rem;
+            transition: border-color 0.3s;
+        }
+
+        .form-group select:focus,
+        .form-group input:focus {
+            outline: none;
+            border-color: #667eea;
+        }
+
+        .form-row {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 20px;
+        }
+
+        .btn {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            border: none;
+            padding: 15px 40px;
+            border-radius: 8px;
+            font-size: 1.1rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: transform 0.2s, box-shadow 0.2s;
+            width: 100%;
+        }
+
+        .btn:hover:not(:disabled) {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(102, 126, 234, 0.4);
+        }
+
+        .btn:disabled {
+            opacity: 0.6;
+            cursor: not-allowed;
+        }
+
+        .progress-container {
+            display: none;
+        }
+
+        .progress-container.active {
+            display: block;
+        }
+
+        .progress-bar-wrapper {
+            background: #f0f0f0;
+            border-radius: 10px;
+            height: 30px;
+            overflow: hidden;
+            margin-bottom: 15px;
+        }
+
+        .progress-bar {
+            height: 100%;
+            background: linear-gradient(90deg, #667eea 0%, #764ba2 100%);
+            transition: width 0.5s ease;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-weight: 600;
+        }
+
+        .progress-status {
+            padding: 15px;
+            background: #f8f9fa;
+            border-radius: 8px;
+            margin-bottom: 10px;
+            border-left: 4px solid #667eea;
+        }
+
+        .progress-status p {
+            margin: 5px 0;
+            color: #555;
+        }
+
+        .progress-status .emoji {
+            margin-right: 8px;
+        }
+
+        .stats {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+            gap: 15px;
+            margin-top: 15px;
+        }
+
+        .stat-box {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 15px;
+            border-radius: 8px;
+            text-align: center;
+        }
+
+        .stat-box .number {
+            font-size: 2rem;
+            font-weight: 700;
+            display: block;
+        }
+
+        .stat-box .label {
+            font-size: 0.9rem;
+            opacity: 0.9;
+        }
+
+        .log-container {
+            max-height: 300px;
+            overflow-y: auto;
+            background: #f8f9fa;
+            padding: 15px;
+            border-radius: 8px;
+            font-family: 'Courier New', monospace;
+            font-size: 0.9rem;
+        }
+
+        .log-entry {
+            padding: 5px 0;
+            border-bottom: 1px solid #e0e0e0;
+        }
+
+        .log-entry:last-child {
+            border-bottom: none;
+        }
+
+        .error {
+            background: #fee;
+            border-left: 4px solid #f44336;
+            padding: 15px;
+            border-radius: 8px;
+            color: #c62828;
+            margin-top: 15px;
+        }
+
+        .success {
+            background: #e8f5e9;
+            border-left: 4px solid #4caf50;
+            padding: 15px;
+            border-radius: 8px;
+            color: #2e7d32;
+            margin-top: 15px;
+        }
+
+        .school-option {
+            padding: 10px;
+            font-size: 1rem;
+        }
+
+        @media (max-width: 768px) {
+            .form-row {
+                grid-template-columns: 1fr;
+            }
+
+            .header h1 {
+                font-size: 2rem;
+            }
+
+            .stats {
+                grid-template-columns: repeat(2, 1fr);
+            }
+        }
+
+        .info-box {
+            background: #e3f2fd;
+            border-left: 4px solid #2196f3;
+            padding: 15px;
+            border-radius: 8px;
+            margin-bottom: 20px;
+        }
+
+        .info-box p {
+            margin: 5px 0;
+            color: #1565c0;
+        }
+
+        .report-details {
+            background: #f8f9fa;
+            padding: 20px;
+            border-radius: 8px;
+            margin-top: 15px;
+            max-height: 400px;
+            overflow-y: auto;
+        }
+
+        .report-item {
+            background: white;
+            padding: 15px;
+            margin-bottom: 15px;
+            border-radius: 8px;
+            border-left: 4px solid #667eea;
+        }
+
+        .report-item h4 {
+            color: #667eea;
+            margin-bottom: 10px;
+        }
+
+        .report-item p {
+            margin: 5px 0;
+            color: #555;
+            line-height: 1.6;
+        }
+
+        .report-item .chinese {
+            color: #333;
+            font-weight: 500;
+        }
+
+        .report-item .url {
+            font-size: 0.85rem;
+            color: #999;
+            word-break: break-all;
+        }
+
+        .report-item textarea {
+            width: 100%;
+            padding: 10px;
+            border: 2px solid #e0e0e0;
+            border-radius: 6px;
+            font-family: inherit;
+            font-size: 1rem;
+            resize: vertical;
+            min-height: 100px;
+        }
+
+        .report-item textarea:focus {
+            outline: none;
+            border-color: #667eea;
+        }
+
+        .report-item input[type="text"] {
+            width: 100%;
+            padding: 10px;
+            border: 2px solid #e0e0e0;
+            border-radius: 6px;
+            font-family: inherit;
+            font-size: 1rem;
+        }
+
+        .report-item input[type="text"]:focus {
+            outline: none;
+            border-color: #667eea;
+        }
+
+        .edit-mode-btn.active {
+            background: #667eea !important;
+            color: white !important;
+        }
+
+        #generate-images-btn {
+            background: linear-gradient(135deg, #43e97b 0%, #38f9d7 100%);
+        }
+
+        #generate-images-btn:hover:not(:disabled) {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(67, 233, 123, 0.4);
+        }
+
+        #ai-edit-btn:hover:not(:disabled) {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(102, 126, 234, 0.4);
+        }
+
+        #save-report-btn:hover:not(:disabled) {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(67, 233, 123, 0.4);
+        }
+
+        #download-zip-btn:hover:not(:disabled) {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(250, 112, 154, 0.4);
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>🚀 Project NEXUS</h1>
+            <p>Automated University News Collection & Translation System</p>
+        </div>
+
+        <div class="card">
+            <h2>📋 Configuration</h2>
+            
+            <div class="info-box">
+                <p><strong>How it works:</strong></p>
+                <p>1. Select a university to collect news from</p>
+                <p>2. Choose your date range (default: last 7 days)</p>
+                <p>3. Click "Start News Collection" and monitor progress</p>
+                <p>4. Reports will be saved as JSON files</p>
+                <p>5. Optionally generate WeChat-style images from the JSON</p>
+            </div>
+
+            <form id="config-form">
+                <div class="form-group">
+                    <label for="school">🎓 Select University:</label>
+                    <select id="school" name="school" required>
+                        {% for key, info in schools.items() %}
+                        <option value="{{ info.id }}" class="school-option">
+                            {{ info.school_name }} ({{ info.school_location }})
+                        </option>
+                        {% endfor %}
+                    </select>
+                </div>
+
+                <div class="form-row">
+                    <div class="form-group">
+                        <label for="start-date">📅 Start Date:</label>
+                        <input type="date" id="start-date" name="start-date" value="{{ default_start_date }}" required>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="end-date">📅 End Date:</label>
+                        <input type="date" id="end-date" name="end-date" value="{{ default_end_date }}" required>
+                    </div>
+                </div>
+
+                <div class="form-group">
+                    <label for="max-reports">📊 Maximum Reports:</label>
+                    <input type="number" id="max-reports" name="max-reports" value="{{ max_reports }}" min="1" max="50" required>
+                </div>
+
+                <button type="submit" class="btn" id="start-btn">
+                    🚀 Start News Collection
+                </button>
+            </form>
+        </div>
+
+        <div class="card progress-container" id="progress-container">
+            <h2>⚙️ Progress</h2>
+            
+            <div class="progress-bar-wrapper">
+                <div class="progress-bar" id="progress-bar" style="width: 0%">0%</div>
+            </div>
+
+            <div class="progress-status" id="progress-status">
+                <p><span class="emoji">⏳</span><span id="current-step">Initializing...</span></p>
+            </div>
+
+            <div class="stats">
+                <div class="stat-box">
+                    <span class="number" id="articles-found">0</span>
+                    <span class="label">Articles Found</span>
+                </div>
+                <div class="stat-box">
+                    <span class="number" id="articles-processed">0</span>
+                    <span class="label">Articles Processed</span>
+                </div>
+                <div class="stat-box">
+                    <span class="number" id="reports-generated">0</span>
+                    <span class="label">Reports Generated</span>
+                </div>
+            </div>
+
+            <div id="result-message"></div>
+        </div>
+
+        <div class="card">
+            <h2>📄 Activity Log</h2>
+            <div class="log-container" id="log-container">
+                <div class="log-entry">Ready to start news collection...</div>
+            </div>
+        </div>
+
+        <div class="card" id="report-review-container" style="display: none;">
+            <h2>📋 Review Generated Report</h2>
+            
+            <div class="info-box">
+                <p><strong>✅ Report Generated Successfully!</strong></p>
+                <p id="report-summary"></p>
+            </div>
+
+            <div class="report-details" id="report-details"></div>
+
+            <!-- AI Chat Interface -->
+            <div style="margin-top: 30px; border-top: 2px solid #e0e0e0; padding-top: 20px;">
+                <h3 style="color: #667eea; margin-bottom: 15px;">🤖 AI Text Editor</h3>
+                <div style="background: #f8f9fa; padding: 15px; border-radius: 8px; margin-bottom: 15px;">
+                    <label style="display: block; margin-bottom: 8px; font-weight: 600;">Select article to edit:</label>
+                    <select id="article-selector" style="width: 100%; padding: 8px; border: 2px solid #e0e0e0; border-radius: 6px; margin-bottom: 15px;">
+                        <option value="">Select an article...</option>
+                    </select>
+                    
+                    <div id="edit-mode-selector" style="display: none;">
+                        <label style="display: block; margin-bottom: 8px; font-weight: 600;">Edit mode:</label>
+                        <div style="display: flex; gap: 10px; margin-bottom: 15px;">
+                            <button type="button" class="edit-mode-btn active" data-mode="title" style="flex: 1; padding: 10px; border: 2px solid #667eea; background: #667eea; color: white; border-radius: 6px; cursor: pointer;">Edit Title</button>
+                            <button type="button" class="edit-mode-btn" data-mode="content" style="flex: 1; padding: 10px; border: 2px solid #e0e0e0; background: white; color: #667eea; border-radius: 6px; cursor: pointer;">Edit Content</button>
+                        </div>
+                    </div>
+                    
+                    <div id="chat-interface" style="display: none;">
+                        <label style="display: block; margin-bottom: 8px; font-weight: 600;">Enter your editing prompt:</label>
+                        <textarea id="ai-prompt-input" placeholder="e.g., 'Make the title more engaging', 'Simplify the language', 'Add more details about...'" style="width: 100%; padding: 12px; border: 2px solid #e0e0e0; border-radius: 6px; min-height: 80px; font-family: inherit; resize: vertical;"></textarea>
+                        <button type="button" id="ai-edit-btn" style="margin-top: 10px; padding: 10px 20px; background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: white; border: none; border-radius: 6px; cursor: pointer; font-weight: 600;">
+                            ✨ Apply AI Edit
+                        </button>
+                        <div id="ai-edit-status" style="display: none; margin-top: 10px;"></div>
+                    </div>
+                </div>
+            </div>
+
+            <div style="margin-top: 20px;">
+                <button type="button" class="btn" id="save-report-btn" style="background: linear-gradient(135deg, #43e97b 0%, #38f9d7 100%); margin-bottom: 10px;">
+                    💾 Save Changes
+                </button>
+                <button type="button" class="btn" id="generate-images-btn">
+                    🎨 Generate WeChat Images
+                </button>
+                
+                <div id="image-generation-status" style="display: none; margin-top: 15px;"></div>
+                
+                <div id="download-section" style="display: none; margin-top: 20px;">
+                    <button type="button" class="btn" id="download-zip-btn" style="background: linear-gradient(135deg, #fa709a 0%, #fee140 100%);">
+                        📦 Download Images as ZIP
+                    </button>
+                </div>
+            </div>
+
+            <div style="margin-top: 20px;">
+                <button type="button" class="btn" id="start-new-btn" onclick="startNewCollection()">
+                    🔄 Start New Collection
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        const form = document.getElementById('config-form');
+        const startBtn = document.getElementById('start-btn');
+        const progressContainer = document.getElementById('progress-container');
+        const progressBar = document.getElementById('progress-bar');
+        const currentStep = document.getElementById('current-step');
+        const articlesFound = document.getElementById('articles-found');
+        const articlesProcessed = document.getElementById('articles-processed');
+        const reportsGenerated = document.getElementById('reports-generated');
+        const logContainer = document.getElementById('log-container');
+        const resultMessage = document.getElementById('result-message');
+        const reportReviewContainer = document.getElementById('report-review-container');
+        const generateImagesBtn = document.getElementById('generate-images-btn');
+
+        let eventSource = null;
+        let currentReportFilename = null;
+        let currentReportData = null;  // Store the report data for editing
+        let currentEditMode = 'title';  // 'title' or 'content'
+        let currentEditingIndex = null;
+
+        function addLog(message) {
+            const entry = document.createElement('div');
+            entry.className = 'log-entry';
+            const timestamp = new Date().toLocaleTimeString();
+            entry.textContent = `[${timestamp}] ${message}`;
+            logContainer.appendChild(entry);
+            logContainer.scrollTop = logContainer.scrollHeight;
+        }
+
+        function updateProgress(data) {
+            const progress = data.progress || 0;
+            progressBar.style.width = progress + '%';
+            progressBar.textContent = Math.round(progress) + '%';
+            
+            if (data.message) {
+                currentStep.textContent = data.message;
+                addLog(data.message);
+            }
+
+            articlesFound.textContent = data.articles_found || 0;
+            articlesProcessed.textContent = data.articles_processed || 0;
+            reportsGenerated.textContent = data.reports_generated || 0;
+
+            // Check if complete
+            if (progress >= 100) {
+                startBtn.disabled = false;
+                startBtn.textContent = '🚀 Start News Collection';
+                
+                if (data.reports_generated > 0) {
+                    resultMessage.innerHTML = `
+                        <div class="success">
+                            <strong>✅ Success!</strong> Generated ${data.reports_generated} news reports.
+                            Reports saved as JSON. Review, edit, and optionally generate WeChat images below.
+                        </div>
+                    `;
+                    
+                    // Show review section after a brief delay
+                    setTimeout(() => {
+                        loadLatestReport();
+                    }, 1000);
+                } else {
+                    resultMessage.innerHTML = `
+                        <div class="info-box">
+                            <strong>ℹ️ Complete</strong> No suitable articles found for the selected criteria.
+                        </div>
+                    `;
+                }
+
+                if (eventSource) {
+                    eventSource.close();
+                    eventSource = null;
+                }
+            }
+        }
+
+        async function loadLatestReport() {
+            try {
+                // Get list of reports
+                console.log('Fetching reports list...');
+                const response = await fetch('/api/reports');
+                
+                if (!response.ok) {
+                    throw new Error(`HTTP ${response.status}: ${response.statusText}`);
+                }
+                
+                const data = await response.json();
+                console.log('Reports data:', data);
+                
+                if (data.error) {
+                    console.error('Server error:', data.error);
+                    return;
+                }
+                
+                if (data.reports && data.reports.length > 0) {
+                    // Get the most recent report
+                    const latestReport = data.reports[0];
+                    currentReportFilename = latestReport.filename;
+                    console.log('Loading report:', latestReport.filename);
+                    
+                    // Fetch the report content
+                    const reportResponse = await fetch(`/api/reports/${latestReport.filename}`);
+                    
+                    if (!reportResponse.ok) {
+                        throw new Error(`HTTP ${reportResponse.status}: ${reportResponse.statusText}`);
+                    }
+                    
+                    const reportData = await reportResponse.json();
+                    console.log('Report loaded successfully');
+                    
+                    displayReport(reportData, latestReport);
+                } else {
+                    console.log('No reports available');
+                }
+            } catch (error) {
+                console.error('Failed to load report:', error);
+                console.error('Error details:', error.message, error.stack);
+            }
+        }
+
+        function displayReport(reportData, reportMeta) {
+            // Store report data for editing
+            currentReportData = JSON.parse(JSON.stringify(reportData));  // Deep copy
+            
+            // Show report review container
+            reportReviewContainer.style.display = 'block';
+            
+            // Update summary
+            const summary = document.getElementById('report-summary');
+            summary.textContent = `${reportData.length} articles collected and translated to Chinese`;
+            
+            // Populate article selector
+            const articleSelector = document.getElementById('article-selector');
+            articleSelector.innerHTML = '<option value="">Select an article...</option>';
+            reportData.forEach((item, index) => {
+                const option = document.createElement('option');
+                option.value = index;
+                option.textContent = `${index + 1}. ${item.chinese_title.substring(0, 50)}...`;
+                articleSelector.appendChild(option);
+            });
+            
+            // Display report items (editable)
+            const detailsContainer = document.getElementById('report-details');
+            detailsContainer.innerHTML = '';
+            
+            reportData.forEach((item, index) => {
+                const itemDiv = document.createElement('div');
+                itemDiv.className = 'report-item';
+                itemDiv.setAttribute('data-index', index);
+                itemDiv.innerHTML = `
+                    <div style="margin-bottom: 10px;">
+                        <label style="display: block; font-weight: 600; margin-bottom: 5px; color: #667eea;">Chinese Title:</label>
+                        <input type="text" class="editable-title" data-index="${index}" value="${item.chinese_title.replace(/"/g, '&quot;')}" style="width: 100%; padding: 10px; border: 2px solid #e0e0e0; border-radius: 6px;">
+                    </div>
+                    <div style="margin-bottom: 10px;">
+                        <label style="display: block; font-weight: 600; margin-bottom: 5px; color: #667eea;">Chinese Content:</label>
+                        <textarea class="editable-content" data-index="${index}" style="width: 100%; padding: 10px; border: 2px solid #e0e0e0; border-radius: 6px; min-height: 150px; font-family: inherit;">${item.refined_chinese_news_report.replace(/</g, '&lt;').replace(/>/g, '&gt;')}</textarea>
+                    </div>
+                    <div style="margin-top: 10px; padding-top: 10px; border-top: 1px solid #e0e0e0;">
+                        <p style="margin: 5px 0; font-size: 0.9rem;"><strong>Original:</strong> ${item.original_title}</p>
+                        <p style="margin: 5px 0; font-size: 0.9rem;"><strong>Date:</strong> ${item.reported_publication_date}</p>
+                        <p class="url" style="margin: 5px 0;"><strong>Source:</strong> ${item.source_url}</p>
+                    </div>
+                `;
+                detailsContainer.appendChild(itemDiv);
+            });
+            
+            // Setup edit mode buttons
+            document.querySelectorAll('.edit-mode-btn').forEach(btn => {
+                btn.addEventListener('click', function() {
+                    document.querySelectorAll('.edit-mode-btn').forEach(b => b.classList.remove('active'));
+                    this.classList.add('active');
+                    currentEditMode = this.dataset.mode;
+                });
+            });
+            
+            // Setup article selector
+            articleSelector.addEventListener('change', function() {
+                const index = parseInt(this.value);
+                if (index >= 0) {
+                    currentEditingIndex = index;
+                    document.getElementById('edit-mode-selector').style.display = 'block';
+                    document.getElementById('chat-interface').style.display = 'block';
+                } else {
+                    currentEditingIndex = null;
+                    document.getElementById('edit-mode-selector').style.display = 'none';
+                    document.getElementById('chat-interface').style.display = 'none';
+                }
+            });
+            
+            // Scroll to review section
+            reportReviewContainer.scrollIntoView({ behavior: 'smooth', block: 'start' });
+        }
+
+        // Handle save report
+        const saveReportBtn = document.getElementById('save-report-btn');
+        if (saveReportBtn) {
+            saveReportBtn.addEventListener('click', async () => {
+                if (!currentReportFilename || !currentReportData) {
+                    alert('No report data to save.');
+                    return;
+                }
+                
+                // Update report data from editable fields
+                document.querySelectorAll('.editable-title').forEach(input => {
+                    const index = parseInt(input.dataset.index);
+                    currentReportData[index].chinese_title = input.value;
+                });
+                
+                document.querySelectorAll('.editable-content').forEach(textarea => {
+                    const index = parseInt(textarea.dataset.index);
+                    currentReportData[index].refined_chinese_news_report = textarea.value;
+                });
+                
+                saveReportBtn.disabled = true;
+                saveReportBtn.textContent = '⏳ Saving...';
+                
+                try {
+                    const response = await fetch('/api/save-report', {
+                        method: 'POST',
+                        headers: {
+                            'Content-Type': 'application/json'
+                        },
+                        body: JSON.stringify({
+                            report_filename: currentReportFilename,
+                            report_data: currentReportData
+                        })
+                    });
+                    
+                    const result = await response.json();
+                    
+                    if (response.ok) {
+                        saveReportBtn.textContent = '✅ Saved!';
+                        setTimeout(() => {
+                            saveReportBtn.textContent = '💾 Save Changes';
+                            saveReportBtn.disabled = false;
+                        }, 2000);
+                    } else {
+                        throw new Error(result.error || 'Failed to save');
+                    }
+                } catch (error) {
+                    alert('Failed to save: ' + error.message);
+                    saveReportBtn.disabled = false;
+                    saveReportBtn.textContent = '💾 Save Changes';
+                }
+            });
+        }
+
+        // Handle AI edit
+        const aiEditBtn = document.getElementById('ai-edit-btn');
+        if (aiEditBtn) {
+            aiEditBtn.addEventListener('click', async () => {
+                if (currentEditingIndex === null) {
+                    alert('Please select an article first.');
+                    return;
+                }
+                
+                const prompt = document.getElementById('ai-prompt-input').value.trim();
+                if (!prompt) {
+                    alert('Please enter an editing prompt.');
+                    return;
+                }
+                
+                const article = currentReportData[currentEditingIndex];
+                const textToEdit = currentEditMode === 'title' 
+                    ? article.chinese_title 
+                    : article.refined_chinese_news_report;
+                
+                aiEditBtn.disabled = true;
+                aiEditBtn.textContent = '⏳ Processing...';
+                
+                const statusDiv = document.getElementById('ai-edit-status');
+                statusDiv.style.display = 'block';
+                statusDiv.className = 'progress-status';
+                statusDiv.innerHTML = '<p>🤖 AI is editing your text...</p>';
+                
+                try {
+                    const response = await fetch('/api/ai-edit', {
+                        method: 'POST',
+                        headers: {
+                            'Content-Type': 'application/json'
+                        },
+                        body: JSON.stringify({
+                            text: textToEdit,
+                            prompt: prompt,
+                            article_index: currentEditingIndex
+                        })
+                    });
+                    
+                    const result = await response.json();
+                    
+                    if (response.ok) {
+                        // Update the appropriate field
+                        if (currentEditMode === 'title') {
+                            const titleInput = document.querySelector(`.editable-title[data-index="${currentEditingIndex}"]`);
+                            titleInput.value = result.edited_text;
+                            currentReportData[currentEditingIndex].chinese_title = result.edited_text;
+                        } else {
+                            const contentTextarea = document.querySelector(`.editable-content[data-index="${currentEditingIndex}"]`);
+                            contentTextarea.value = result.edited_text;
+                            currentReportData[currentEditingIndex].refined_chinese_news_report = result.edited_text;
+                        }
+                        
+                        statusDiv.className = 'success';
+                        statusDiv.innerHTML = '<p>✅ Text edited successfully! Review and save if you\'re happy with the changes.</p>';
+                        
+                        // Clear prompt
+                        document.getElementById('ai-prompt-input').value = '';
+                    } else {
+                        throw new Error(result.error || 'Failed to edit text');
+                    }
+                } catch (error) {
+                    statusDiv.className = 'error';
+                    statusDiv.innerHTML = `<p>❌ Error: ${error.message}</p>`;
+                } finally {
+                    aiEditBtn.disabled = false;
+                    aiEditBtn.textContent = '✨ Apply AI Edit';
+                }
+            });
+        }
+
+        // Handle image generation
+        if (generateImagesBtn) {
+            generateImagesBtn.addEventListener('click', async () => {
+                if (!currentReportFilename) {
+                    alert('No report file selected. Please run news collection first.');
+                    return;
+                }
+                
+                generateImagesBtn.disabled = true;
+                generateImagesBtn.textContent = '⏳ Generating Images...';
+                
+                const statusDiv = document.getElementById('image-generation-status');
+                statusDiv.style.display = 'block';
+                statusDiv.className = 'progress-status';
+                statusDiv.innerHTML = '<p>🎨 Generating WeChat-style images from JSON report...</p><p>⏱️ This may take 2-3 minutes...</p>';
+                
+                // Update report data from editable fields before generating
+                if (currentReportData) {
+                    document.querySelectorAll('.editable-title').forEach(input => {
+                        const index = parseInt(input.dataset.index);
+                        currentReportData[index].chinese_title = input.value;
+                    });
+                    
+                    document.querySelectorAll('.editable-content').forEach(textarea => {
+                        const index = parseInt(textarea.dataset.index);
+                        currentReportData[index].refined_chinese_news_report = textarea.value;
+                    });
+                }
+                
+                try {
+                    const response = await fetch('/api/generate-images', {
+                        method: 'POST',
+                        headers: {
+                            'Content-Type': 'application/json'
+                        },
+                        body: JSON.stringify({
+                            report_filename: currentReportFilename,
+                            report_data: currentReportData  // Send edited data
+                        })
+                    });
+                    
+                    const result = await response.json();
+                    
+                    if (response.ok) {
+                        statusDiv.className = 'success';
+                        statusDiv.innerHTML = `
+                            <strong>✅ Success!</strong>
+                            <p>${result.message}</p>
+                            <p>🎨 <strong>School:</strong> ${result.school}</p>
+                            <p>📁 <strong>Output:</strong> <code>${result.output_dir}</code></p>
+                            <p>📊 <strong>Total Images:</strong> ${result.total_images}</p>
+                            <p style="margin-top: 10px; font-size: 0.9rem;">
+                                Images are saved to the <code>wechat_images/</code> folder in your project directory.
+                                You can now use these images on WeChat, social media, or newsletters!
+                            </p>
+                        `;
+                        generateImagesBtn.textContent = '✅ Images Generated';
+                        
+                        // Show download section
+                        const downloadSection = document.getElementById('download-section');
+                        downloadSection.style.display = 'block';
+                        
+                        // Setup download button
+                        const downloadBtn = document.getElementById('download-zip-btn');
+                        downloadBtn.onclick = () => {
+                            const outputDir = result.output_dir.replace(/^wechat_images[\\\/]/, '');
+                            window.location.href = `/api/download-images/${outputDir}`;
+                        };
+                    } else {
+                        throw new Error(result.error || 'Failed to generate images');
+                    }
+                } catch (error) {
+                    statusDiv.className = 'error';
+                    statusDiv.innerHTML = `
+                        <strong>❌ Error:</strong>
+                        <p>${error.message}</p>
+                        <p style="font-size: 0.9rem; margin-top: 10px;">
+                            Make sure pyppeteer is installed: <code>pip install pyppeteer</code>
+                        </p>
+                    `;
+                    generateImagesBtn.disabled = false;
+                    generateImagesBtn.textContent = '🎨 Generate WeChat Images';
+                }
+            });
+        }
+
+        function startNewCollection() {
+            // Reset everything
+            reportReviewContainer.style.display = 'none';
+            progressContainer.classList.remove('active');
+            resultMessage.innerHTML = '';
+            currentReportFilename = null;
+            currentReportData = null;
+            currentEditingIndex = null;
+            document.getElementById('article-selector').value = '';
+            document.getElementById('edit-mode-selector').style.display = 'none';
+            document.getElementById('chat-interface').style.display = 'none';
+            document.getElementById('download-section').style.display = 'none';
+            
+            // Scroll to top
+            window.scrollTo({ top: 0, behavior: 'smooth' });
+        }
+
+        function startProgressStream() {
+            if (eventSource) {
+                eventSource.close();
+            }
+
+            eventSource = new EventSource('/api/progress');
+            
+            eventSource.onmessage = function(event) {
+                const data = JSON.parse(event.data);
+                updateProgress(data);
+            };
+
+            eventSource.onerror = function(error) {
+                console.error('EventSource error:', error);
+                addLog('❌ Connection error. Reconnecting...');
+            };
+        }
+
+        form.addEventListener('submit', async (e) => {
+            e.preventDefault();
+
+            const formData = {
+                school_id: parseInt(document.getElementById('school').value),
+                start_date: document.getElementById('start-date').value,
+                end_date: document.getElementById('end-date').value,
+                max_reports: parseInt(document.getElementById('max-reports').value)
+            };
+
+            // Reset UI
+            progressContainer.classList.add('active');
+            startBtn.disabled = true;
+            startBtn.textContent = '⏳ Running...';
+            resultMessage.innerHTML = '';
+            logContainer.innerHTML = '';
+            
+            progressBar.style.width = '0%';
+            progressBar.textContent = '0%';
+            articlesFound.textContent = '0';
+            articlesProcessed.textContent = '0';
+            reportsGenerated.textContent = '0';
+
+            addLog('🚀 Starting news collection job...');
+
+            try {
+                const response = await fetch('/api/start', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify(formData)
+                });
+
+                const result = await response.json();
+
+                if (response.ok) {
+                    addLog('✅ Job started successfully');
+                    startProgressStream();
+                } else {
+                    addLog('❌ Error: ' + result.error);
+                    resultMessage.innerHTML = `<div class="error"><strong>Error:</strong> ${result.error}</div>`;
+                    startBtn.disabled = false;
+                    startBtn.textContent = '🚀 Start News Collection';
+                }
+            } catch (error) {
+                addLog('❌ Failed to start job: ' + error.message);
+                resultMessage.innerHTML = `<div class="error"><strong>Error:</strong> ${error.message}</div>`;
+                startBtn.disabled = false;
+                startBtn.textContent = '🚀 Start News Collection';
+            }
+        });
+
+        // Check if there's already a running job on page load
+        async function checkStatus() {
+            try {
+                const response = await fetch('/api/status');
+                const status = await response.json();
+                
+                if (status.running) {
+                    progressContainer.classList.add('active');
+                    startBtn.disabled = true;
+                    startBtn.textContent = '⏳ Running...';
+                    addLog('Reconnecting to running job...');
+                    startProgressStream();
+                }
+            } catch (error) {
+                console.error('Failed to check status:', error);
+            }
+        }
+
+        checkStatus();
+    </script>
+</body>
+</html>
+

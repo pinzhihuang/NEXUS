@@ -135,10 +135,7 @@ def validate_config():
     if not CUSTOM_SEARCH_ENGINE_ID: # For PSE (optional - currently disabled)
         print("Warning: CUSTOM_SEARCH_ENGINE_ID (CX ID) is not set (for Custom Search). Google PSE search is currently disabled, so this is optional.")
     
-    # Check for OAuth credentials file if Docs export is intended
-    # This is a soft check here; the exporter module will handle it more gracefully
-    if not os.path.exists(OAUTH_CREDENTIALS_FILE):
-        print(f"Warning: OAuth credentials file (for Google Docs) not found at {OAUTH_CREDENTIALS_FILE}. Google Docs export will fail if this feature is used.")
+    # Note: Google Docs export has been removed - we only use JSON now
 
     if errors:
         error_message = "Configuration errors found:\n" + "\n".join(errors) + \
@@ -160,14 +157,8 @@ def validate_config():
     else:
         print(f"  Using automatic date range (last {RECENCY_THRESHOLD_DAYS} days)")
     
-    if TARGET_GOOGLE_DOC_ID:
-        print(f"  Target Google Doc ID for updates: {TARGET_GOOGLE_DOC_ID}")
-    else:
-        print("  Target Google Doc ID not set; new doc will be created on each export.")
+    # Google Docs export removed - using JSON only
 
 # Only OPENROUTER_API_KEY is required; Google PSE keys are optional since PSE is disabled
-if not OPENROUTER_API_KEY:
-    if os.path.exists(DOTENV_PATH):
-        print(f"Warning: Attempted to load .env from {DOTENV_PATH}, but OPENROUTER_API_KEY is still missing from the environment.")
-    else:
-        print(f"Warning: .env file not found at {DOTENV_PATH}. Critical API keys might be missing.")
+# Note: Validation warnings moved to validate_config() to avoid blocking during import
+# This allows Railway health checks to respond quickly

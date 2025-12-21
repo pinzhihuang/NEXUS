@@ -1,0 +1,21 @@
+[
+  {
+    "news_id": 1,
+    "original_title": "City Scoop: Trump awed in meeting with Mamdani, and other top stories across NYC",
+    "source_url": "https://nyunews.com/news/2025/11/24/trump-mamdani-meeting-border-czar-escalates-immigration-nyc-subway-wire-thief-delays-subways/",
+    "source_method": "archive_scan",
+    "reported_publication_date": "2025-11-24",
+    "verification_details": {
+      "url": "https://nyunews.com/news/2025/11/24/trump-mamdani-meeting-border-czar-escalates-immigration-nyc-subway-wire-thief-delays-subways/",
+      "publication_date_str": "2025-11-24",
+      "is_recent": "Within range (from OpenRouter) (2025-11-24 to 2025-11-30)",
+      "is_within_range": true,
+      "is_relevant": "Relevant",
+      "article_type_assessment": "News article"
+    },
+    "english_summary": "Federal immigration enforcement will escalate in New York City, White House advisor Tom Homan announced on Tuesday, specifically targeting the city’s sanctuary policies. This development follows an incident a month prior where nine people were detained on Canal Street, and Immigration and Customs Enforcement (ICE) agents reappeared at the same location on Saturday. While President Trump and NYC Mayor-elect Zohran Mamdani met on Friday, they did not address this issue, but Trump stated he would not deploy the National Guard to the city. Separately, students' commutes may be affected by subway issues, as MTA officials reported a copper wire thief caused over 700 delays last month. These disruptions primarily impacted the 1, 2, 3, 4, 5, and 6 lines during evening rush hours. A 55-year-old suspect was arrested in connection with the thefts on October 14.",
+    "chinese_title": "联邦移民执法升级，纽约市成重点目标",
+    "refined_chinese_news_report": "白宫顾问汤姆·霍曼 (Tom Homan) 周二宣布，联邦将在纽约市加强移民执法行动。他明确指出，此次行动将特别针对纽约市的“庇护城市”政策。\n这项声明发布前，纽约市近期已出现相关执法活动。一个月前，有九人在运河街 (Canal Street) 被拘留，而上周六，美国移民及海关执法局 (ICE) 的执法人员再次出现在同一地点。\n此外，美国总统特朗普与纽约市当选市长佐兰·马姆达尼 (Zohran Mamdani) 于上周五举行了会面。尽管双方并未在会谈中讨论移民执法问题，但特朗普表示他不会向纽约市派遣国民警卫队。",
+    "processing_timestamp": "2025-11-30T22:31:15.849574"
+  }
+]

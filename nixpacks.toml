@@ -1,0 +1,13 @@
+# Nixpacks configuration for Railway deployment
+# Adds Chromium for headless browser support
+
+[phases.setup]
+# Add chromium to the base Nix packages
+# "..." means keep all default packages that Nixpacks would include
+nixPkgs = ["...", "chromium"]
+
+# Don't override [phases.install] - let Nixpacks auto-detect Python and run pip install
+# Nixpacks will automatically run: pip install -r requirements.txt
+
+[start]
+cmd = "bash -x start.sh 2>&1"

@@ -1,0 +1,135 @@
+[
+  {
+    "news_id": 1,
+    "original_title": "City Scoop: Trump awed in meeting with Mamdani, and other top stories across NYC",
+    "source_url": "https://nyunews.com/news/2025/11/24/trump-mamdani-meeting-border-czar-escalates-immigration-nyc-subway-wire-thief-delays-subways/",
+    "source_method": "archive_scan",
+    "reported_publication_date": "2025-11-24",
+    "verification_details": {
+      "url": "https://nyunews.com/news/2025/11/24/trump-mamdani-meeting-border-czar-escalates-immigration-nyc-subway-wire-thief-delays-subways/",
+      "publication_date_str": "2025-11-24",
+      "is_recent": "Within range (from OpenRouter) (2025-11-24 to 2025-11-30)",
+      "is_within_range": true,
+      "is_relevant": "Relevant",
+      "article_type_assessment": "News article"
+    },
+    "english_summary": "Federal immigration enforcement operations are set to escalate in New York City, according to a recent announcement from White House immigration advisor Tom Homan. In a Tuesday interview, Homan stated that the increased enforcement presence is a direct response to the city’s long-standing sanctuary policies, which limit local cooperation with federal immigration agencies. This announcement follows a recent incident where Immigration and Customs Enforcement (ICE) agents appeared on Canal Street during the arrest of an undocumented vendor. While President Trump said he would not deploy the National Guard for this purpose, the stated increase in ICE operations remains a key development. Separately, MTA officials reported that a thief stealing copper wires caused over 700 subway delays last month. These disruptions primarily affected evening rush hour service on the 1, 2, 3, 4, 5, and 6 lines.",
+    "chinese_title": "白宫顾问确认，纽约移民执法将升级",
+    "refined_chinese_news_report": "白宫移民顾问汤姆·霍曼 (Tom Homan) 周二宣布，联邦移民执法部门将在纽约市加强执法行动。霍曼在一次采访中表示，此举是为直接回应纽约市长期以来的“庇护城市”政策，该政策限制了地方执法机构与联邦移民机构的合作。\n在此之前，移民及海关执法局 (ICE) 的执法人员曾出现在坚尼街 (Canal Street)，参与逮捕一名无证摊贩。尽管总统特朗普表示不会为此动用国民警卫队，但增加ICE执法行动的计划仍是当前的一项关键进展。",
+    "processing_timestamp": "2025-11-30T21:14:59.943131"
+  },
+  {
+    "news_id": 2,
+    "original_title": "Ex-UN diplomat talks human rights careers with Steinhardt class",
+    "source_url": "https://nyunews.com/news/2025/11/24/united-nations-human-rights-speaker-steinhardt/",
+    "source_method": "archive_scan",
+    "reported_publication_date": "2025-11-24",
+    "verification_details": {
+      "url": "https://nyunews.com/news/2025/11/24/united-nations-human-rights-speaker-steinhardt/",
+      "publication_date_str": "2025-11-24",
+      "is_recent": "Within range (from OpenRouter) (2025-11-24 to 2025-11-30)",
+      "is_within_range": true,
+      "is_relevant": "Relevant",
+      "article_type_assessment": "News article"
+    },
+    "english_summary": "Former United Nations diplomat David Chikvaidze visited an NYU Steinhardt human rights class on Thursday, sharing insights from his 36-year career and offering advice on international diplomacy. In response to student questions about securing jobs and internships, Chikvaidze acknowledged that the UN lacks a clear \"docking point\" for young people to get involved. He advised students interested in international affairs to first identify their desired position, focus on their personal strengths, and learn how to emphasize what makes them a strong candidate. Chikvaidze also stressed the importance of celebrating small victories while pursuing long-term goals. The talk was part of the International Human Rights Activism and Education class, led by Professor Heddy Lahmann, which is exploring migration as its annual theme this year.",
+    "chinese_title": "联合国前外交官坦言，年轻人入职挑战大",
+    "refined_chinese_news_report": "前联合国 (UN) 外交官大卫·奇克瓦伊泽 (David Chikvaidze) 于上周四访问了纽约大学斯坦哈特学院，在一堂人权课程上与学生进行交流。他结合自己长达36年的职业生涯，分享了对国际外交工作的见解。\n在回答学生关于如何获得工作和实习机会的提问时，奇克瓦伊泽坦言，联合国目前缺乏一个清晰的“对接点”来帮助年轻人参与其中。他指出，对于有志于国际事务的学生来说，这是一个普遍存在的挑战。\n他建议学生，首先应明确自己想申请的职位，然后专注于发挥个人优势，并学会在求职中突出自己的独特价值。奇克瓦伊泽也提醒学生，在追求长远目标的同时，不要忘记庆祝过程中取得的每一个小胜利。这次讲座是海蒂·拉曼 (Heddy Lahmann) 教授主导的“国际人权行动与教育”课程活动之一。",
+    "processing_timestamp": "2025-11-30T21:16:09.877172"
+  },
+  {
+    "news_id": 3,
+    "original_title": "NYU Langone awarded ‘A’ in safety for 11th time",
+    "source_url": "https://nyunews.com/news/2025/11/24/langone-hospitals-awarded-grade-eleventh-consecutive-time/",
+    "source_method": "category_scan",
+    "reported_publication_date": "2025-11-24",
+    "verification_details": {
+      "url": "https://nyunews.com/news/2025/11/24/langone-hospitals-awarded-grade-eleventh-consecutive-time/",
+      "publication_date_str": "2025-11-24",
+      "is_recent": "Within range (from OpenRouter) (2025-11-24 to 2025-11-30)",
+      "is_within_range": true,
+      "is_relevant": "Relevant",
+      "article_type_assessment": "News article"
+    },
+    "english_summary": "NYU Langone Health has received an “A” safety grade from The Leapfrog Group, a national nonprofit, for the 11th consecutive time. This top rating, announced in the fall 2025 survey, was awarded to key facilities including Tisch Hospital and the Kimmel Pavilion in Manhattan, and the Langone Hospital in Brooklyn. The grade is based on over 30 measures of patient safety, such as the prevention of medical errors and infections. Only 23% of hospitals in New York state achieved this \"A\" rating. This honor follows a September report in which NYU Langone also ranked No. 1 in patient care for the fourth year in a row. To further improve services, the medical center has proposed an $83 million expansion of its emergency department in Kips Bay.",
+    "chinese_title": "NYU医疗中心再获A级，安全评级十一连冠",
+    "refined_chinese_news_report": "纽约大学朗格尼医学中心 (NYU Langone Health) 再次获得全国性非营利组织“蛙跳集团” (The Leapfrog Group) 授予的医院安全最高评级“A”级。这是该医疗中心连续第11次获此殊荣，评选结果在2025年秋季的调查中公布，其位于曼哈顿的蒂施医院 (Tisch Hospital)、金梅尔馆 (Kimmel Pavilion) 以及布鲁克林的朗格尼医院 (Langone Hospital) 等主要设施均获得了此项评级。\n该安全评级基于超过30项衡量患者安全的具体指标，如医疗差错和院内感染的预防措施。在纽约州，仅有23%的医院达到了“A”级标准。这项荣誉之前，纽约大学朗格尼医学中心在今年9月的一份报告中，也已连续第四年被评为患者护理第一名。为进一步提升服务，该中心还提议了一项耗资8300万美元的计划，用于扩建其位于基普斯湾 (Kips Bay) 的急诊部门。",
+    "processing_timestamp": "2025-11-30T21:17:13.269855"
+  },
+  {
+    "news_id": 4,
+    "original_title": "COVID-19 may affect sense of smell for years, Langone study finds",
+    "source_url": "https://nyunews.com/news/2025/11/25/nyu-langone-covid-smell-loss-study/",
+    "source_method": "archive_scan",
+    "reported_publication_date": "2025-11-25",
+    "verification_details": {
+      "url": "https://nyunews.com/news/2025/11/25/nyu-langone-covid-smell-loss-study/",
+      "publication_date_str": "2025-11-25",
+      "is_recent": "Within range (from OpenRouter) (2025-11-24 to 2025-11-30)",
+      "is_within_range": true,
+      "is_relevant": "Relevant",
+      "article_type_assessment": "News article"
+    },
+    "english_summary": "A study by NYU Langone Health researchers has found that a reduced sense of smell can persist for years after a COVID-19 infection, often without the person realizing it. The research, led by Grossman professor Leora Horwitz, involved over 3,500 participants who were monitored for nearly four years and assessed using a 40-scent scratch-and-sniff test. A key finding was that among post-COVID participants who believed their sense of smell was normal, 66% actually had a measurable deficiency, known as hyposmia. Professor Horwitz warned that this impairment has serious daily life consequences, such as an inability to detect gas leaks, smoke, or spoiled food, and can also lead to malnourishment from a loss of interest in eating. While no definitive treatments exist, researchers noted smell training offers some benefits and recommended screening for long-term COVID-19 patients, as the condition is difficult to self-detect.",
+    "chinese_title": "研究警示新冠后遗症，嗅觉减退或难自察",
+    "refined_chinese_news_report": "纽约大学朗格尼医学中心 (NYU Langone Health) 的一项研究发现，新冠感染可能导致持续数年的嗅觉减退，而患者本人往往并未察觉。该研究由格罗斯曼学院教授莱奥拉·霍维茨 (Leora Horwitz) 领导，在近四年时间里对超过3500名参与者进行了监测，并使用包含40种气味的刮擦闻嗅测试进行评估。\n研究的一个关键发现是，在那些认为自己嗅觉已经恢复正常的新冠康复者中，实际上有66%的人存在可测量的嗅觉缺陷，即嗅觉减退症 (hyposmia)。霍维茨教授警告，这种功能障碍会带来严重的生活隐患，例如无法察觉煤气泄漏、烟雾或食物变质，也可能因对食物失去兴趣而导致营养不良。\n对于治疗，研究人员表示目前尚无特效疗法，但嗅觉训练已显示出一定的改善效果。鉴于许多患者无法自行察觉嗅觉问题，研究团队建议对有新冠长期症状的患者进行相关筛查。",
+    "processing_timestamp": "2025-11-30T21:18:17.733676"
+  },
+  {
+    "news_id": 5,
+    "original_title": "Silver trains social work students with virtual simulations",
+    "source_url": "https://nyunews.com/news/2025/11/25/virtual-reality-train-workers-silver/",
+    "source_method": "archive_scan",
+    "reported_publication_date": "2025-11-25",
+    "verification_details": {
+      "url": "https://nyunews.com/news/2025/11/25/virtual-reality-train-workers-silver/",
+      "publication_date_str": "2025-11-25",
+      "is_recent": "Within range (from OpenRouter) (2025-11-24 to 2025-11-30)",
+      "is_within_range": true,
+      "is_relevant": "Relevant",
+      "article_type_assessment": "News article"
+    },
+    "english_summary": "A pilot initiative at New York University’s Silver School of Social Work is using virtual simulations to train students, aiming to address a citywide shortage of mental health professionals. A study on the program, which began in 2023, found it helps students build practical clinical skills in response to a 15.6% vacancy rate for mental health provider roles in New York City. In the training, students practiced real-life interactions, such as suicide risk assessments, with virtual and actor-based models in a low-stakes environment. While beneficial, some students found the automated feedback intimidating, and instructors noted the technology is still in its early stages. According to researcher Anne Dempsey, these simulations mitigate challenges in student internships where patient confidentiality can limit live feedback. Silver is now collaborating with the Tandon and Steinhardt schools to develop a fully AI-powered virtual reality simulation, set to launch this spring.",
+    "chinese_title": "纽大社工学院新举措，用虚拟仿真练临床技能",
+    "refined_chinese_news_report": "纽约大学苏世民社工学院 (Silver School of Social Work) 启动了一项试点计划，通过虚拟仿真技术培训学生。该计划于2023年启动，旨在应对纽约市心理健康服务行业高达15.6%的职位空缺率。\n在一项研究中，学生们在低风险的环境中与虚拟模型及真人演员互动，练习处理自杀风险评估等真实临床情境。研究员安妮·邓普西 (Anne Dempsey) 指出，这种仿真培训解决了学生实习中的一大难题，即因患者隐私限制而无法获得实时指导。\n尽管项目有益，但有学生反映自动化的反馈有时会让人感到压力，导师也认为相关技术尚处早期阶段。目前，苏世民社工学院正与坦登工程学院 (Tandon School of Engineering) 和斯坦哈特学院 (Steinhardt School of Culture, Education, and Human Development) 合作，开发一个由人工智能驱动的全新虚拟现实仿真系统，预计将于今年春季推出。",
+    "processing_timestamp": "2025-11-30T21:19:24.047462"
+  },
+  {
+    "news_id": 6,
+    "original_title": "Urban health care can’t keep up, Tandon study finds",
+    "source_url": "https://nyunews.com/news/2025/11/26/tandon-urban-healthcare-disparities-study/",
+    "source_method": "archive_scan",
+    "reported_publication_date": "2025-11-26",
+    "verification_details": {
+      "url": "https://nyunews.com/news/2025/11/26/tandon-urban-healthcare-disparities-study/",
+      "publication_date_str": "2025-11-26",
+      "is_recent": "Within range (from OpenRouter) (2025-11-24 to 2025-11-30)",
+      "is_within_range": true,
+      "is_relevant": "Relevant",
+      "article_type_assessment": "News article"
+    },
+    "english_summary": "A September study from researchers at NYU’s Tandon School of Engineering has found that the number of medical specialists in large cities is failing to keep pace with population growth. The research revealed that while New York City offers access to 74 of 75 tracked specialties, it has only 4.7 specialists per 1,000 residents. This shortage results in significant challenges for residents, including longer wait times for appointments, bounced referrals, and an overreliance on primary care doctors. According to lead author Tian Gan, a Tandon Ph.D. candidate, specialties related to geriatric care, like urology, are particularly lagging. The study also identified addiction and preventive medicine as among the most underrepresented fields in metropolitan areas. Researchers noted this could lead to \"medical tourism,\" forcing patients to travel outside their neighborhoods to receive faster specialized care.",
+    "chinese_title": "纽大研究发现，大城市专科医生短缺",
+    "refined_chinese_news_report": "纽约大学坦登工程学院 (NYU’s Tandon School of Engineering) 九月发布的一项研究指出，大城市专科医生的数量增长未能跟上人口增长的步伐。研究以纽约市为例，尽管该市提供75个追踪专科中的74个，但每千名居民仅拥有4.7名专科医生，显示出明显的短缺。\n这种短缺给居民的日常就医带来了实际挑战。具体表现为预约等待时间延长、专科转诊被拒，以及对家庭医生的过度依赖。\n该研究的主要作者、坦登学院博士生甘甜 (Tian Gan) 表示，与老年护理相关的专业，例如泌尿科，尤其滞后。研究还发现，成瘾医学和预防医学也是大都市地区人员最紧缺的领域。研究人员指出，这可能迫使患者为寻求更快的专科治疗而前往其他社区，形成一种“医疗旅游” (medical tourism) 现象。",
+    "processing_timestamp": "2025-11-30T21:20:30.094333"
+  },
+  {
+    "news_id": 7,
+    "original_title": "NYU awaits guidance on admissions data release",
+    "source_url": "https://nyunews.com/news/2025/11/26/trump-administration-disaggregated-data/",
+    "source_method": "archive_scan",
+    "reported_publication_date": "2025-11-26",
+    "verification_details": {
+      "url": "https://nyunews.com/news/2025/11/26/trump-administration-disaggregated-data/",
+      "publication_date_str": "2025-11-26",
+      "is_recent": "Within range (from OpenRouter) (2025-11-24 to 2025-11-30)",
+      "is_within_range": true,
+      "is_relevant": "Relevant",
+      "article_type_assessment": "News article"
+    },
+    "english_summary": "Under a new Trump administration policy, New York University must submit detailed applicant and admissions data to the federal government starting December 3rd. The Department of Education will require six years of data, including applicants' race, sex, test scores, and GPAs, to ensure universities are not using race-based admissions. According to a university spokesperson, NYU is \"awaiting further guidance\" on the new reporting requirements. Failure to comply could put up to $1.5 billion in NYU's federal research grants and student aid at risk. This initiative follows the 2023 Supreme Court ban on affirmative action, after which Asian student enrollment at NYU increased from 22% to 27%, while Black and Latino enrollment fell.",
+    "chinese_title": "联邦新规要求, NYU提交六年录取数据",
+    "refined_chinese_news_report": "根据特朗普政府的一项新政策，纽约大学必须从12月3日起向联邦政府提交详细的申请和录取数据。美国教育部要求校方提供长达六年的资料，内容包括申请人的种族、性别、标化成绩和GPA，用以核查大学是否仍在招生中考虑种族因素。\n如果纽约大学未能遵守此项规定，其高达15亿美元的联邦研究经费和学生资助将面临风险。对此，一位大学发言人表示，校方正在“等待关于新报告要求的进一步指导”。\n这项举措是在2023年最高法院禁止“平权法案”后推出的。在该禁令生效后，纽约大学的亚裔新生入学比例从22%上升至27%，而黑人与拉丁裔学生的入学比例则出现下降。",
+    "processing_timestamp": "2025-11-30T21:21:19.761093"
+  }
+]
