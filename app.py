@@ -154,7 +154,19 @@ def run_news_bot_async(school_id, start_date_str, end_date_str, max_reports):
         send_progress("🔍 Discovering articles from news sources...", 25)
         prompt_log_file = prompt_logger.initialize_prompt_log()
         
-        discovered_articles = search_client.find_relevant_articles(chosen_school)
+        # Temporarily override config date range for discovery
+        original_start_date = config.NEWS_START_DATE
+        original_threshold = config.RECENCY_THRESHOLD_DAYS
+        try:
+            # Override config with user-selected dates
+            config.NEWS_START_DATE = start_date
+            config.RECENCY_THRESHOLD_DAYS = (end_date - start_date).days + 1
+            
+            discovered_articles = search_client.find_relevant_articles(chosen_school)
+        finally:
+            # Restore original config
+            config.NEWS_START_DATE = original_start_date
+            config.RECENCY_THRESHOLD_DAYS = original_threshold
         
         if not discovered_articles:
             send_progress("ℹ️ No articles discovered. Job completed.", 100)
