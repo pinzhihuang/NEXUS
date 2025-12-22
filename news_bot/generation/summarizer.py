@@ -1,20 +1,32 @@
 # news_bot/generation/summarizer.py
 
+import logging
+import time
 from ..core import config
 from ..utils import prompt_logger, openrouter_client
+
+# Setup logging
+logger = logging.getLogger('summarizer')
 
 def generate_summary_with_gemini(school: dict[str, str], article_text: str, article_url: str, article_title: str = "") -> str | None:
     """
     Generates a professional English news summary using Gemini 2.5 Pro.
     Emphasizes accuracy and factuality - only includes information present in the article.
     """
+    logger.info(f"[SUMMARIZE] Starting summarization for: {article_url[:80]}...")
+    logger.debug(f"[SUMMARIZE] Article text length: {len(article_text) if article_text else 0}")
+    logger.debug(f"[SUMMARIZE] Article title: {article_title[:50] if article_title else 'N/A'}...")
+    
     if not config.OPENROUTER_API_KEY:
+        logger.error("[SUMMARIZE] OPENROUTER_API_KEY not configured")
         print("Error: OPENROUTER_API_KEY not configured for summarization.")
         return None
     if not article_text or not article_text.strip():
+        logger.warning(f"[SUMMARIZE] Empty article text for {article_url}")
         print(f"Info: Skipping summarization for {article_url} due to empty article text.")
         return "Summarization skipped: Article text was empty."
 
+    logger.info(f"[SUMMARIZE] Using model: {config.GEMINI_PRO_MODEL}")
     print(f"Generating English summary with OpenRouter ({config.GEMINI_PRO_MODEL}) for: {article_url[:100]}...")
 
     title_context = f"The original article title is: '{article_title}'. " if article_title and article_title != "N/A" else ""
@@ -82,6 +94,7 @@ Detailed News Summary (5-7 sentences, 100-180 words, for {audience_en}):
 """ 
 
     try:
+        logger.info(f"[SUMMARIZE] Sending request to OpenRouter API...")
         print(f"Sending summarization request to OpenRouter API ({config.GEMINI_PRO_MODEL})...")
         
         # Log the prompt
@@ -96,20 +109,28 @@ Detailed News Summary (5-7 sentences, 100-180 words, for {audience_en}):
             }
         )
         
+        start_time = time.time()
         summary_text = openrouter_client.generate_content(
             prompt=prompt,
             model=config.GEMINI_PRO_MODEL,
             temperature=0.7
         )
+        elapsed = time.time() - start_time
 
         if not summary_text:
+            logger.warning(f"[SUMMARIZE] Empty summary received (took {elapsed:.2f}s)")
             print(f"Warning: Empty summary received from OpenRouter for {article_url}. Text length: {len(article_text)} chars.")
             return "Summarization failed: AI returned empty response."
 
+        logger.info(f"[SUMMARIZE] ✅ Summary generated: {len(summary_text)} chars (took {elapsed:.2f}s)")
+        logger.debug(f"[SUMMARIZE] Summary preview: {summary_text[:150]}...")
         print(f"Successfully generated English summary for {article_url[:100]}...")
         return summary_text
 
     except Exception as e:
+        logger.error(f"[SUMMARIZE] Error during API call: {e}")
+        import traceback
+        logger.error(f"[SUMMARIZE] Traceback: {traceback.format_exc()}")
         print(f"Error during OpenRouter API call for summarization of {article_url}: {e}")
         return None
 

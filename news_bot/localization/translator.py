@@ -1,8 +1,12 @@
 # news_bot/localization/translator.py
 
+import logging
+import time
 from ..core import config
 from ..utils import prompt_logger, openrouter_client
-# import re # Not strictly needed if not doing complex regex here
+
+# Setup logging
+logger = logging.getLogger('translator')
 
 # Note: Refinement is now combined with translation in translate_and_restyle_to_chinese()
 # This function is kept for backward compatibility but is no longer used
@@ -19,7 +23,10 @@ def translate_and_restyle_to_chinese(english_summary_data: dict) -> dict | None:
     Uses Gemini 2.5 Pro for better quality and accuracy.
     Combines translation + refinement to reduce LLM calls.
     """
+    logger.info("[TRANSLATE] Starting Chinese translation...")
+    
     if not config.OPENROUTER_API_KEY:
+        logger.error("[TRANSLATE] OPENROUTER_API_KEY not configured")
         print("Error: OPENROUTER_API_KEY not configured for translation.")
         return None
 
@@ -28,18 +35,24 @@ def translate_and_restyle_to_chinese(english_summary_data: dict) -> dict | None:
     publication_date = english_summary_data.get('reported_publication_date', 'Date not available')
     original_title = english_summary_data.get('original_title', 'N/A')
 
+    logger.debug(f"[TRANSLATE] Source URL: {source_url[:80]}...")
+    logger.debug(f"[TRANSLATE] English summary length: {len(english_summary)}")
+    logger.debug(f"[TRANSLATE] Original title: {original_title[:50]}...")
+
     default_error_return = {
         "chinese_title": "标题生成失败 (Title generation failed)",
         "refined_chinese_news_report": "翻译失败或跳过 (Translation failed or skipped)"
     }
 
     if not english_summary.strip():
+        logger.warning(f"[TRANSLATE] Empty English summary for {source_url}")
         print(f"Info: Skipping translation for {source_url} due to empty English summary.")
         return {
             "chinese_title": "无标题 (No title for empty summary)",
             "refined_chinese_news_report": "翻译跳过：英文摘要为空 (Translation skipped: English summary was empty)"
         }
 
+    logger.info(f"[TRANSLATE] Using model: {config.GEMINI_PRO_MODEL}")
     print(f"Translating, generating title, and refining Chinese news report for: {source_url[:100]}...")
 
     prompt = f"""你是一位专业的中文新闻写作者和翻译。你的任务是将英文新闻摘要翻译成一篇准确、精炼的中文新闻，并生成一个吸引人的标题。
@@ -124,6 +137,7 @@ def translate_and_restyle_to_chinese(english_summary_data: dict) -> dict | None:
     refined_chinese_report = default_error_return["refined_chinese_news_report"]
 
     try:
+        logger.info("[TRANSLATE] Sending request to OpenRouter API...")
         print(f"Sending translation+refinement request to OpenRouter API ({config.GEMINI_PRO_MODEL})...")
         
         # Log the prompt
@@ -138,13 +152,18 @@ def translate_and_restyle_to_chinese(english_summary_data: dict) -> dict | None:
             }
         )
         
+        start_time = time.time()
         full_response_text = openrouter_client.generate_content(
             prompt=prompt,
             model=config.GEMINI_PRO_MODEL,
             temperature=0.7
         )
+        elapsed = time.time() - start_time
         
         if full_response_text:
+            logger.info(f"[TRANSLATE] Response received: {len(full_response_text)} chars (took {elapsed:.2f}s)")
+            logger.debug(f"[TRANSLATE] Response preview: {full_response_text[:200]}...")
+            
             # Parse the response - look for "Chinese Title:" prefix
             lines = full_response_text.split('\n')
             title_line_idx = None
@@ -154,6 +173,7 @@ def translate_and_restyle_to_chinese(english_summary_data: dict) -> dict | None:
                     break
             
             if title_line_idx is not None:
+                logger.debug(f"[TRANSLATE] Found 'Chinese Title:' at line {title_line_idx}")
                 # Extract title
                 title_line = lines[title_line_idx].replace("Chinese Title:", "").strip()
                 chinese_title = title_line
@@ -167,11 +187,14 @@ def translate_and_restyle_to_chinese(english_summary_data: dict) -> dict | None:
                 
                 if report_lines:
                     refined_chinese_report = '\n'.join(report_lines)
+                    logger.info(f"[TRANSLATE] ✅ Parsed successfully - Title: {chinese_title[:30]}..., Report: {len(refined_chinese_report)} chars")
                 else:
+                    logger.warning(f"[TRANSLATE] Title found but no report body")
                     print(f"Warning: OpenRouter response had title but no report body for {source_url}.")
                     refined_chinese_report = default_error_return["refined_chinese_news_report"]
             else:
                 # No title prefix found - try to extract from first line or use entire response
+                logger.warning(f"[TRANSLATE] No 'Chinese Title:' prefix found, attempting fallback parsing")
                 print(f"Warning: OpenRouter response did not start with 'Chinese Title:' for {source_url}. Attempting to parse...")
                 if lines:
                     # Try to use first line as title if it looks like a title
@@ -179,25 +202,40 @@ def translate_and_restyle_to_chinese(english_summary_data: dict) -> dict | None:
                     if len(first_line) <= 30 and not first_line.endswith('。'):
                         chinese_title = first_line
                         refined_chinese_report = '\n'.join(lines[1:]).strip() if len(lines) > 1 else default_error_return["refined_chinese_news_report"]
+                        logger.info(f"[TRANSLATE] Fallback parsing succeeded - Title: {chinese_title[:30]}...")
                     else:
                         # Entire response is report, generate default title
                         refined_chinese_report = full_response_text
+                        logger.warning("[TRANSLATE] Could not extract title, using full response as report")
                 else:
                     refined_chinese_report = default_error_return["refined_chinese_news_report"]
+                    logger.warning("[TRANSLATE] Empty response lines")
         else:
+            logger.warning(f"[TRANSLATE] Empty response from OpenRouter (took {elapsed:.2f}s)")
             print(f"Warning: Empty response from OpenRouter for translation+refinement of {source_url}.")
             # Errors already set in defaults
 
     except Exception as e:
+        logger.error(f"[TRANSLATE] Error during API call: {e}")
+        import traceback
+        logger.error(f"[TRANSLATE] Traceback: {traceback.format_exc()}")
         print(f"Error during OpenRouter API call for translation+refinement of {source_url}: {e}")
         # Errors already set in defaults
 
     # Ensure some content exists, even if it's an error placeholder
     if not chinese_title.strip(): 
+        logger.warning("[TRANSLATE] Chinese title is empty, using default error message")
         chinese_title = default_error_return["chinese_title"]
     if not refined_chinese_report.strip(): 
+        logger.warning("[TRANSLATE] Chinese report is empty, using default error message")
         refined_chinese_report = default_error_return["refined_chinese_news_report"]
 
+    # Check for failure indicators
+    has_failure = "失败" in chinese_title or "失败" in refined_chinese_report or "failed" in chinese_title.lower()
+    if has_failure:
+        logger.warning(f"[TRANSLATE] Output contains failure indicators - Title: {chinese_title[:50]}, Report: {refined_chinese_report[:50]}")
+    
+    logger.info(f"[TRANSLATE] Complete - Title: '{chinese_title[:30]}...', Report length: {len(refined_chinese_report)} chars")
     print(f"Translation+refinement complete for {source_url[:100]}... Title: '{chinese_title[:50]}...'")
 
     # Return refined Chinese report (translation and refinement are now combined in one step)

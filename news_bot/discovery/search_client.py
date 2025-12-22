@@ -1,6 +1,8 @@
 # news_bot/discovery/search_client.py
 
 import os
+import logging
+import time
 from datetime import date, timedelta, datetime
 from googleapiclient.discovery import build # For Google Custom Search API
 from ..core import config
@@ -12,6 +14,9 @@ from .sources.ucd_scrawler import ucd_scan_category_pages_for_links
 from .sources.ubc_scrawler import ubc_scan_archive_pages_for_date_range
 from .sources.usc_scrawler import usc_scan_archive_pages_for_date_range
 from .sources.edin_scrawler import edin_scan_category_pages_for_date_range
+
+# Setup logging
+logger = logging.getLogger('search_client')
 
 def find_articles_with_google_pse(school: dict[str, str]) -> list[dict[str, str]]:
     """
@@ -118,32 +123,52 @@ def find_articles_with_google_pse(school: dict[str, str]) -> list[dict[str, str]
     return found_articles_from_pse
 
 def find_relevant_articles(school: dict[str, str]) -> list[dict[str, str]]:
-    """sfw
+    """
     Main discovery function. Combines results from archive pages, category scans, and Google PSE.
     Filters articles to match the configured date range.
     """
+    logger.info("=" * 60)
+    logger.info(f"[DISCOVERY] Starting article discovery for: {school.get('school_name', 'Unknown')}")
+    logger.info("=" * 60)
+    
     all_discovered_articles = []
     processed_urls = set()
     
     # Get configured date range for filtering
     start_date, end_date = config.get_news_date_range()
+    logger.info(f"[DISCOVERY] Date range: {start_date} to {end_date}")
+    logger.info(f"[DISCOVERY] School ID: {school.get('id')}")
     print(f"\nSearching for articles from {start_date} to {end_date}")
 
     # First, try archive pages for specific dates (most targeted approach)
+    logger.info(f"[DISCOVERY] Scanning archives for school ID: {school['id']}")
+    archive_start = time.time()
+    
     if school['id'] == 1:
+        logger.info("[DISCOVERY] Using NYU archive scanner")
         articles_from_archives = nyu_scan_archive_pages_for_date_range()
     elif school['id'] == 2:
+        logger.info("[DISCOVERY] Using Emory archive scanner")
         articles_from_archives = emory_scan_archive_pages_for_date_range()
     elif school['id'] == 3:
+        logger.info("[DISCOVERY] Using UCD category scanner")
         articles_from_archives = ucd_scan_category_pages_for_links()
     elif school['id'] == 4:
+        logger.info("[DISCOVERY] Using UBC archive scanner")
         articles_from_archives = ubc_scan_archive_pages_for_date_range()
     elif school['id'] == 5:
+        logger.info("[DISCOVERY] Using USC archive scanner")
         articles_from_archives = usc_scan_archive_pages_for_date_range()
     elif school['id'] == 6:
+        logger.info("[DISCOVERY] Using Edinburgh category scanner")
         articles_from_archives = edin_scan_category_pages_for_date_range()
     else:
+        logger.warning(f"[DISCOVERY] No scanner configured for school ID: {school['id']}")
         articles_from_archives = []
+    
+    archive_elapsed = time.time() - archive_start
+    logger.info(f"[DISCOVERY] Archive scan completed in {archive_elapsed:.2f}s, found {len(articles_from_archives)} articles")
+    
     for article in articles_from_archives:
         if article["url"] not in processed_urls:
             article["source_method"] = "archive_scan"
@@ -188,10 +213,19 @@ def find_relevant_articles(school: dict[str, str]) -> list[dict[str, str]]:
     #             all_discovered_articles.append(article)
     #             processed_urls.add(article["url"])
 
+    archive_count = len([a for a in all_discovered_articles if a.get('source_method') == 'archive_scan'])
+    category_count = len([a for a in all_discovered_articles if a.get('source_method') == 'category_scan'])
+    pse_count = len([a for a in all_discovered_articles if a.get('source_method') == 'google_pse'])
+    
+    logger.info(f"[DISCOVERY] Total unique articles discovered: {len(all_discovered_articles)}")
+    logger.info(f"[DISCOVERY]   - From archives: {archive_count}")
+    logger.info(f"[DISCOVERY]   - From categories: {category_count}")
+    logger.info(f"[DISCOVERY]   - From Google PSE: {pse_count}")
+    
     print(f"\nTotal unique articles discovered from all sources: {len(all_discovered_articles)}")
-    print(f"  - From archives: {len([a for a in all_discovered_articles if a.get('source_method') == 'archive_scan'])}")
-    print(f"  - From categories: {len([a for a in all_discovered_articles if a.get('source_method') == 'category_scan'])}")
-    print(f"  - From Google PSE: {len([a for a in all_discovered_articles if a.get('source_method') == 'google_pse'])}")
+    print(f"  - From archives: {archive_count}")
+    print(f"  - From categories: {category_count}")
+    print(f"  - From Google PSE: {pse_count}")
     
     # Prioritize articles with dates in the target range
     def sort_key(article):
@@ -210,12 +244,21 @@ def find_relevant_articles(school: dict[str, str]) -> list[dict[str, str]]:
     
     # Show what we're returning
     limited_articles = all_discovered_articles[:config.MAX_SEARCH_RESULTS_TO_PROCESS]
+    
+    logger.info(f"[DISCOVERY] Returning top {len(limited_articles)} articles (max: {config.MAX_SEARCH_RESULTS_TO_PROCESS})")
     print(f"\nReturning top {len(limited_articles)} articles for processing:")
+    
     for i, article in enumerate(limited_articles[:5]):  # Show first 5
         date_str = article.get('url_date', 'no date')
+        logger.debug(f"[DISCOVERY] Article {i+1}: [{date_str}] {article['title'][:50]}... URL: {article['url'][:60]}...")
         print(f"  {i+1}. [{date_str}] {article['title'][:50]}...")
     if len(limited_articles) > 5:
         print(f"  ... and {len(limited_articles) - 5} more")
+        logger.debug(f"[DISCOVERY] ... and {len(limited_articles) - 5} more articles")
+    
+    logger.info("=" * 60)
+    logger.info("[DISCOVERY] Article discovery complete")
+    logger.info("=" * 60)
     
     return limited_articles
 

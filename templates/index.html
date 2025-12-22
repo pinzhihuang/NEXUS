@@ -439,6 +439,11 @@
             <div class="log-container" id="log-container">
                 <div class="log-entry">Ready to start news collection...</div>
             </div>
+            <div style="margin-top: 10px; text-align: right;">
+                <a href="/api/debug" target="_blank" style="font-size: 0.8rem; color: #999;">🔧 Debug Info</a>
+                <span style="margin: 0 5px; color: #ddd;">|</span>
+                <a href="/health" target="_blank" style="font-size: 0.8rem; color: #999;">❤️ Health Check</a>
+            </div>
         </div>
 
         <div class="card" id="report-review-container" style="display: none;">
@@ -534,6 +539,8 @@
         }
 
         function updateProgress(data) {
+            console.log('[PROGRESS] Update received:', data);
+            
             const progress = data.progress || 0;
             progressBar.style.width = progress + '%';
             progressBar.textContent = Math.round(progress) + '%';
@@ -546,9 +553,12 @@
             articlesFound.textContent = data.articles_found || 0;
             articlesProcessed.textContent = data.articles_processed || 0;
             reportsGenerated.textContent = data.reports_generated || 0;
+            
+            console.log(`[PROGRESS] Progress: ${progress}%, Found: ${data.articles_found}, Processed: ${data.articles_processed}, Generated: ${data.reports_generated}`);
 
             // Check if complete
             if (progress >= 100) {
+                console.log('[PROGRESS] Job complete!');
                 startBtn.disabled = false;
                 startBtn.textContent = '🚀 Start News Collection';
                 
@@ -580,20 +590,23 @@
         }
 
         async function loadLatestReport() {
+            console.log('[REPORT] Loading latest report...');
             try {
                 // Get list of reports
-                console.log('Fetching reports list...');
+                console.log('[REPORT] Fetching reports list from /api/reports');
                 const response = await fetch('/api/reports');
                 
+                console.log('[REPORT] Response status:', response.status);
                 if (!response.ok) {
                     throw new Error(`HTTP ${response.status}: ${response.statusText}`);
                 }
                 
                 const data = await response.json();
-                console.log('Reports data:', data);
+                console.log('[REPORT] Reports data:', data);
                 
                 if (data.error) {
-                    console.error('Server error:', data.error);
+                    console.error('[REPORT] Server error:', data.error);
+                    addLog('⚠️ Error loading reports: ' + data.error);
                     return;
                 }
                 
@@ -601,31 +614,41 @@
                     // Get the most recent report
                     const latestReport = data.reports[0];
                     currentReportFilename = latestReport.filename;
-                    console.log('Loading report:', latestReport.filename);
+                    console.log('[REPORT] Loading report:', latestReport.filename, 'size:', latestReport.size, 'modified:', latestReport.modified);
+                    addLog('📄 Loading report: ' + latestReport.filename);
                     
                     // Fetch the report content
+                    console.log('[REPORT] Fetching report content from:', `/api/reports/${latestReport.filename}`);
                     const reportResponse = await fetch(`/api/reports/${latestReport.filename}`);
                     
+                    console.log('[REPORT] Report response status:', reportResponse.status);
                     if (!reportResponse.ok) {
                         throw new Error(`HTTP ${reportResponse.status}: ${reportResponse.statusText}`);
                     }
                     
                     const reportData = await reportResponse.json();
-                    console.log('Report loaded successfully');
+                    console.log('[REPORT] Report loaded successfully, items:', reportData.length);
+                    addLog('✅ Report loaded: ' + reportData.length + ' articles');
                     
                     displayReport(reportData, latestReport);
                 } else {
-                    console.log('No reports available');
+                    console.log('[REPORT] No reports available');
+                    addLog('ℹ️ No reports found');
                 }
             } catch (error) {
-                console.error('Failed to load report:', error);
-                console.error('Error details:', error.message, error.stack);
+                console.error('[REPORT] Failed to load report:', error);
+                console.error('[REPORT] Error details:', error.message, error.stack);
+                addLog('❌ Failed to load report: ' + error.message);
             }
         }
 
         function displayReport(reportData, reportMeta) {
+            console.log('[DISPLAY] Displaying report:', reportMeta ? reportMeta.filename : 'no meta');
+            console.log('[DISPLAY] Report items:', reportData.length);
+            
             // Store report data for editing
             currentReportData = JSON.parse(JSON.stringify(reportData));  // Deep copy
+            console.log('[DISPLAY] Report data stored for editing');
             
             // Show report review container
             reportReviewContainer.style.display = 'block';
@@ -962,24 +985,95 @@
 
         function startProgressStream() {
             if (eventSource) {
+                console.log('[SSE] Closing existing EventSource connection');
                 eventSource.close();
             }
 
+            console.log('[SSE] Opening new EventSource connection to /api/progress');
             eventSource = new EventSource('/api/progress');
+            let messageCount = 0;
+            let lastHeartbeat = Date.now();
+            
+            eventSource.onopen = function(event) {
+                console.log('[SSE] Connection opened successfully');
+                addLog('📡 Connected to progress stream');
+            };
             
             eventSource.onmessage = function(event) {
-                const data = JSON.parse(event.data);
-                updateProgress(data);
+                messageCount++;
+                console.log(`[SSE] Message #${messageCount} received:`, event.data.substring(0, 100) + '...');
+                
+                try {
+                    const data = JSON.parse(event.data);
+                    
+                    // Handle heartbeat messages
+                    if (data.type === 'heartbeat') {
+                        lastHeartbeat = Date.now();
+                        console.log('[SSE] Heartbeat received, queue_size:', data.queue_size, 'running:', data.running, 'progress:', data.progress);
+                        // Update progress bar even from heartbeat
+                        if (data.progress !== undefined) {
+                            progressBar.style.width = data.progress + '%';
+                            progressBar.textContent = Math.round(data.progress) + '%';
+                        }
+                        return;
+                    }
+                    
+                    // Handle complete message
+                    if (data.type === 'complete') {
+                        console.log('[SSE] Complete message received:', data);
+                        addLog('✅ ' + data.message);
+                        if (data.reports_generated > 0) {
+                            setTimeout(() => {
+                                loadLatestReport();
+                            }, 500);
+                        }
+                        // Close the SSE connection
+                        eventSource.close();
+                        eventSource = null;
+                        return;
+                    }
+                    
+                    updateProgress(data);
+                } catch (e) {
+                    console.error('[SSE] Failed to parse message:', e, 'Data:', event.data);
+                }
             };
 
             eventSource.onerror = function(error) {
-                console.error('EventSource error:', error);
-                addLog('❌ Connection error. Reconnecting...');
+                console.error('[SSE] EventSource error:', error);
+                console.log('[SSE] ReadyState:', eventSource.readyState);
+                // 0 = CONNECTING, 1 = OPEN, 2 = CLOSED
+                
+                if (eventSource.readyState === 2) {
+                    console.log('[SSE] Connection closed');
+                    addLog('❌ Connection closed');
+                    
+                    // Only try to reconnect if job is still running
+                    setTimeout(async () => {
+                        try {
+                            const statusResp = await fetch('/api/status');
+                            const status = await statusResp.json();
+                            if (status.running) {
+                                console.log('[SSE] Job still running, reconnecting...');
+                                addLog('🔄 Reconnecting to progress stream...');
+                                startProgressStream();
+                            } else {
+                                console.log('[SSE] Job no longer running, not reconnecting');
+                            }
+                        } catch (e) {
+                            console.error('[SSE] Failed to check status:', e);
+                        }
+                    }, 2000);
+                } else {
+                    addLog('❌ Connection error. Reconnecting...');
+                }
             };
         }
 
         form.addEventListener('submit', async (e) => {
             e.preventDefault();
+            
+            console.log('[FORM] Form submitted');
 
             const formData = {
                 school_id: parseInt(document.getElementById('school').value),
@@ -987,6 +1081,22 @@
                 end_date: document.getElementById('end-date').value,
                 max_reports: parseInt(document.getElementById('max-reports').value)
             };
+            
+            console.log('[FORM] Form data:', formData);
+
+            // Validate form data
+            if (!formData.school_id || isNaN(formData.school_id)) {
+                addLog('❌ Error: Invalid school selection');
+                return;
+            }
+            if (!formData.start_date || !formData.end_date) {
+                addLog('❌ Error: Please select date range');
+                return;
+            }
+            if (!formData.max_reports || formData.max_reports < 1) {
+                addLog('❌ Error: Invalid max reports value');
+                return;
+            }
 
             // Reset UI
             progressContainer.classList.add('active');
@@ -1002,8 +1112,10 @@
             reportsGenerated.textContent = '0';
 
             addLog('🚀 Starting news collection job...');
+            addLog(`📋 School ID: ${formData.school_id}, Dates: ${formData.start_date} to ${formData.end_date}, Max: ${formData.max_reports}`);
 
             try {
+                console.log('[FORM] Sending POST to /api/start');
                 const response = await fetch('/api/start', {
                     method: 'POST',
                     headers: {
@@ -1012,18 +1124,23 @@
                     body: JSON.stringify(formData)
                 });
 
+                console.log('[FORM] Response status:', response.status);
                 const result = await response.json();
+                console.log('[FORM] Response body:', result);
 
                 if (response.ok) {
-                    addLog('✅ Job started successfully');
+                    addLog('✅ Job started successfully' + (result.thread_id ? ` (Thread: ${result.thread_id})` : ''));
+                    console.log('[FORM] Starting progress stream');
                     startProgressStream();
                 } else {
+                    console.error('[FORM] Job start failed:', result.error);
                     addLog('❌ Error: ' + result.error);
                     resultMessage.innerHTML = `<div class="error"><strong>Error:</strong> ${result.error}</div>`;
                     startBtn.disabled = false;
                     startBtn.textContent = '🚀 Start News Collection';
                 }
             } catch (error) {
+                console.error('[FORM] Exception during job start:', error);
                 addLog('❌ Failed to start job: ' + error.message);
                 resultMessage.innerHTML = `<div class="error"><strong>Error:</strong> ${error.message}</div>`;
                 startBtn.disabled = false;

@@ -2,6 +2,8 @@
 
 import requests
 import os
+import logging
+import time
 from bs4 import BeautifulSoup
 from datetime import datetime, date, timedelta
 import json
@@ -11,18 +13,26 @@ from ..utils import prompt_logger, openrouter_client
 
 from ..core import config
 
+# Setup logging
+logger = logging.getLogger('article_handler')
+
 def fetch_and_extract_text(url: str) -> str | None:
     """
     Fetches content from a URL and extracts clean textual content.
     """
+    logger.info(f"[FETCH] Starting fetch for URL: {url}")
     print(f"Fetching and extracting text from: {url}")
+    fetch_start = time.time()
     try:
         headers = {
             'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/91.0.4472.124 Safari/537.36'
         }
+        logger.debug(f"[FETCH] Sending GET request with timeout={config.URL_FETCH_TIMEOUT}s")
         response = requests.get(url, headers=headers, timeout=config.URL_FETCH_TIMEOUT)
+        logger.debug(f"[FETCH] Response status: {response.status_code}, content-length: {len(response.content)}")
         response.raise_for_status()
         soup = BeautifulSoup(response.content, 'html.parser')
+        logger.debug(f"[FETCH] HTML parsed successfully")
         # if read full button found, extract the text from button's url (apply to UBC)
         try:
             read_full_button = soup.find('a', text='Read the full message')
@@ -175,20 +185,33 @@ def fetch_and_extract_text(url: str) -> str | None:
              text_content = soup.get_text(separator='\n', strip=True)
 
         if not text_content.strip():
+            logger.warning(f"[FETCH] No significant text content extracted from {url}")
             print(f"Warning: Still no significant text content extracted from {url}.")
             return None
 
         cleaned_text = "\n".join([line for line in text_content.splitlines() if line.strip()])
+        fetch_elapsed = time.time() - fetch_start
+        logger.info(f"[FETCH] ✅ Successfully extracted text from {url}: {len(cleaned_text)} chars, {len(cleaned_text.split())} words (took {fetch_elapsed:.2f}s)")
         print(f"Successfully extracted text from {url} (approx. {len(cleaned_text.split())} words).")
         return cleaned_text
 
     except requests.exceptions.Timeout:
+        fetch_elapsed = time.time() - fetch_start
+        logger.error(f"[FETCH] Timeout after {fetch_elapsed:.2f}s for URL {url}")
         print(f"Error: Timeout while fetching URL {url}")
     except requests.exceptions.HTTPError as e:
+        fetch_elapsed = time.time() - fetch_start
+        logger.error(f"[FETCH] HTTP error {e.response.status_code} after {fetch_elapsed:.2f}s for URL {url}")
         print(f"Error: HTTP error {e.response.status_code} while fetching URL {url}")
     except requests.exceptions.RequestException as e:
+        fetch_elapsed = time.time() - fetch_start
+        logger.error(f"[FETCH] Request error after {fetch_elapsed:.2f}s for URL {url}: {e}")
         print(f"Error: Could not fetch URL {url}. Details: {str(e)}")
     except Exception as e:
+        fetch_elapsed = time.time() - fetch_start
+        logger.error(f"[FETCH] Unexpected error after {fetch_elapsed:.2f}s for URL {url}: {e}")
+        import traceback
+        logger.error(f"[FETCH] Traceback: {traceback.format_exc()}")
         print(f"Error: An unexpected error occurred while fetching/processing URL {url}: {str(e)}")
     return None
 
@@ -201,14 +224,21 @@ def verify_article_with_gemini(school: dict[str, str], article_text: str, articl
     Supplements Gemini date extraction with URL parsing if Gemini fails.
     Uses Gemini 2.5 Pro for better accuracy.
     """
+    logger.info(f"[VERIFY] Starting verification for: {article_url[:80]}...")
+    logger.debug(f"[VERIFY] Article text length: {len(article_text) if article_text else 0}")
+    logger.debug(f"[VERIFY] Publication date from URL: {publication_date}")
+    
     if not config.OPENROUTER_API_KEY:
+        logger.error("[VERIFY] OPENROUTER_API_KEY not configured")
         print("Error: OPENROUTER_API_KEY not configured for verification.")
         return None
     
     # Get the configured date range
     start_date, end_date = config.get_news_date_range()
+    logger.debug(f"[VERIFY] Date range for filtering: {start_date} to {end_date}")
     
     if not article_text or not article_text.strip():
+        logger.warning(f"[VERIFY] Empty article text for {article_url}")
         print(f"Info: Skipping Gemini verification for {article_url} due to empty article text.")
         publication_date_from_url = publication_date
         final_date_str = publication_date_from_url if publication_date_from_url else "Date not found"

@@ -35,6 +35,21 @@ Project NEXUS is an automated system for discovering, verifying, summarizing, an
 
 5. **Access your app** at the URL provided by Railway (e.g., `https://your-app.railway.app`)
 
+### Automatic Deployment
+
+**Railway automatically deploys your application whenever you push changes to the `main` branch** of your connected GitHub repository. This means:
+
+- ✅ No manual deployment needed after initial setup
+- ✅ Every commit to `main` triggers a new build and deployment
+- ✅ Your production app stays up-to-date with your latest code
+- ✅ You can monitor deployments in the Railway dashboard
+
+To deploy updates, simply:
+1. Make your changes locally
+2. Commit and push to the `main` branch: `git push origin main`
+3. Railway will automatically detect the push and start a new deployment
+4. Check the Railway dashboard for deployment status and logs
+
 ### Get Your OpenRouter API Key
 
 1. Go to [OpenRouter](https://openrouter.ai/) and create an account
@@ -264,6 +279,56 @@ Then open http://localhost:5000 in your browser to:
 - Edit reports with AI assistance
 - Generate WeChat-style images
 - Download images as ZIP
+
+#### How the Frontend Interface Works
+
+The web interface is a single-page application built with Flask and vanilla JavaScript that provides a complete workflow for news collection and report generation:
+
+**1. Configuration & Job Start**
+- Select a university from the dropdown (e.g., UBC, UC Davis, Emory, etc.)
+- Choose a custom date range or use the default (last 7 days)
+- Set the maximum number of reports to generate
+- Click "Start News Collection" to begin the automated process
+
+**2. Real-Time Progress Monitoring**
+- The interface uses **Server-Sent Events (SSE)** to receive live updates from the backend
+- Progress bar shows completion percentage (0-100%)
+- Real-time status messages display current operations (e.g., "Discovering articles...", "Processing article X...", "Translating to Chinese...")
+- Live statistics show:
+  - Articles Found: Total articles discovered from news sources
+  - Articles Processed: Number of articles analyzed and verified
+  - Reports Generated: Final count of successfully generated news reports
+- Activity log displays timestamped messages for all operations
+
+**3. Report Review & Editing**
+- After completion, the interface automatically loads the latest generated report
+- Each article is displayed with:
+  - **Editable Chinese Title**: Direct text input for manual editing
+  - **Editable Chinese Content**: Textarea for editing the full news report
+  - **Original Metadata**: Original English title, publication date, and source URL
+- **AI-Powered Editing**:
+  - Select an article from the dropdown
+  - Choose to edit either the title or content
+  - Enter a natural language prompt (e.g., "Make the title more engaging", "Simplify the language")
+  - AI uses OpenRouter/Gemini to edit the text based on your prompt
+  - Review and save changes
+
+**4. Image Generation**
+- Click "Generate WeChat Images" to convert the JSON report into WeChat-style images
+- Images are generated using pyppeteer/Chromium with custom HTML templates
+- Each article becomes a formatted image optimized for social media sharing
+- Download all generated images as a ZIP file
+
+**5. Data Persistence**
+- All reports are saved as JSON files in the `news_reports/` directory
+- Edits made in the interface can be saved back to the JSON file
+- Reports are timestamped and can be accessed via the `/api/reports` endpoint
+
+**Technical Details:**
+- **Backend**: Flask REST API with endpoints for job control, progress streaming, and report management
+- **Frontend**: Vanilla JavaScript with EventSource API for SSE connections
+- **Real-Time Updates**: Background threading runs the news bot while SSE streams progress to the frontend
+- **Error Handling**: Graceful error messages and recovery options throughout the interface
 
 ### Command Line
 
