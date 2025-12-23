@@ -128,7 +128,7 @@ Environment overrides:
 - `TOP_N` (default: `10`)
 - `BRAND_COLOR` (default: auto by title)
 
-### script/render_week.sh
+### scripts/render_week.sh
 
 Render either the latest week or an exact week title from the master doc. If no mode is provided, you will be prompted.
 
@@ -156,6 +156,9 @@ Convenience wrapper to render the latest week from the configured master doc (sa
 ```bash
 scripts/render_latest_week.sh
 ```
+
+Note:
+- This wrapper will **cd to repo root** and **activate `.venv` (if present)**. If you see errors like `ModuleNotFoundError: No module named 'requests'`, it usually means you ran with the system Python without installing deps; fix by creating `.venv` and `pip install -r requirements.txt`.
 
 ---
 

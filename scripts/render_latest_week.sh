@@ -1,6 +1,14 @@
 #!/usr/bin/env bash
 set -euo pipefail
 
+# 保证从仓库根目录运行，并优先使用本地虚拟环境
+cd "$(dirname "$0")/.."
+
+if [[ -d ".venv" ]]; then
+  # shellcheck disable=SC1091
+  source .venv/bin/activate
+fi
+
 # 固定你的总表链接
 MASTER_DOC="https://docs.google.com/document/d/1scFGNSGj0pLEDZWLrGNeqsTiHrkmOUGYd-Yus3LkjYU/edit?tab=t.0"
 
