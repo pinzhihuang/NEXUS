@@ -6,12 +6,13 @@
 # "..." means keep all default packages that Nixpacks would include
 nixPkgs = ["...", "chromium", "nss", "freetype", "harfbuzz", "libjpeg", "libpng"]
 
-[phases.install]
-# Install Python dependencies AND Playwright browsers
-cmds = [
-    "pip install -r requirements.txt",
-    "playwright install chromium --with-deps || playwright install chromium"
-]
+# Don't override [phases.install] - let Nixpacks auto-detect Python and run pip install
+# Nixpacks will automatically run: pip install -r requirements.txt
+
+# Add a build phase to install Playwright browsers AFTER pip install completes
+[phases.build]
+cmds = ["playwright install chromium --with-deps || playwright install chromium || echo 'Playwright browser install skipped'"]
+dependsOn = ["install"]
 
 [start]
 cmd = "bash -x start.sh 2>&1"
