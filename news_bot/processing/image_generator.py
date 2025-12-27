@@ -98,7 +98,7 @@ def _guess_chrome_path() -> str | None:
         p = os.environ.get(key)
         print(f"[chrome_path]   ${key} = {p if p else 'NOT SET'}")
         if p and Path(p).exists():
-            print(f"[chrome_path] ✅ Found via env var {key}: {p}")
+            print(f"[chrome_path] Found via env var {key}: {p}")
             return p
         elif p:
             print(f"[chrome_path] ⚠️  Env var {key} is set but path doesn't exist: {p}")
@@ -198,7 +198,7 @@ def _guess_chrome_path() -> str | None:
             exists = Path(c).exists()
             print(f"[chrome_path]   [{i+1}/{len(candidates)}] {c} - exists={exists}")
             if exists:
-                print(f"[chrome_path] ✅ SUCCESS: Found working path: {c}")
+                print(f"[chrome_path] SUCCESS: Found working path: {c}")
                 return c
         else:
             print(f"[chrome_path]   [{i+1}/{len(candidates)}] (None/empty)")
@@ -248,137 +248,66 @@ def _render_html(
         left_bar_color=left_bar_color,
     )
 
-# ================= HTML → PNG =================
-async def _html_to_png(html: str, out_path: Path, page_width: int, device_scale: int) -> None:
-    """Convert HTML to PNG using Puppeteer/Chromium."""
+# ================= HTML → PNG (Using Playwright) =================
+def _html_to_png_sync(html: str, out_path: Path, page_width: int, device_scale: int) -> None:
+    """Convert HTML to PNG using Playwright (synchronous API - more stable than pyppeteer)."""
     import threading
     print(f"[_html_to_png] Starting in thread: {threading.current_thread().name}")
     
-    from pyppeteer import launch
+    from playwright.sync_api import sync_playwright
+    
+    print("[_html_to_png] Launching Playwright...")
+    
+    # Try to find system Chrome/Chromium as fallback
     chrome_path = _guess_chrome_path()
     
-    launch_kwargs = dict(
-        headless=True,
-        # ★ Critical fix for Flask threaded environment:
-        # Disable signal handlers to avoid "signal only works in main thread" error
-        handleSIGINT=False,
-        handleSIGTERM=False,
-        handleSIGHUP=False,
-        args=[
+    launch_kwargs = {
+        "headless": True,
+        "args": [
             "--no-sandbox",
             "--disable-setuid-sandbox",
             "--disable-dev-shm-usage",
             "--disable-gpu",
             "--disable-web-security",
             "--allow-file-access-from-files",
-            "--disable-dev-profile",
-            "--single-process",  # Helps in constrained environments
-            "--disable-software-rasterizer",
-            "--disable-extensions",
-            "--disable-background-networking",
-            "--disable-default-apps",
-            "--disable-sync",
-            "--disable-translate",
-            "--hide-scrollbars",
-            "--metrics-recording-only",
-            "--mute-audio",
-            "--no-first-run",
-            "--safebrowsing-disable-auto-update",
-            "--disable-crash-reporter",
-            "--disable-logging",
-            "--disable-permissions-api",
         ],
-    )
+    }
     
+    # Use system Chrome if available (important for Railway/Docker deployments)
     if chrome_path:
-        launch_kwargs["executablePath"] = chrome_path
-        print(f"[puppeteer] Using system browser: {chrome_path}")
+        launch_kwargs["executable_path"] = chrome_path
+        print(f"[_html_to_png] Using system browser: {chrome_path}")
     else:
-        print("[puppeteer] ⚠️  No system browser found. Will try bundled Chromium (may fail in Railway).")
-        print("[puppeteer] 💡 If this fails, ensure nixpacks.toml includes chromium in nixPkgs")
-
-    print(f"[_html_to_png] About to call launch() with kwargs: {list(launch_kwargs.keys())}")
-    print(f"[_html_to_png] Signal handler flags: SIGINT={launch_kwargs['handleSIGINT']}, SIGTERM={launch_kwargs['handleSIGTERM']}, SIGHUP={launch_kwargs['handleSIGHUP']}")
+        print("[_html_to_png] Using Playwright's bundled Chromium")
     
-    try:
-        browser = await launch(**launch_kwargs)
+    with sync_playwright() as p:
+        print("[_html_to_png] Launching Chromium browser...")
+        browser = p.chromium.launch(**launch_kwargs)
         print("[_html_to_png] Browser launched successfully")
-    except Exception as e:
-        print(f"[_html_to_png] ❌ Browser launch FAILED: {type(e).__name__}: {e}")
-        if not chrome_path:
-            print("[_html_to_png] 💡 TIP: Install Chromium via nixpacks.toml or set PUPPETEER_EXECUTABLE_PATH")
-        raise
-    
-    try:
-        print("[_html_to_png] Creating new page...")
-        page = await browser.newPage()
         
-        print("[_html_to_png] Setting viewport...")
-        await page.setViewport({
-            "width": page_width,
-            "height": 1500,
-            "deviceScaleFactor": device_scale,
-        })
-        
-        print("[_html_to_png] Setting content...")
-        await page.setContent(html)
-        
-        print("[_html_to_png] Waiting for selector #page-root...")
-        await page.waitForSelector("#page-root", {"timeout": 15000})
-        
-        print("[_html_to_png] Waiting 800ms...")
-        await page.waitFor(800)
-        
-        print(f"[_html_to_png] Taking screenshot to {out_path}...")
-        await page.screenshot({"path": str(out_path), "fullPage": True})
-        print("[_html_to_png] Screenshot saved successfully")
-    finally:
-        print("[_html_to_png] Closing browser...")
-        await browser.close()
-        print("[_html_to_png] Browser closed")
-
-def _run_async_thread_safe(coro):
-    """
-    Run async code in a thread-safe manner.
-    Works in both main thread and worker threads (e.g., Flask request handlers).
-    
-    This avoids the 'signal only works in main thread' error by:
-    1. Always creating a fresh event loop for the current thread
-    2. Not relying on asyncio.run() which sets up signal handlers
-    """
-    import threading
-    print(f"[_run_async_thread_safe] Starting in thread: {threading.current_thread().name}")
-    
-    # Always create a new event loop to avoid signal handler issues
-    print("[_run_async_thread_safe] Creating new event loop...")
-    loop = asyncio.new_event_loop()
-    asyncio.set_event_loop(loop)
-    print(f"[_run_async_thread_safe] Event loop created and set for thread {threading.current_thread().name}")
-    
-    try:
-        print("[_run_async_thread_safe] Running coroutine...")
-        result = loop.run_until_complete(coro)
-        print("[_run_async_thread_safe] Coroutine completed successfully")
-        return result
-    except Exception as e:
-        print(f"[_run_async_thread_safe] ERROR: {type(e).__name__}: {e}")
-        import traceback
-        traceback.print_exc()
-        raise
-    finally:
-        # Clean up the loop
         try:
-            # Cancel any pending tasks
-            pending = asyncio.all_tasks(loop)
-            for task in pending:
-                task.cancel()
-            # Run the loop briefly to allow tasks to finish cancelling
-            if pending:
-                loop.run_until_complete(asyncio.gather(*pending, return_exceptions=True))
-        except Exception:
-            pass
+            print("[_html_to_png] Creating new page...")
+            page = browser.new_page(
+                viewport={"width": page_width, "height": 1500},
+                device_scale_factor=device_scale,
+            )
+            
+            print("[_html_to_png] Setting content...")
+            page.set_content(html)
+            
+            print("[_html_to_png] Waiting for selector #page-root...")
+            page.wait_for_selector("#page-root", timeout=15000)
+            
+            print("[_html_to_png] Waiting 800ms for rendering...")
+            page.wait_for_timeout(800)
+            
+            print(f"[_html_to_png] Taking screenshot to {out_path}...")
+            page.screenshot(path=str(out_path), full_page=True)
+            print("[_html_to_png] Screenshot saved successfully")
         finally:
-            loop.close()
+            print("[_html_to_png] Closing browser...")
+            browser.close()
+            print("[_html_to_png] Browser closed")
 
 # ================= 智能裁剪 =================
 def _smart_crop_bottom_keep(
@@ -454,8 +383,8 @@ def generate_image_from_article(
         left_bar_color=left_bar_color,
     )
     
-    print("[generate_image_from_article] HTML rendered, calling _run_async_thread_safe...")
-    _run_async_thread_safe(_html_to_png(html, out, page_width, device_scale))
+    print("[generate_image_from_article] HTML rendered, calling Playwright...")
+    _html_to_png_sync(html, out, page_width, device_scale)
     
     print("[generate_image_from_article] Screenshot complete, cropping...")
     _smart_crop_bottom_keep(
@@ -464,7 +393,7 @@ def generate_image_from_article(
         keep_right=crop_keep_right, keep_top=crop_keep_top
     )
     
-    print(f"[generate_image_from_article] ✅ Complete: {out}")
+    print(f"[generate_image_from_article] Complete: {out}")
     return str(out)
 
 # ----------------- 多来源提取工具 -----------------
@@ -548,7 +477,7 @@ def make_reference_image_from_reports(
         urls=urls,
         brand_color=brand_color,
     )
-    _run_async_thread_safe(_html_to_png(html, out_path, page_width, device_scale))
+    _html_to_png_sync(html, out_path, page_width, device_scale)
     _smart_crop_bottom_keep(
         out_path,
         keep_px=CROP_BOTTOM_KEEP,

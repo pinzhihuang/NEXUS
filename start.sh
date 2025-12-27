@@ -13,7 +13,7 @@ echo ""
 echo "Environment variables:"
 echo "  PORT: ${PORT:-NOT SET}"
 echo "  PYTHONPATH: ${PYTHONPATH:-NOT SET}"
-echo "  PUPPETEER_EXECUTABLE_PATH: ${PUPPETEER_EXECUTABLE_PATH:-NOT SET}"
+echo "  PLAYWRIGHT_BROWSERS_PATH: ${PLAYWRIGHT_BROWSERS_PATH:-NOT SET}"
 echo ""
 
 # Check if app.py exists
@@ -34,29 +34,30 @@ else
     exit 1
 fi
 
-# Try to find and set Chromium path
+# Check Playwright browser installation
 echo ""
-echo "Searching for Chromium..."
-if command -v chromium &> /dev/null; then
-    CHROMIUM_PATH=$(which chromium)
-    export PUPPETEER_EXECUTABLE_PATH="$CHROMIUM_PATH"
-    echo "✅ Found Chromium: $CHROMIUM_PATH"
-    
-    # Test Chromium
-    if $CHROMIUM_PATH --version &> /dev/null; then
-        VERSION=$($CHROMIUM_PATH --version)
-        echo "✅ Chromium works: $VERSION"
-    else
-        echo "⚠️  WARNING: Chromium found but --version failed"
-    fi
+echo "Checking Playwright browsers..."
+
+# Check if Playwright browsers are installed
+if python -c "from playwright.sync_api import sync_playwright; p = sync_playwright().start(); b = p.chromium; p.stop(); print('Playwright OK')" 2>/dev/null; then
+    echo "✅ Playwright browsers available"
 else
-    echo "❌ WARNING: Chromium not found in PATH"
-    echo "PATH: $PATH"
+    echo "⚠️  Playwright browsers may need installation, attempting..."
+    playwright install chromium --with-deps 2>&1 || echo "Browser install attempted"
 fi
 
-echo ""
-echo "Final environment:"
-echo "  PUPPETEER_EXECUTABLE_PATH: ${PUPPETEER_EXECUTABLE_PATH:-NOT SET}"
+# Also check system chromium as fallback
+if command -v chromium &> /dev/null; then
+    CHROMIUM_PATH=$(which chromium)
+    echo "✅ System Chromium found: $CHROMIUM_PATH"
+    if $CHROMIUM_PATH --version &> /dev/null; then
+        VERSION=$($CHROMIUM_PATH --version)
+        echo "✅ Chromium version: $VERSION"
+    fi
+else
+    echo "ℹ️  System Chromium not in PATH (Playwright will use its own)"
+fi
+
 echo ""
 echo "========================================="
 echo "Starting Gunicorn on 0.0.0.0:${PORT:-8080}"

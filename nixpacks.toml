@@ -1,13 +1,17 @@
 # Nixpacks configuration for Railway deployment
-# Adds Chromium for headless browser support
+# Adds dependencies for Playwright browser automation
 
 [phases.setup]
-# Add chromium to the base Nix packages
+# Add required system packages for Playwright
 # "..." means keep all default packages that Nixpacks would include
-nixPkgs = ["...", "chromium"]
+nixPkgs = ["...", "chromium", "nss", "freetype", "harfbuzz", "libjpeg", "libpng"]
 
-# Don't override [phases.install] - let Nixpacks auto-detect Python and run pip install
-# Nixpacks will automatically run: pip install -r requirements.txt
+[phases.install]
+# Install Python dependencies AND Playwright browsers
+cmds = [
+    "pip install -r requirements.txt",
+    "playwright install chromium --with-deps || playwright install chromium"
+]
 
 [start]
 cmd = "bash -x start.sh 2>&1"
